@@ -336,6 +336,20 @@
                         <ul id="status-list-admin" class="space-y-2 text-sm"></ul>
                     </div>
 
+                    <!-- ส่วนที่เพิ่มใหม่: ตั้งค่า Google Sheets -->
+                    <div class="bg-white rounded-xl shadow-sm border p-5">
+                        <h3 class="font-bold text-gray-700 mb-3 border-b pb-2 flex items-center justify-between">
+                            <span><i class="fas fa-table mr-2 text-green-500"></i>ตั้งค่า Google Sheets (บันทึกข้อมูลไม่ให้หาย)</span>
+                            <a href="https://script.google.com/" target="_blank" class="text-xs text-blue-600 hover:underline font-normal">Google Apps Script</a>
+                        </h3>
+                        <p class="text-xs text-gray-500 mb-3">เชื่อมต่อ Google Sheets Web App URL เพื่อบันทึกข้อมูลการจองลงชีตจริงอัตโนมัติ (ปลอดภัย ข้อมูลไม่หาย)</p>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1 text-gray-600">Google Apps Script Web App URL</label>
+                            <input type="text" id="cfg-sheet-url" class="w-full border rounded p-2 text-sm" placeholder="https://script.google.com/macros/s/.../exec">
+                        </div>
+                        <button onclick="saveSheetConfig()" class="bg-green-600 text-white px-4 py-2 rounded text-sm shadow-sm transition"><i class="fas fa-save mr-1"></i> บันทึก Google Sheets URL</button>
+                    </div>
+
                     <div class="bg-white rounded-xl shadow-sm border p-5">
                         <h3 class="font-bold text-gray-700 mb-3 border-b pb-2 flex items-center justify-between">
                             <span><i class="fas fa-envelope-open-text mr-2 text-blue-500"></i>ตั้งค่าอีเมลแจ้งเตือน (EmailJS)</span>
@@ -477,6 +491,7 @@
     <script>
         const appState = {
             auth: { username: 'admin', password: 'password123', isLoggedIn: false },
+            sheetConfig: { webAppUrl: '' },
             emailConfig: { publicKey: '', serviceId: '', templateId: '', adminEmail: '' },
             emailTemplates: {
                 booking_customer: 'เรียนคุณ {{firstName}} {{lastName}},\n\nระบบได้รับข้อมูลการจองคิวซ่อมมือถือของท่านเรียบร้อยแล้ว\nรหัสอ้างอิง: {{id}}\nบริการ: {{service}} ({{deviceModel}})\nLine ID: {{lineId}}\nสถานะปัจจุบัน: รอยืนยัน\n\nทีมงานจะรีบติดต่อกลับเพื่อยืนยันคิวครับ\nขอบคุณที่ใช้บริการครับ',
@@ -521,11 +536,13 @@
         };
 
         window.onload = () => {
+            loadFromLocalStorage();
             applySettingsToUI();
             initDynamicForm();
             renderCalendar();
             document.getElementById('acc-user').value = appState.auth.username;
             
+            document.getElementById('cfg-sheet-url').value = appState.sheetConfig.webAppUrl;
             document.getElementById('cfg-email-public').value = appState.emailConfig.publicKey;
             document.getElementById('cfg-email-service').value = appState.emailConfig.serviceId;
             document.getElementById('cfg-email-template').value = appState.emailConfig.templateId;
@@ -534,6 +551,48 @@
             
             if(appState.emailConfig.publicKey) emailjs.init(appState.emailConfig.publicKey);
         };
+
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('fixit_bookings', JSON.stringify(appState.bookings));
+                localStorage.setItem('fixit_sheet_url', appState.sheetConfig.webAppUrl);
+            } catch(e) { console.error('LocalStorage save error:', e); }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const savedBookings = localStorage.getItem('fixit_bookings');
+                if(savedBookings) {
+                    appState.bookings = JSON.parse(savedBookings);
+                }
+                const savedSheet = localStorage.getItem('fixit_sheet_url');
+                if(savedSheet) {
+                    appState.sheetConfig.webAppUrl = savedSheet;
+                }
+            } catch(e) { console.error('LocalStorage load error:', e); }
+        }
+
+        function saveSheetConfig() {
+            appState.sheetConfig.webAppUrl = document.getElementById('cfg-sheet-url').value.trim();
+            saveToLocalStorage();
+            showToast('บันทึก Google Sheets URL สำเร็จ', 'success');
+        }
+
+        function syncBookingToSheet(bookingData) {
+            const url = appState.sheetConfig.webAppUrl;
+            if(!url) return; // ถ้าไม่ได้ตั้งค่าให้ข้ามไป
+
+            fetch(url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookingData)
+            }).then(() => {
+                console.log('Synced to Google Sheets successfully');
+            }).catch(err => {
+                console.error('Google Sheet Sync Error:', err);
+            });
+        }
 
         function applySettingsToUI() {
             document.getElementById('page-title').textContent = `${appState.settings.brandName} - จองคิวซ่อม`;
@@ -717,6 +776,9 @@
             };
 
             appState.bookings.unshift(newBooking);
+            saveToLocalStorage();
+            syncBookingToSheet(newBooking); // บันทึกลง Google Sheets อัตโนมัติ
+
             form.reset();
             selectedDateObj = null;
             document.getElementById('displaySelectedDate').value = '';
@@ -1059,6 +1121,7 @@
             b.lineId = document.getElementById('inline-edit-line').value;
             b.location = document.getElementById('inline-edit-location').value;
 
+            saveToLocalStorage();
             closeInlinePanel();
             renderAdminBookings();
             renderAdminDashboard();
@@ -1070,145 +1133,31 @@
             showToast('บันทึกข้อมูลสำเร็จเรียบร้อย', 'success');
         }
 
-        function openInlineEmail(id) {
-            const b = appState.bookings.find(x => x.id === id);
-            if(!b) return;
-            const panel = document.getElementById('inline-management-panel');
-            document.getElementById('panel-title').innerHTML = `<i class="fas fa-envelope mr-2"></i> ส่งอีเมลหาลูกค้า: ${b.firstName} ${b.lastName} (${b.id})`;
-
-            document.getElementById('panel-content-body').innerHTML = `
-                <div class="space-y-3 text-sm">
-                    <div><label class="block text-xs font-semibold mb-1">หัวข้ออีเมล (Subject)</label><input type="text" id="inline-email-subject" value="ติดต่อเรื่องคิวงานซ่อมมือถือ รหัส ${b.id}" class="w-full border rounded p-2 bg-white"></div>
-                    <div><label class="block text-xs font-semibold mb-1">ข้อความ (Message)</label><textarea id="inline-email-message" rows="5" class="w-full border rounded p-2 bg-white">เรียนคุณ ${b.firstName},\n\n\n\nด้วยความเคารพ,\nทีมงาน ${appState.settings.brandName}</textarea></div>
-                </div>
-                <div class="mt-4 flex justify-end gap-2">
-                    <button onclick="closeInlinePanel()" class="border px-4 py-2 rounded text-sm bg-white">ยกเลิก</button>
-                    <button onclick="sendInlineEmailAction('${b.email}', '${b.firstName} ${b.lastName}')" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm"><i class="fas fa-paper-plane mr-1"></i> ส่งจดหมาย</button>
-                </div>
-            `;
-            panel.classList.remove('hidden');
-            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function sendInlineEmailAction(toEmail, toName) {
-            const subject = document.getElementById('inline-email-subject').value.trim();
-            const message = document.getElementById('inline-email-message').value.trim();
-            if(!subject || !message) return showToast('กรุณากรอกหัวข้อและข้อความให้ครบถ้วน', 'error');
-
-            closeInlinePanel();
-            showToast('กำลังดำเนินการส่งอีเมล...', 'info');
-            sendRealEmail(toEmail, toName, subject, message);
-        }
-
-        function openBookingView(id) {
-            const b = appState.bookings.find(x => x.id === id);
-            if(!b) { showToast('ไม่พบข้อมูลคิวงานนี้', 'error'); return; }
-
-            document.getElementById('view-modal-id').textContent = b.id;
-            const contentDiv = document.getElementById('view-modal-content');
-            
-            contentDiv.innerHTML = `
-                <div class="grid grid-cols-2 gap-3 border-b pb-4">
-                    <div class="bg-white p-3 rounded-lg border shadow-sm"><span class="text-gray-500 text-xs block mb-1">สถานะปัจจุบัน</span> <span class="font-bold text-base px-2 py-1 rounded text-white inline-block" style="background-color: ${getStatusColorCode(b.status)}">${b.status}</span></div>
-                    <div class="bg-white p-3 rounded-lg border shadow-sm"><span class="text-gray-500 text-xs block mb-1">วันที่นัดหมาย</span> <span class="font-bold text-blue-700 text-base block">${b.bookingDate}</span></div>
-                </div>
-                <div class="space-y-3 pt-2">
-                    <div><span class="text-gray-500 text-xs">ชื่อ-นามสกุลลูกค้า:</span> <div class="font-semibold text-base">${b.firstName} ${b.lastName}</div></div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><span class="text-gray-500 text-xs">เบอร์โทรศัพท์:</span> <div class="font-medium">${b.phone}</div></div>
-                        <div><span class="text-gray-500 text-xs">Line ID:</span> <div class="font-medium">${b.lineId || '-'}</div></div>
-                    </div>
-                    <div><span class="text-gray-500 text-xs">อีเมล:</span> <div class="font-medium">${b.email}</div></div>
-                    <div><span class="text-gray-500 text-xs">สถานที่นัดซ่อม:</span> <div class="font-medium">${b.location}</div></div>
-                </div>
-                <div class="border-t pt-4 mt-4 grid grid-cols-2 gap-3 text-sm bg-white p-4 rounded-lg border shadow-sm">
-                    <div><span class="text-gray-500 text-xs block">บริการ</span> <span class="font-semibold">${b.service}</span></div>
-                    <div><span class="text-gray-500 text-xs block">ระบบปฏิบัติการ</span> <span class="font-semibold">${b.os}</span></div>
-                    <div><span class="text-gray-500 text-xs block">รุ่นมือถือ</span> <span class="font-semibold">${b.deviceModel}</span></div>
-                    <div><span class="text-gray-500 text-xs block">เกรดอะไหล่</span> <span class="font-semibold">${b.partGrade}</span></div>
-                    <div class="col-span-2 text-right mt-3 pt-3 border-t"><span class="text-gray-500 mr-2">ราคารวมประเมิน:</span> <span class="font-bold text-blue-600 text-xl">${Number(b.totalPrice).toLocaleString()} บาท</span></div>
-                </div>
-                <div class="mt-2"><span class="text-gray-500 text-xs">รายละเอียดอาการเพิ่มเติม:</span> <div class="text-gray-700 bg-white p-3 rounded-lg border text-sm mt-1">${b.additionalInfo || '-'}</div></div>
-            `;
-
-            openModal('bookingViewModal');
-        }
-
-        function openBookingEdit(id) {
-            const b = appState.bookings.find(x => x.id === id);
-            if(!b) { showToast('ไม่พบข้อมูลคิวงานนี้', 'error'); return; }
-
-            document.getElementById('edit-modal-id').textContent = b.id;
-            document.getElementById('edit-id').value = b.id;
-            
-            const statusSelect = document.getElementById('edit-status');
-            statusSelect.innerHTML = '';
-            appState.settings.statusOptions.forEach(s => {
-                statusSelect.innerHTML += `<option value="${s}" ${b.status === s ? 'selected' : ''}>${s}</option>`;
-            });
-
-            document.getElementById('edit-date').value = b.bookingDate;
-            document.getElementById('edit-fname').value = b.firstName;
-            document.getElementById('edit-lname').value = b.lastName;
-            document.getElementById('edit-phone').value = b.phone;
-            document.getElementById('edit-email').value = b.email;
-            document.getElementById('edit-line').value = b.lineId || '';
-            document.getElementById('edit-location').value = b.location;
-
-            openModal('bookingEditModal');
-        }
-
-        function saveEditedBooking() {
-            const id = document.getElementById('edit-id').value;
-            const b = appState.bookings.find(x => x.id === id);
-            if(!b) return;
-
-            const oldStatus = b.status;
-            const newStatus = document.getElementById('edit-status').value;
-
-            b.status = newStatus;
-            b.bookingDate = document.getElementById('edit-date').value;
-            b.firstName = document.getElementById('edit-fname').value;
-            b.lastName = document.getElementById('edit-lname').value;
-            b.phone = document.getElementById('edit-phone').value;
-            b.email = document.getElementById('edit-email').value;
-            b.lineId = document.getElementById('edit-line').value;
-            b.location = document.getElementById('edit-location').value;
-
-            closeModal('bookingEditModal');
-            renderAdminBookings();
-            renderAdminDashboard();
-            
-            if(oldStatus !== newStatus) {
-                const updateMsg = fillTemplate(appState.emailTemplates.status_update, b);
-                sendRealEmail(b.email, `${b.firstName} ${b.lastName}`, `อัปเดตสถานะการซ่อม: ${b.id}`, updateMsg);
+        function deleteBooking(id) {
+            if(confirm(`คุณต้องการลบรายการจอง ${id} ใช่หรือไม่?`)) {
+                appState.bookings = appState.bookings.filter(x => x.id !== id);
+                saveToLocalStorage();
+                renderAdminBookings();
+                renderAdminDashboard();
+                showToast(`ลบรายการ ${id} เรียบร้อยแล้ว`, 'info');
             }
-            showToast('บันทึกข้อมูลการแก้ไขสำเร็จเรียบร้อย', 'success');
         }
 
-        function renderSettings() {
-            const ul = document.getElementById('status-list-admin');
-            if(!ul) return;
-            ul.innerHTML = '';
-            appState.settings.statusOptions.forEach((s, idx) => {
-                const isSystem = (s === 'รอยืนยัน' || s === 'ยกเลิก');
-                ul.innerHTML += `
-                    <li class="flex justify-between items-center bg-gray-50 p-2 border rounded">
-                        <span>${s}</span>
-                        ${!isSystem ? `<button onclick="deleteStatusOption(${idx})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>` : '<span class="text-xs text-gray-400">ระบบ</span>'}
-                    </li>
-                `;
-            });
-        }
-
-        function addStatusOption() {
-            const input = document.getElementById('new-status-input');
-            const val = input.value.trim();
-            if(val && !appState.settings.statusOptions.includes(val)) {
-                appState.settings.statusOptions.push(val);
-                input.value = '';
-                renderSettings();
-                showToast('เพิ่มสถานะใหม่แล้ว', 'success');
+        function updateBookingStatusDirect(selectElem, id) {
+            const newStatus = selectElem.value;
+            const b = appState.bookings.find(x => x.id === id);
+            if (b) {
+                const oldStatus = b.status;
+                b.status = newStatus;
+                selectElem.style.backgroundColor = getStatusColorCode(newStatus);
+                saveToLocalStorage();
+                
+                if (oldStatus !== newStatus) {
+                    const updateMsg = fillTemplate(appState.emailTemplates.status_update, b);
+                    sendRealEmail(b.email, `${b.firstName} ${b.lastName}`, `อัปเดตสถานะการซ่อม: ${b.id}`, updateMsg);
+                }
+                showToast(`เปลี่ยนสถานะคิว ${id} เป็น "${newStatus}" เรียบร้อย`, 'success');
+                renderAdminDashboard();
             }
         }
         function deleteStatusOption(idx) {
