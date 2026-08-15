@@ -383,25 +383,25 @@
                             </div>
                         </div>
                     </div>
-                </div>
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[200] flex flex-col gap-3 print:hidden"></div>
 
-                <!-- View: Account -->
-                <div id="view-account" class="admin-view hidden">
-                    <h2 class="text-xl font-bold mb-4">บัญชีผู้ดูแลระบบ</h2>
-                    <div class="bg-white rounded-xl shadow-sm border p-6 max-w-md">
-                        <div class="space-y-4">
-                            <div><label class="block text-sm font-medium mb-1">Username ปัจจุบัน</label><input type="text" id="acc-user" class="w-full border rounded p-2 bg-gray-50" readonly></div>
-                            <div><label class="block text-sm font-medium mb-1">Username ใหม่</label><input type="text" id="acc-new-user" class="w-full border rounded p-2"></div>
-                            <div><label class="block text-sm font-medium mb-1">Password ใหม่</label><input type="password" id="acc-new-pass" class="w-full border rounded p-2"></div>
-                            <button onclick="changeAdminCredentials()" class="w-full bg-blue-600 text-white px-4 py-2 rounded text-sm">เปลี่ยนข้อมูลเข้าสู่ระบบ</button>
-                        </div>
-                    </div>
-                </div>
-
-            </main>
+    <!-- Modal แจ้งเตือนการจองคิวสำเร็จ -->
+    <div id="bookingSuccessModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSuccessModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 z-10 p-6 text-center transform transition-all border border-green-100">
+            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-1">จองคิวสำเร็จ!</h3>
+            <p class="text-sm font-semibold text-blue-600 mb-3" id="success-modal-booking-id">รหัสอ้างอิง: -</p>
+            <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-800 mb-6 leading-relaxed font-medium">
+                จองคิวเรียบร้อยแล้ว กรุณารอช่างติดต่อกลับเพื่อสอบถามข้อมูลเพิ่มเติมและยืนยันการจองคิว
+            </div>
+            <button onclick="closeSuccessModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-md">
+                ตกลง / รับทราบ
+            </button>
         </div>
     </div>
-
 
     <!-- ==================== JAVASCRIPT ==================== -->
     <script>
@@ -701,8 +701,11 @@
                 createdAt: new Date().toLocaleString('th-TH')
             };
 
+            // 1. บันทึกลงความจำภายในเครื่อง
             appState.bookings.unshift(newBooking);
             saveToLocalStorage();
+
+            // 2. ส่งข้อมูลบันทึกลง Google Sheets
             syncBookingToSheet(newBooking); 
 
             form.reset();
@@ -713,6 +716,7 @@
             document.getElementById('price-display-container').classList.add('hidden');
             renderCalendar();
 
+            // 3. ส่งอีเมลแจ้งเตือน
             const msgCustomer = fillTemplate(appState.emailTemplates.booking_customer, newBooking);
             sendRealEmail(newBooking.email, `${newBooking.firstName} ${newBooking.lastName}`, `ยืนยันการจองคิวซ่อมมือถือ [${newBooking.id}]`, msgCustomer);
             
@@ -721,7 +725,20 @@
                 sendRealEmail(appState.emailConfig.adminEmail, 'Admin', `[แจ้งเตือน] คิวจองใหม่รหัส ${newBooking.id}`, msgAdmin);
             }
 
-            showToast(`จองคิวสำเร็จ! รหัสอ้างอิงของคุณคือ ${newId}`, 'success');
+            // 4. แสดง Popup ข้อความแจ้งเตือนความสำเร็จ
+            showSuccessModal(newBooking.id);
+        }
+
+        function showSuccessModal(bookingId) {
+            const idElem = document.getElementById('success-modal-booking-id');
+            if(idElem) idElem.textContent = `รหัสอ้างอิง: ${bookingId}`;
+            const modal = document.getElementById('bookingSuccessModal');
+            if(modal) modal.classList.remove('hidden');
+        }
+
+        function closeSuccessModal() {
+            const modal = document.getElementById('bookingSuccessModal');
+            if(modal) modal.classList.add('hidden');
         }
 
         function trackStatus() {
