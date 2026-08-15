@@ -58,7 +58,7 @@
                     
                     <div class="bg-white p-1 rounded-lg border border-gray-200 shadow-sm" id="section-calendar">
                         <div class="bg-gray-50 p-4 border-b flex flex-col md:flex-row justify-between items-center gap-4 rounded-t-lg">
-                            <h3 class="text-lg font-bold text-gray-700"><i class="far fa-calendar-alt mr-2 text-blue-500"></i>เลือกวันที่ต้องการ</h3>
+                            <h3 class="text-lg font-bold text-gray-700"><i class="far fa-calendar-alt mr-2 text-blue-500"></i>เลือกวันที่ต้องการ <span class="text-red-500">*</span></h3>
                             <div class="flex items-center bg-white px-3 py-1.5 rounded-md border shadow-inner">
                                 <input type="text" id="displaySelectedDate" name="bookingDate" readonly required class="bg-transparent font-bold text-blue-700 outline-none w-32 md:w-40 cursor-default text-sm" placeholder="เลือกจากปฏิทิน">
                             </div>
@@ -125,8 +125,8 @@
                             <div><label class="block text-sm font-medium mb-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label><input type="tel" name="phone" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500" required></div>
                             <div><label class="block text-sm font-medium mb-1">อีเมล <span class="text-red-500">*</span></label><input type="email" name="email" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500" required></div>
                             <div><label class="block text-sm font-medium mb-1">Line ID <span class="text-red-500">*</span></label><input type="text" name="lineId" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500" required placeholder="ระบุ Line ID สำหรับติดต่อ"></div>
-                            <div class="md:col-span-2"><label class="block text-sm font-medium mb-1">สถานที่ซ่อม <span class="text-red-500">*</span></label><textarea name="location" rows="2" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500" required></textarea></div>
-                            <div class="md:col-span-2" id="field-additional-info"><label class="block text-sm font-medium mb-1">รายละเอียดอาการเพิ่มเติม</label><textarea name="additionalInfo" rows="2" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"></textarea></div>
+                            <div class="md:col-span-2"><label class="block text-sm font-medium mb-1">สถานที่ซ่อม <span class="text-red-500">*</span></label><textarea name="location" rows="2" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500" required placeholder="ระบุที่อยู่หรือจุดนัดหมายซ่อม"></textarea></div>
+                            <div class="md:col-span-2" id="field-additional-info"><label class="block text-sm font-medium mb-1">รายละเอียดอาการเพิ่มเติม</label><textarea name="additionalInfo" rows="2" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500" placeholder="ระบุอาการเสียเบื้องต้น"></textarea></div>
                         </div>
                     </div>
 
@@ -739,6 +739,7 @@
             document.getElementById('container-model').classList.add('hidden');
             document.getElementById('container-grade').classList.add('hidden');
             document.getElementById('price-display-container').classList.add('hidden');
+            renderCalendar();
 
             showSuccessModal(newId);
         }
@@ -752,7 +753,7 @@
             document.getElementById('bookingSuccessModal').classList.add('hidden');
         }
 
-        // ปฏิทินแบบ Custom
+        // ปฏิทินแบบ Custom ที่เสถียรและใช้งานง่าย
         let currentCalendarDate = new Date();
         let selectedDateObj = null;
 
@@ -761,11 +762,16 @@
             const month = currentCalendarDate.getMonth();
             const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
             
-            document.getElementById('calendarMonthYear').textContent = `${thaiMonths[month]} ${year + 543}`;
+            const monthYearEl = document.getElementById('calendarMonthYear');
+            if(monthYearEl) {
+                monthYearEl.textContent = `${thaiMonths[month]} ${year + 543}`;
+            }
             
             const firstDayIndex = new Date(year, month, 1).getDay();
             const totalDays = new Date(year, month + 1, 0).getDate();
             const grid = document.getElementById('calendarGrid');
+            if(!grid) return;
+            
             grid.innerHTML = '';
 
             for (let i = 0; i < firstDayIndex; i++) {
@@ -993,7 +999,6 @@
                 saveToLocalStorage();
                 showToast(`อัปเดตสถานะ ${id} เป็น "${newStatus}" แล้ว`, 'success');
                 
-                // ส่งอีเมลแจ้งสถานะหาลูกค้าอัตโนมัติ
                 const msg = fillTemplate(appState.emailTemplates.status_update, booking);
                 sendRealEmail(booking.email, `${booking.firstName}`, `แจ้งอัปเดตสถานะการซ่อม (${booking.id})`, msg);
                 
@@ -1001,7 +1006,6 @@
             }
         }
 
-        // Inline Management Panel
         function openInlinePanel(titleHtml, bodyHtml) {
             document.getElementById('panel-title').innerHTML = titleHtml;
             document.getElementById('panel-content-body').innerHTML = bodyHtml;
@@ -1119,7 +1123,6 @@
             }
         }
 
-        // Export CSV & PDF
         function exportToCSV() {
             let csv = '\uFEFFรหัสจอง,วันที่,ชื่อ,นามสกุล,เบอร์โทร,อีเมล,LineID,บริการ,รุ่น,ราคารวม,สถานที่,สถานะ\n';
             appState.bookings.forEach(b => {
@@ -1197,6 +1200,7 @@
 
         function renderStatusList() {
             const ul = document.getElementById('status-list-admin');
+            if(!ul) return;
             ul.innerHTML = '';
             appState.settings.statusOptions.forEach((s, idx) => {
                 ul.innerHTML += `<li class="flex justify-between items-center bg-gray-50 p-2 rounded border"><span>${s}</span></li>`;
