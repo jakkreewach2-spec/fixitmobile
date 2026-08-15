@@ -51,7 +51,7 @@
             <div id="customer-booking-tab" class="block">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-bold text-gray-800 mb-2" id="ui-title">จองคิวซ่อมมือถือนอกสถานที่</h2>
-                    <p class="text-gray-500" id="ui-subtitle">กรุณาเลือกวันและกรอกรายละเอียดเพื่อให้ช่างเดินทางไปดูแลคุณ</p>
+                    <p class="text-gray-500" id="ui-subtitle">กรุณาเลือกวันและกรอกรายละเอียดเพื่อให้ช่างเดินทางไปดูแลคุณ (สามารถจองล่วงหน้าได้ตั้งแต่ 3 วันขึ้นไป)</p>
                 </div>
 
                 <form id="bookingForm" class="space-y-6 bg-white p-6 md:p-8 rounded-xl shadow-md border border-gray-100" onsubmit="handleDirectSubmit(event)">
@@ -60,7 +60,7 @@
                         <div class="bg-gray-50 p-4 border-b flex flex-col md:flex-row justify-between items-center gap-4 rounded-t-lg">
                             <h3 class="text-lg font-bold text-gray-700"><i class="far fa-calendar-alt mr-2 text-blue-500"></i>เลือกวันที่ต้องการ <span class="text-red-500">*</span></h3>
                             <div class="flex items-center bg-white px-3 py-1.5 rounded-md border shadow-inner">
-                                <input type="text" id="displaySelectedDate" name="bookingDate" readonly required class="bg-transparent font-bold text-blue-700 outline-none w-32 md:w-40 cursor-default text-sm" placeholder="เลือกจากปฏิทิน">
+                                <input type="text" id="displaySelectedDate" name="bookingDate" readonly required class="bg-transparent font-bold text-blue-700 outline-none w-36 md:w-44 cursor-default text-sm" placeholder="เลือกจากปฏิทิน">
                             </div>
                         </div>
                         <div class="p-4">
@@ -73,6 +73,7 @@
                                 <div class="text-red-500">อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div class="text-blue-500">ส</div>
                             </div>
                             <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
+                            <p class="text-xs text-amber-600 mt-3 text-center"><i class="fas fa-info-circle mr-1"></i>หมายเหตุ: เปิดให้จองล่วงหน้าตั้งแต่ 3 วันถัดไปเป็นต้นไป</p>
                         </div>
                     </div>
 
@@ -445,7 +446,7 @@
             settings: {
                 brandName: 'FixItMobile',
                 uiTitle: 'จองคิวซ่อมมือถือนอกสถานที่',
-                uiSubtitle: 'กรุณาเลือกวันและกรอกรายละเอียดเพื่อให้ช่างเดินทางไปดูแลคุณ',
+                uiSubtitle: 'กรุณาเลือกวันและกรอกรายละเอียดเพื่อให้ช่างเดินทางไปดูแลคุณ (สามารถจองล่วงหน้าได้ตั้งแต่ 3 วันขึ้นไป)',
                 showAdditionalInfo: true,
                 statusOptions: ['รอยืนยัน', 'อนุมัติ/กำลังเตรียมอะไหล่', 'กำลังเดินทาง', 'กำลังซ่อม', 'ซ่อมเสร็จสิ้น', 'ยกเลิก']
             },
@@ -753,7 +754,7 @@
             document.getElementById('bookingSuccessModal').classList.add('hidden');
         }
 
-        // ปฏิทินแบบ Custom ที่เสถียรและใช้งานง่าย
+        // ปฏิทินแบบ Custom ที่จำกัดเงื่อนไข: จองได้หลังนับจากวันนี้ไป 2 วัน (วันที่ 3 เป็นต้นไป)
         let currentCalendarDate = new Date();
         let selectedDateObj = null;
 
@@ -778,21 +779,32 @@
                 grid.innerHTML += `<div></div>`;
             }
 
-            const today = new Date();
+            // คำนวณวันที่อนุญาตให้จองได้ (ต้องมากกว่าหรือเท่ากับ วันนี้ + 3 วัน)
+            const minAllowedDate = new Date();
+            minAllowedDate.setHours(0, 0, 0, 0);
+            minAllowedDate.setDate(minAllowedDate.getDate() + 3);
+
             for (let day = 1; day <= totalDays; day++) {
-                const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                const thisDate = new Date(year, month, day);
+                thisDate.setHours(0, 0, 0, 0);
+
+                const isSelectable = thisDate >= minAllowedDate;
                 const isSelected = selectedDateObj && day === selectedDateObj.getDate() && month === selectedDateObj.getMonth() && year === selectedDateObj.getFullYear();
                 
                 let btnClass = "h-9 w-9 rounded-full flex items-center justify-center text-sm font-medium mx-auto transition ";
                 if(isSelected) {
                     btnClass += "bg-blue-600 text-white font-bold shadow-md";
-                } else if(isToday) {
-                    btnClass += "border border-blue-500 text-blue-600 font-bold hover:bg-blue-50";
+                } else if(!isSelectable) {
+                    btnClass += "text-gray-300 bg-gray-50 cursor-not-allowed line-through";
                 } else {
-                    btnClass += "hover:bg-gray-100 text-gray-700";
+                    btnClass += "hover:bg-blue-50 text-gray-700 font-semibold border border-transparent hover:border-blue-300";
                 }
 
-                grid.innerHTML += `<button type="button" onclick="selectCalendarDate(${year}, ${month}, ${day})" class="${btnClass}">${day}</button>`;
+                if(isSelectable) {
+                    grid.innerHTML += `<button type="button" onclick="selectCalendarDate(${year}, ${month}, ${day})" class="${btnClass}">${day}</button>`;
+                } else {
+                    grid.innerHTML += `<button type="button" disabled class="${btnClass}">${day}</button>`;
+                }
             }
         }
 
