@@ -321,6 +321,39 @@
                         </div>
                         <ul id="status-list-admin" class="space-y-2 text-sm"></ul>
                     </div>
+
+                    <!-- ตั้งค่าอีเมล EmailJS -->
+                    <div class="bg-white rounded-xl shadow-sm border p-5">
+                        <h3 class="font-bold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-envelope mr-2 text-blue-500"></i>ตั้งค่าอีเมลแจ้งเตือน (EmailJS)</h3>
+                        <div class="space-y-4">
+                            <div><label class="block text-sm font-medium mb-1">Public Key</label><input type="text" id="set-email-public" class="w-full border rounded p-2 text-sm" placeholder="เช่น 1a2b3c4d5e6f7g8h9"></div>
+                            <div><label class="block text-sm font-medium mb-1">Service ID</label><input type="text" id="set-email-service" class="w-full border rounded p-2 text-sm" placeholder="เช่น service_xxxxx"></div>
+                            <div><label class="block text-sm font-medium mb-1">Template ID</label><input type="text" id="set-email-template" class="w-full border rounded p-2 text-sm" placeholder="เช่น template_xxxxx"></div>
+                            <div><label class="block text-sm font-medium mb-1">อีเมลแอดมิน (รับแจ้งเตือนเมื่อมีลูกค้าจอง)</label><input type="email" id="set-email-admin" class="w-full border rounded p-2 text-sm" placeholder="admin@yourdomain.com"></div>
+                            <button onclick="saveEmailSettings()" class="bg-blue-600 text-white px-4 py-2 rounded text-sm shadow-sm">บันทึกตั้งค่าอีเมล</button>
+                        </div>
+                        
+                        <div class="mt-6 pt-5 border-t border-dashed border-gray-300">
+                            <h4 class="font-bold text-gray-700 mb-3"><i class="fas fa-file-alt mr-2 text-indigo-500"></i>จัดการข้อความเทมเพลต (Email Templates)</h4>
+                            <select id="select-email-template" onchange="loadEmailTemplate()" class="w-full border rounded p-2 text-sm mb-3 outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50">
+                                <option value="customer_booking">ยืนยันการจอง (ส่งหาลูกค้า)</option>
+                                <option value="admin_notification">แจ้งเตือนแอดมิน (เมื่อมีคิวใหม่)</option>
+                                <option value="status_update">แจ้งอัปเดตสถานะ (ส่งหาลูกค้า)</option>
+                            </select>
+                            <div class="mb-3">
+                                <label class="block text-xs font-medium mb-1 text-gray-500">ข้อความอีเมล <span class="text-[10px] font-normal text-blue-600">(สามารถใช้ตัวแปร: {{id}}, {{firstName}}, {{lastName}}, {{status}}, {{service}}, {{bookingDate}}, {{phone}})</span></label>
+                                <textarea id="edit-email-template" rows="5" class="w-full border rounded p-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="saveEmailTemplate()" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm shadow-sm hover:bg-indigo-700">บันทึกข้อความ</button>
+                                <button onclick="testEmailConnection()" class="bg-amber-500 text-white px-4 py-2 rounded text-sm shadow-sm hover:bg-amber-600 flex items-center"><i class="fas fa-paper-plane mr-2"></i> ทดสอบส่งอีเมล (Test)</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 text-xs text-gray-600 bg-blue-50 border border-blue-100 p-3 rounded-lg leading-relaxed">
+                            <i class="fas fa-info-circle text-blue-500 mr-1"></i> <b>วิธีใช้งาน:</b> คุณต้องสมัครสมาชิกฟรีที่ <a href="https://www.emailjs.com" target="_blank" class="text-blue-600 underline font-semibold">EmailJS.com</a> และสร้าง Email Service / Template จากนั้นนำค่าทั้ง 3 ส่วนมาใส่เพื่อเปิดใช้งานระบบส่งอีเมลอัตโนมัติ
+                        </div>
+                    </div>
                 </div>
 
                 <!-- View: Account -->
@@ -395,6 +428,37 @@
         </div>
     </div>
 
+    <!-- Modal ส่งอีเมล (Send Email) -->
+    <div id="sendEmailModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden">
+        <div class="absolute inset-0 modal-overlay" onclick="closeModal('sendEmailModal')"></div>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 z-10 overflow-hidden flex flex-col max-h-[90vh] modal-enter relative">
+            <div class="bg-indigo-600 text-white px-6 py-4 font-bold flex justify-between items-center">
+                <span>ส่งอีเมลถึง: <span id="email-modal-customer-name" class="text-indigo-200"></span></span>
+                <button onclick="closeModal('sendEmailModal')" class="text-white hover:text-gray-200"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 bg-gray-50 overflow-y-auto custom-scrollbar flex-grow text-sm">
+                <form id="sendEmailForm">
+                    <input type="hidden" id="email-modal-id">
+                    <input type="hidden" id="email-modal-email">
+                    <input type="hidden" id="email-modal-name">
+                    
+                    <div class="mb-4">
+                        <label class="font-semibold text-gray-600 block text-xs mb-1">หัวข้ออีเมล (Subject)</label>
+                        <input type="text" id="email-modal-subject" class="w-full border rounded p-2 bg-white outline-none focus:ring-2 focus:ring-indigo-500" value="ติดต่อเรื่องคิวงานซ่อมมือถือ" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="font-semibold text-gray-600 block text-xs mb-1">ข้อความ (Message)</label>
+                        <textarea id="email-modal-message" rows="6" class="w-full border rounded p-2 bg-white outline-none focus:ring-2 focus:ring-indigo-500" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="px-6 py-4 bg-white border-t flex justify-end gap-3">
+                <button onclick="closeModal('sendEmailModal')" class="px-4 py-2 border rounded-lg text-sm hover:bg-gray-50 font-medium shadow-sm">ยกเลิก</button>
+                <button onclick="sendCustomEmail()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 font-medium shadow-sm flex items-center"><i class="fas fa-paper-plane mr-2"></i> ส่งอีเมล</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-container" class="fixed bottom-5 right-5 z-[200] flex flex-col gap-3 print:hidden"></div>
 
     <!-- ==================== JAVASCRIPT ==================== -->
@@ -414,7 +478,18 @@
                 uiTitle: 'จองคิวซ่อมมือถือนอกสถานที่',
                 uiSubtitle: 'กรุณาเลือกวันและกรอกรายละเอียดเพื่อให้ช่างเดินทางไปดูแลคุณ',
                 showAdditionalInfo: true,
-                statusOptions: ['รอยืนยัน', 'อนุมัติ/กำลังเตรียมอะไหล่', 'กำลังเดินทาง', 'กำลังซ่อม', 'ซ่อมเสร็จสิ้น', 'ยกเลิก']
+                statusOptions: ['รอยืนยัน', 'อนุมัติ/กำลังเตรียมอะไหล่', 'กำลังเดินทาง', 'กำลังซ่อม', 'ซ่อมเสร็จสิ้น', 'ยกเลิก'],
+                email: {
+                    serviceId: '',
+                    templateId: '',
+                    publicKey: '',
+                    adminEmail: ''
+                },
+                emailTemplates: {
+                    customer_booking: "สวัสดีคุณ {{firstName}},\n\nระบบได้รับข้อมูลการจองคิวซ่อมมือถือของคุณเรียบร้อยแล้ว\nรหัสการจอง: {{id}}\nสถานะปัจจุบัน: {{status}}\n\nคุณสามารถตรวจสอบสถานะการซ่อมได้ที่เว็บไซต์ของเราครับ",
+                    admin_notification: "มีรายการจองคิวใหม่เข้ามา!\n\nรหัสการจอง: {{id}}\nลูกค้า: {{firstName}} {{lastName}}\nเบอร์โทร: {{phone}}\nบริการ: {{service}} ({{deviceModel}})\nวันที่นัด: {{bookingDate}}",
+                    status_update: "สวัสดีคุณ {{firstName}},\n\nสถานะงานซ่อมของคุณ (รหัส: {{id}}) ถูกอัปเดตเป็น: [ {{status}} ] เรียบร้อยแล้วครับ"
+                }
             },
             products: {
                 services: ['เปลี่ยนหน้าจอ', 'เปลี่ยนแบตเตอรี่', 'ซ่อมบอร์ด/อื่นๆ'],
@@ -444,8 +519,9 @@
             renderCalendar();
             document.getElementById('acc-user').value = appState.auth.username;
             
-            // ตั้งค่า EmailJS (ใส่ Public Key ของคุณที่นี่เมื่อต้องการใช้งานจริง)
-            emailjs.init("YOUR_PUBLIC_KEY"); 
+            if(appState.settings.email.publicKey) {
+                emailjs.init(appState.settings.email.publicKey);
+            }
         };
 
         function applySettingsToUI() {
@@ -462,6 +538,16 @@
             document.getElementById('set-title').value = appState.settings.uiTitle;
             document.getElementById('set-subtitle').value = appState.settings.uiSubtitle;
             document.getElementById('toggle-additional-info').checked = appState.settings.showAdditionalInfo;
+            
+            // โหลดตั้งค่าอีเมล
+            if(document.getElementById('set-email-public')) {
+                document.getElementById('set-email-public').value = appState.settings.email.publicKey || '';
+                document.getElementById('set-email-service').value = appState.settings.email.serviceId || '';
+                document.getElementById('set-email-template').value = appState.settings.email.templateId || '';
+                document.getElementById('set-email-admin').value = appState.settings.email.adminEmail || '';
+                
+                loadEmailTemplate();
+            }
         }
 
         function initDynamicForm() {
@@ -557,13 +643,15 @@
             renderCalendar();
 
             // ส่งอีเมลหาลูกค้า
-            const customerMsg = `สวัสดีคุณ ${newBooking.firstName},\n\nระบบได้รับข้อมูลการจองคิวซ่อมมือถือของคุณเรียบร้อยแล้ว\nรหัสการจอง: ${newBooking.id}\nสถานะปัจจุบัน: ${newBooking.status}\n\nคุณสามารถตรวจสอบสถานะการซ่อมได้ที่เว็บไซต์ของเราครับ`;
+            const customerMsg = fillTemplate(appState.settings.emailTemplates.customer_booking, newBooking);
             sendRealEmail(newBooking.email, `${newBooking.firstName} ${newBooking.lastName}`, `ยืนยันการจองคิวซ่อมมือถือรหัส ${newBooking.id}`, customerMsg);
 
             // ส่งอีเมลแจ้งเตือนแอดมิน
-            const adminEmail = 'jakkreewach2@gmail.com'; 
-            const adminMsg = `มีรายการจองคิวใหม่เข้ามา!\n\nรหัสการจอง: ${newBooking.id}\nลูกค้า: ${newBooking.firstName} ${newBooking.lastName}\nเบอร์โทร: ${newBooking.phone}\nบริการ: ${newBooking.service} (${newBooking.deviceModel})\nวันที่นัด: ${newBooking.bookingDate}`;
-            sendRealEmail(adminEmail, 'Admin FixItMobile', `[แจ้งเตือน] มีคิวงานใหม่: ${newBooking.id}`, adminMsg);
+            const adminEmail = appState.settings.email.adminEmail; 
+            if(adminEmail) {
+                const adminMsg = fillTemplate(appState.settings.emailTemplates.admin_notification, newBooking);
+                sendRealEmail(adminEmail, 'Admin FixItMobile', `[แจ้งเตือน] มีคิวงานใหม่: ${newBooking.id}`, adminMsg);
+            }
 
             showToast(`จองคิวสำเร็จ! รหัสอ้างอิงของคุณคือ ${newId}`, 'success');
         }
@@ -804,6 +892,7 @@
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="flex justify-center items-center gap-1.5">
+                                <button onclick="openSendEmailModal('${b.id}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-2 rounded-lg transition" title="ส่งอีเมลติดต่อ"><i class="fas fa-envelope"></i></button>
                                 <button onclick="openBookingView('${b.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg transition" title="ดูข้อมูล"><i class="fas fa-eye"></i></button>
                                 <button onclick="openBookingEdit('${b.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-600 p-2 rounded-lg transition" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>
                                 <button onclick="deleteBooking('${b.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg transition" title="ลบรายการ"><i class="fas fa-trash-alt"></i></button>
@@ -823,7 +912,7 @@
                 selectElem.style.backgroundColor = getStatusColorCode(newStatus);
                 
                 if (oldStatus !== newStatus) {
-                    const updateMsg = `สวัสดีคุณ ${b.firstName},\n\nสถานะงานซ่อมของคุณ (รหัส: ${b.id}) ถูกอัปเดตเป็น: [ ${newStatus} ] เรียบร้อยแล้วครับ`;
+                    const updateMsg = fillTemplate(appState.settings.emailTemplates.status_update, b);
                     sendRealEmail(b.email, `${b.firstName} ${b.lastName}`, `อัปเดตสถานะการซ่อม: ${b.id}`, updateMsg);
                 }
                 showToast(`เปลี่ยนสถานะคิว ${id} เป็น "${newStatus}" เรียบร้อย`, 'success');
@@ -917,10 +1006,46 @@
             renderAdminDashboard();
             
             if(oldStatus !== newStatus) {
-                const updateMsg = `สวัสดีคุณ ${b.firstName},\n\nสถานะงานซ่อมของคุณ (รหัส: ${b.id}) ถูกอัปเดตเป็น: [ ${newStatus} ] เรียบร้อยแล้วครับ`;
+                const updateMsg = fillTemplate(appState.settings.emailTemplates.status_update, b);
                 sendRealEmail(b.email, `${b.firstName} ${b.lastName}`, `อัปเดตสถานะการซ่อม: ${b.id}`, updateMsg);
             }
             showToast('บันทึกข้อมูลการแก้ไขสำเร็จเรียบร้อย', 'success');
+        }
+
+        function openSendEmailModal(id) {
+            const b = appState.bookings.find(x => x.id === id);
+            if(!b) { showToast('ไม่พบข้อมูลคิวงานนี้', 'error'); return; }
+
+            document.getElementById('email-modal-id').value = b.id;
+            document.getElementById('email-modal-email').value = b.email;
+            document.getElementById('email-modal-name').value = `${b.firstName} ${b.lastName}`;
+            document.getElementById('email-modal-customer-name').textContent = `${b.firstName} ${b.lastName} (${b.id})`;
+            
+            document.getElementById('email-modal-subject').value = `ติดต่อเรื่องคิวงานซ่อมมือถือ รหัส ${b.id}`;
+            document.getElementById('email-modal-message').value = `เรียนคุณ ${b.firstName},\n\n\n\nด้วยความเคารพ,\nทีมงาน FixItMobile`;
+
+            openModal('sendEmailModal');
+        }
+
+        function sendCustomEmail() {
+            const toEmail = document.getElementById('email-modal-email').value;
+            const toName = document.getElementById('email-modal-name').value;
+            const subject = document.getElementById('email-modal-subject').value.trim();
+            const message = document.getElementById('email-modal-message').value.trim();
+
+            if(!subject || !message) {
+                showToast('กรุณากรอกหัวข้อและข้อความอีเมลให้ครบถ้วน', 'error');
+                return;
+            }
+
+            closeModal('sendEmailModal');
+            showToast('กำลังดำเนินการส่งอีเมล...', 'info');
+            
+            sendRealEmail(toEmail, toName, subject, message);
+            
+            setTimeout(() => {
+                showToast(`สั่งส่งอีเมลหาคุณ ${toName} เรียบร้อยแล้ว`, 'success');
+            }, 800);
         }
 
         function renderSettings() {
@@ -965,6 +1090,64 @@
             appState.settings.showAdditionalInfo = document.getElementById('toggle-additional-info').checked;
             applySettingsToUI();
             showToast('บันทึกการตั้งค่าฟอร์มสำเร็จ', 'success');
+        }
+
+        function saveEmailSettings() {
+            appState.settings.email.publicKey = document.getElementById('set-email-public').value.trim();
+            appState.settings.email.serviceId = document.getElementById('set-email-service').value.trim();
+            appState.settings.email.templateId = document.getElementById('set-email-template').value.trim();
+            appState.settings.email.adminEmail = document.getElementById('set-email-admin').value.trim();
+            
+            if(appState.settings.email.publicKey) {
+                emailjs.init(appState.settings.email.publicKey);
+            }
+            showToast('บันทึกการตั้งค่าอีเมลสำเร็จ', 'success');
+        }
+
+        // ฟังก์ชันระบบเทมเพลตอีเมล
+        function loadEmailTemplate() {
+            const key = document.getElementById('select-email-template').value;
+            document.getElementById('edit-email-template').value = appState.settings.emailTemplates[key];
+        }
+
+        function saveEmailTemplate() {
+            const key = document.getElementById('select-email-template').value;
+            appState.settings.emailTemplates[key] = document.getElementById('edit-email-template').value;
+            showToast('บันทึกข้อความเทมเพลตสำเร็จ', 'success');
+        }
+
+        function fillTemplate(templateStr, dataObj) {
+            return templateStr.replace(/{{(.*?)}}/g, (match, p1) => {
+                const prop = p1.trim();
+                return dataObj[prop] !== undefined ? dataObj[prop] : match;
+            });
+        }
+
+        function testEmailConnection() {
+            const serviceID = document.getElementById('set-email-service').value.trim();
+            const templateID = document.getElementById('set-email-template').value.trim();
+            const publicKey = document.getElementById('set-email-public').value.trim();
+            const adminEmail = document.getElementById('set-email-admin').value.trim();
+
+            if (!serviceID || !templateID || !publicKey || !adminEmail) {
+                showToast('กรุณากรอกข้อมูล Service ID, Template ID, Public Key และอีเมลแอดมินให้ครบก่อนกดทดสอบ', 'error');
+                return;
+            }
+
+            showToast('กำลังส่งอีเมลทดสอบ กรุณารอสักครู่...', 'info');
+
+            emailjs.send(serviceID, templateID, {
+                to_email: adminEmail,
+                to_name: 'Admin',
+                subject: 'ทดสอบระบบส่งอีเมลจาก FixItMobile',
+                message: 'การเชื่อมต่อ EmailJS สำเร็จ! ระบบสามารถส่งอีเมลแจ้งเตือนต่างๆ ได้ตามปกติครับ'
+            }, publicKey)
+            .then((response) => {
+                showToast('ทดสอบสำเร็จ! ส่งอีเมลทดสอบไปยังอีเมลแอดมินแล้ว', 'success');
+            }, (err) => {
+                console.error('Test email failed', err);
+                showToast(`ส่งอีเมลล้มเหลว: รหัสบางอย่างอาจไม่ถูกต้อง หรือเกินโควต้า`, 'error');
+            });
         }
 
         function changeAdminCredentials() {
@@ -1018,8 +1201,14 @@
 
         // ฟังก์ชันส่งอีเมลจริงผ่านระบบ EmailJS
         function sendRealEmail(toEmail, toName, subject, message) {
-            const serviceID = 'dTlxHU3jqYTm_onAXKo7c'; 
-            const templateID = 'service_701vx3q'; 
+            const serviceID = appState.settings.email.serviceId; 
+            const templateID = appState.settings.email.templateId; 
+            const publicKey = appState.settings.email.publicKey;
+
+            if(!serviceID || !templateID || !publicKey) {
+                console.log(`[ยังไม่ได้ตั้งค่าอีเมล - จำลองการส่ง] ถึง: ${toEmail}\nหัวข้อ: ${subject}`);
+                return; 
+            }
 
             const templateParams = {
                 to_email: toEmail,
@@ -1028,12 +1217,7 @@
                 message: message
             };
 
-            if(serviceID === 'service_701vx3q') {
-                console.log(`[จำลองส่งอีเมล] ถึง: ${toEmail}\nหัวข้อ: ${subject}`);
-                return; 
-            }
-
-            emailjs.send(serviceID, templateID, templateParams)
+            emailjs.send(serviceID, templateID, templateParams, publicKey)
                 .then((response) => {
                     console.log('Email sent successfully!', response.status, response.text);
                 }, (err) => {
