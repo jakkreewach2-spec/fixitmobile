@@ -57,7 +57,7 @@
                     <p class="text-gray-500" id="ui-subtitle">กรุณาเลือกวันและกรอกรายละเอียดเพื่อให้ช่างเดินทางไปดูแลคุณ</p>
                 </div>
 
-                <form id="bookingForm" class="space-y-6 bg-white p-6 md:p-8 rounded-xl shadow-md border border-gray-100" onsubmit="handlePreSubmit(event)">
+                <form id="bookingForm" class="space-y-6 bg-white p-6 md:p-8 rounded-xl shadow-md border border-gray-100" onsubmit="handleDirectSubmit(event)">
                     
                     <div class="bg-white p-1 rounded-lg border border-gray-200 shadow-sm" id="section-calendar">
                         <div class="bg-gray-50 p-4 border-b flex flex-col md:flex-row justify-between items-center gap-4 rounded-t-lg">
@@ -127,13 +127,13 @@
                             <div><label class="block text-sm font-medium mb-1">นามสกุล <span class="text-red-500">*</span></label><input type="text" name="lastName" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500" required></div>
                             <div><label class="block text-sm font-medium mb-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label><input type="tel" name="phone" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500" required></div>
                             <div><label class="block text-sm font-medium mb-1">อีเมล <span class="text-red-500">*</span></label><input type="email" name="email" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500" required></div>
-                            <div><label class="block text-sm font-medium mb-1">Line ID</label><input type="text" name="lineId" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500" placeholder="ระบุ Line ID (ถ้ามี)"></div>
+                            <div><label class="block text-sm font-medium mb-1">Line ID <span class="text-red-500">*</span></label><input type="text" name="lineId" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500" required placeholder="ระบุ Line ID สำหรับติดต่อ"></div>
                             <div class="md:col-span-2"><label class="block text-sm font-medium mb-1">สถานที่ซ่อม <span class="text-red-500">*</span></label><textarea name="location" rows="2" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500" required></textarea></div>
                             <div class="md:col-span-2" id="field-additional-info"><label class="block text-sm font-medium mb-1">รายละเอียดอาการเพิ่มเติม</label><textarea name="additionalInfo" rows="2" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"></textarea></div>
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-blue-600 text-white font-bold text-lg py-3 rounded-lg hover:bg-blue-700 shadow-md transition-all">ตรวจสอบข้อมูลและยืนยันการจอง</button>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold text-lg py-3 rounded-lg hover:bg-blue-700 shadow-md transition-all">ยืนยันการจองคิวซ่อม</button>
                 </form>
 
                 <div class="mt-8 text-center" id="admin-login-trigger">
@@ -260,6 +260,16 @@
                             <button onclick="exportToPDF()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm transition shadow-sm"><i class="fas fa-file-pdf mr-1"></i> PDF</button>
                         </div>
                     </div>
+                    
+                    <!-- ส่วนแสดงรายละเอียด/แก้ไขแบบ Inline เพื่อความเสถียร 100% -->
+                    <div id="inline-management-panel" class="hidden mb-6 bg-white p-6 rounded-xl shadow-lg border border-blue-200">
+                        <div class="flex justify-between items-center border-b pb-3 mb-4">
+                            <h3 id="panel-title" class="font-bold text-lg text-blue-700"><i class="fas fa-info-circle mr-2"></i>จัดการคิวงาน</h3>
+                            <button onclick="closeInlinePanel()" class="text-gray-400 hover:text-gray-600 font-bold px-2 py-1 rounded bg-gray-100"><i class="fas fa-times"></i> ปิด</button>
+                        </div>
+                        <div id="panel-content-body"></div>
+                    </div>
+
                     <div class="bg-white rounded-xl shadow-sm border overflow-x-auto custom-scrollbar">
                         <table class="min-w-full divide-y divide-gray-200 text-sm" id="bookings-table-full">
                             <thead class="bg-gray-50">
@@ -379,22 +389,6 @@
 
 
     <!-- ==================== Modals ==================== -->
-    <!-- Modal ตรวจสอบข้อมูลก่อนยืนยัน (Summary Modal) -->
-    <div id="summaryModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden print:hidden">
-        <div class="absolute inset-0 modal-overlay" onclick="closeModal('summaryModal')"></div>
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 z-10 overflow-hidden flex flex-col max-h-[90vh] modal-enter relative">
-            <div class="bg-blue-600 text-white px-6 py-4 font-bold text-lg flex justify-between items-center">
-                <span><i class="fas fa-clipboard-check mr-2"></i>ตรวจสอบข้อมูลก่อนยืนยัน</span>
-                <button onclick="closeModal('summaryModal')" class="text-white hover:text-gray-200"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="p-6 bg-gray-50 overflow-y-auto custom-scrollbar flex-grow text-sm space-y-2.5" id="summary-content"></div>
-            <div class="px-6 py-4 bg-white border-t flex justify-end gap-3">
-                <button onclick="closeModal('summaryModal')" class="px-4 py-2 border rounded-lg text-sm font-medium hover:bg-gray-100 shadow-sm">กลับไปแก้ไข</button>
-                <button onclick="finalSubmitBooking()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 shadow-sm flex items-center"><i class="fas fa-check mr-1.5"></i> ยืนยันการจองคิว</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal ดูข้อมูล (Read-Only) -->
     <div id="bookingViewModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden print:hidden">
         <div class="absolute inset-0 modal-overlay" onclick="closeModal('bookingViewModal')"></div>
@@ -525,8 +519,6 @@
                 }
             }
         };
-
-        let tempBookingData = null;
 
         window.onload = () => {
             applySettingsToUI();
@@ -693,65 +685,39 @@
             }
         }
 
-        // ขั้นตอนที่ 1: ตรวจสอบข้อมูลก่อนแสดง Summary Modal
-        function handlePreSubmit(e) {
+        // Direct form submission with no summary modal step
+        function handleDirectSubmit(e) {
             e.preventDefault();
             const dateInput = document.getElementById('displaySelectedDate').value;
             if(!dateInput) return showToast('กรุณาเลือกวันที่นัดหมายจากปฏิทิน', 'error');
 
             const form = e.target;
             const formData = new FormData(form);
-            tempBookingData = Object.fromEntries(formData.entries());
-            tempBookingData.partGradeName = tempBookingData.partGrade.split('|')[0];
-
-            const html = `
-                <div class="bg-white p-3 rounded-lg border space-y-2">
-                    <div class="flex justify-between border-b pb-1.5"><span class="text-gray-500 text-xs">วันที่นัดหมาย:</span> <span class="font-bold text-blue-700">${tempBookingData.bookingDate}</span></div>
-                    <div class="flex justify-between border-b pb-1.5"><span class="text-gray-500 text-xs">ชื่อ-นามสกุล:</span> <span class="font-medium">${tempBookingData.firstName} ${tempBookingData.lastName}</span></div>
-                    <div class="flex justify-between border-b pb-1.5"><span class="text-gray-500 text-xs">เบอร์โทรศัพท์:</span> <span class="font-medium">${tempBookingData.phone}</span></div>
-                    <div class="flex justify-between border-b pb-1.5"><span class="text-gray-500 text-xs">อีเมล / Line ID:</span> <span class="font-medium">${tempBookingData.email} / ${tempBookingData.lineId || '-'}</span></div>
-                    <div class="flex justify-between border-b pb-1.5"><span class="text-gray-500 text-xs">บริการที่เลือก:</span> <span class="font-medium">${tempBookingData.service} (${tempBookingData.os})</span></div>
-                    <div class="flex justify-between border-b pb-1.5"><span class="text-gray-500 text-xs">รุ่นมือถือ:</span> <span class="font-medium">${tempBookingData.deviceModel}</span></div>
-                    <div class="flex justify-between border-b pb-1.5"><span class="text-gray-500 text-xs">เกรดอะไหล่:</span> <span class="font-medium">${tempBookingData.partGradeName}</span></div>
-                    <div><span class="text-gray-500 text-xs block mb-1">สถานที่นัดซ่อม:</span> <span class="text-gray-700 font-medium block bg-gray-50 p-2 rounded">${tempBookingData.location}</span></div>
-                    ${tempBookingData.additionalInfo ? `<div><span class="text-gray-500 text-xs block mb-1">อาการเพิ่มเติม:</span> <span class="text-gray-700 block bg-gray-50 p-2 rounded text-xs">${tempBookingData.additionalInfo}</span></div>` : ''}
-                </div>
-                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg flex justify-between items-center mt-2">
-                    <span class="font-semibold text-blue-900 text-sm">ประเมินราคารวมทั้งหมด:</span>
-                    <span class="text-lg font-bold text-blue-600">${Number(tempBookingData.totalPrice).toLocaleString()} บาท</span>
-                </div>
-            `;
-            document.getElementById('summary-content').innerHTML = html;
-            openModal('summaryModal');
-        }
-
-        // ขั้นตอนที่ 2: กดยืนยันจริงจาก Modal เพื่อบันทึกและส่งอีเมล
-        function finalSubmitBooking() {
-            if(!tempBookingData) return;
+            const formDataObj = Object.fromEntries(formData.entries());
+            formDataObj.partGradeName = formDataObj.partGrade.split('|')[0];
 
             const newId = `BK-${String(appState.bookings.length + 1).padStart(4, '0')}`;
             const newBooking = {
                 id: newId,
-                bookingDate: tempBookingData.bookingDate,
-                firstName: tempBookingData.firstName,
-                lastName: tempBookingData.lastName,
-                phone: tempBookingData.phone,
-                email: tempBookingData.email,
-                lineId: tempBookingData.lineId || '-',
-                service: tempBookingData.service,
-                os: tempBookingData.os,
-                deviceModel: tempBookingData.deviceModel,
-                partGrade: tempBookingData.partGradeName, 
-                totalPrice: tempBookingData.totalPrice,
-                location: tempBookingData.location,
-                additionalInfo: tempBookingData.additionalInfo || '-',
+                bookingDate: formDataObj.bookingDate,
+                firstName: formDataObj.firstName,
+                lastName: formDataObj.lastName,
+                phone: formDataObj.phone,
+                email: formDataObj.email,
+                lineId: formDataObj.lineId || '-',
+                service: formDataObj.service,
+                os: formDataObj.os,
+                deviceModel: formDataObj.deviceModel,
+                partGrade: formDataObj.partGradeName, 
+                totalPrice: formDataObj.totalPrice,
+                location: formDataObj.location,
+                additionalInfo: formDataObj.additionalInfo || '-',
                 status: 'รอยืนยัน',
                 createdAt: new Date().toLocaleString('th-TH')
             };
 
             appState.bookings.unshift(newBooking);
-            closeModal('summaryModal');
-            document.getElementById('bookingForm').reset();
+            form.reset();
             selectedDateObj = null;
             document.getElementById('displaySelectedDate').value = '';
             document.getElementById('container-model').classList.add('hidden');
@@ -980,6 +946,7 @@
         }
 
         function renderAdminBookings() {
+            closeInlinePanel();
             const tbody = document.getElementById('all-bookings-body');
             if(!tbody) return;
             tbody.innerHTML = '';
@@ -1008,9 +975,9 @@
                         </td>
                         <td class="px-4 py-3 text-center print:hidden">
                             <div class="flex justify-center items-center gap-1.5">
-                                <button onclick="openSendEmailModal('${b.id}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-2 rounded-lg transition" title="ส่งอีเมล"><i class="fas fa-envelope"></i></button>
-                                <button onclick="openBookingView('${b.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg transition" title="ดูข้อมูล"><i class="fas fa-eye"></i></button>
-                                <button onclick="openBookingEdit('${b.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-600 p-2 rounded-lg transition" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>
+                                <button onclick="openInlineEmail('${b.id}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-2 rounded-lg transition" title="ส่งอีเมล"><i class="fas fa-envelope"></i></button>
+                                <button onclick="openInlineView('${b.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg transition" title="ดูข้อมูล"><i class="fas fa-eye"></i></button>
+                                <button onclick="openInlineEdit('${b.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-600 p-2 rounded-lg transition" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>
                                 <button onclick="deleteBooking('${b.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg transition" title="ลบรายการ"><i class="fas fa-trash-alt"></i></button>
                             </div>
                         </td>
@@ -1019,55 +986,116 @@
             });
         }
 
-        function updateBookingStatusDirect(selectElem, id) {
-            const newStatus = selectElem.value;
+        function closeInlinePanel() {
+            const panel = document.getElementById('inline-management-panel');
+            if(panel) panel.classList.add('hidden');
+        }
+
+        function openInlineView(id) {
             const b = appState.bookings.find(x => x.id === id);
-            if (b) {
-                const oldStatus = b.status;
-                b.status = newStatus;
-                selectElem.style.backgroundColor = getStatusColorCode(newStatus);
-                
-                if (oldStatus !== newStatus) {
-                    const updateMsg = fillTemplate(appState.emailTemplates.status_update, b);
-                    sendRealEmail(b.email, `${b.firstName} ${b.lastName}`, `อัปเดตสถานะการซ่อม: ${b.id}`, updateMsg);
-                }
-                showToast(`เปลี่ยนสถานะคิว ${id} เป็น "${newStatus}" เรียบร้อย`, 'success');
-                renderAdminDashboard();
-            }
+            if(!b) return;
+            const panel = document.getElementById('inline-management-panel');
+            document.getElementById('panel-title').innerHTML = `<i class="fas fa-eye mr-2"></i> รายละเอียดคิวงาน: ${b.id}`;
+            
+            document.getElementById('panel-content-body').innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div class="bg-gray-50 p-3 rounded border"><strong>ชื่อ-นามสกุล:</strong> ${b.firstName} ${b.lastName}</div>
+                    <div class="bg-gray-50 p-3 rounded border"><strong>เบอร์โทรศัพท์:</strong> ${b.phone}</div>
+                    <div class="bg-gray-50 p-3 rounded border"><strong>Line ID:</strong> ${b.lineId || '-'}</div>
+                    <div class="bg-gray-50 p-3 rounded border"><strong>อีเมล:</strong> ${b.email}</div>
+                    <div class="bg-gray-50 p-3 rounded border"><strong>บริการ:</strong> ${b.service} (${b.deviceModel})</div>
+                    <div class="bg-gray-50 p-3 rounded border"><strong>ราคาประเมิน:</strong> ${Number(b.totalPrice).toLocaleString()} บาท</div>
+                    <div class="md:col-span-2 bg-gray-50 p-3 rounded border"><strong>สถานที่ซ่อม:</strong> ${b.location}</div>
+                    <div class="md:col-span-2 bg-gray-50 p-3 rounded border"><strong>รายละเอียดเพิ่มเติม:</strong> ${b.additionalInfo || '-'}</div>
+                </div>
+                <div class="mt-4 text-right">
+                    <button onclick="closeInlinePanel()" class="bg-gray-800 text-white px-4 py-2 rounded text-sm">ปิดหน้าต่าง</button>
+                </div>
+            `;
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function deleteBooking(id) {
-            if (confirm(`คุณต้องการลบรายการจอง ${id} ใช่หรือไม่?`)) {
-                appState.bookings = appState.bookings.filter(x => x.id !== id);
-                renderAdminBookings();
-                renderAdminDashboard();
-                showToast(`ลบรายการ ${id} เรียบร้อยแล้ว`, 'info');
-            }
-        }
-
-        function openSendEmailModal(id) {
+        function openInlineEdit(id) {
             const b = appState.bookings.find(x => x.id === id);
-            if(!b) { showToast('ไม่พบข้อมูลคิวงานนี้', 'error'); return; }
+            if(!b) return;
+            const panel = document.getElementById('inline-management-panel');
+            document.getElementById('panel-title').innerHTML = `<i class="fas fa-edit mr-2"></i> แก้ไขข้อมูลคิวงาน: ${b.id}`;
 
-            document.getElementById('email-modal-id').value = b.id;
-            document.getElementById('email-modal-email').value = b.email;
-            document.getElementById('email-modal-name').value = `${b.firstName} ${b.lastName}`;
-            document.getElementById('email-modal-customer-name').textContent = `${b.firstName} ${b.lastName} (${b.id})`;
-            document.getElementById('email-modal-subject').value = `ติดต่อเรื่องคิวงานซ่อมมือถือ รหัส ${b.id}`;
-            document.getElementById('email-modal-message').value = `เรียนคุณ ${b.firstName},\n\n\n\nด้วยความเคารพ,\nทีมงาน ${appState.settings.brandName}`;
+            let statusOptionsHTML = '';
+            appState.settings.statusOptions.forEach(s => {
+                statusOptionsHTML += `<option value="${s}" ${b.status === s ? 'selected' : ''}>${s}</option>`;
+            });
 
-            openModal('sendEmailModal');
+            document.getElementById('panel-content-body').innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div><label class="block text-xs font-semibold mb-1">สถานะ</label><select id="inline-edit-status" class="w-full border rounded p-2 bg-white">${statusOptionsHTML}</select></div>
+                    <div><label class="block text-xs font-semibold mb-1">วันที่นัดหมาย</label><input type="text" id="inline-edit-date" value="${b.bookingDate}" class="w-full border rounded p-2 bg-white"></div>
+                    <div><label class="block text-xs font-semibold mb-1">ชื่อ</label><input type="text" id="inline-edit-fname" value="${b.firstName}" class="w-full border rounded p-2 bg-white"></div>
+                    <div><label class="block text-xs font-semibold mb-1">นามสกุล</label><input type="text" id="inline-edit-lname" value="${b.lastName}" class="w-full border rounded p-2 bg-white"></div>
+                    <div><label class="block text-xs font-semibold mb-1">เบอร์โทรศัพท์</label><input type="text" id="inline-edit-phone" value="${b.phone}" class="w-full border rounded p-2 bg-white"></div>
+                    <div><label class="block text-xs font-semibold mb-1">Line ID</label><input type="text" id="inline-edit-line" value="${b.lineId || ''}" class="w-full border rounded p-2 bg-white"></div>
+                    <div class="md:col-span-2"><label class="block text-xs font-semibold mb-1">สถานที่ซ่อม</label><textarea id="inline-edit-location" rows="2" class="w-full border rounded p-2 bg-white">${b.location}</textarea></div>
+                </div>
+                <div class="mt-4 flex justify-end gap-2">
+                    <button onclick="closeInlinePanel()" class="border px-4 py-2 rounded text-sm bg-white">ยกเลิก</button>
+                    <button onclick="saveInlineEdit('${b.id}')" class="bg-blue-600 text-white px-4 py-2 rounded text-sm">บันทึกการแก้ไข</button>
+                </div>
+            `;
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function sendCustomEmail() {
-            const toEmail = document.getElementById('email-modal-email').value;
-            const toName = document.getElementById('email-modal-name').value;
-            const subject = document.getElementById('email-modal-subject').value.trim();
-            const message = document.getElementById('email-modal-message').value.trim();
+        function saveInlineEdit(id) {
+            const b = appState.bookings.find(x => x.id === id);
+            if(!b) return;
 
-            if(!subject || !message) { return showToast('กรุณากรอกหัวข้อและข้อความอีเมลให้ครบถ้วน', 'error'); }
+            const oldStatus = b.status;
+            b.status = document.getElementById('inline-edit-status').value;
+            b.bookingDate = document.getElementById('inline-edit-date').value;
+            b.firstName = document.getElementById('inline-edit-fname').value;
+            b.lastName = document.getElementById('inline-edit-lname').value;
+            b.phone = document.getElementById('inline-edit-phone').value;
+            b.lineId = document.getElementById('inline-edit-line').value;
+            b.location = document.getElementById('inline-edit-location').value;
 
-            closeModal('sendEmailModal');
+            closeInlinePanel();
+            renderAdminBookings();
+            renderAdminDashboard();
+
+            if(oldStatus !== b.status) {
+                const updateMsg = fillTemplate(appState.emailTemplates.status_update, b);
+                sendRealEmail(b.email, `${b.firstName} ${b.lastName}`, `อัปเดตสถานะการซ่อม: ${b.id}`, updateMsg);
+            }
+            showToast('บันทึกข้อมูลสำเร็จเรียบร้อย', 'success');
+        }
+
+        function openInlineEmail(id) {
+            const b = appState.bookings.find(x => x.id === id);
+            if(!b) return;
+            const panel = document.getElementById('inline-management-panel');
+            document.getElementById('panel-title').innerHTML = `<i class="fas fa-envelope mr-2"></i> ส่งอีเมลหาลูกค้า: ${b.firstName} ${b.lastName} (${b.id})`;
+
+            document.getElementById('panel-content-body').innerHTML = `
+                <div class="space-y-3 text-sm">
+                    <div><label class="block text-xs font-semibold mb-1">หัวข้ออีเมล (Subject)</label><input type="text" id="inline-email-subject" value="ติดต่อเรื่องคิวงานซ่อมมือถือ รหัส ${b.id}" class="w-full border rounded p-2 bg-white"></div>
+                    <div><label class="block text-xs font-semibold mb-1">ข้อความ (Message)</label><textarea id="inline-email-message" rows="5" class="w-full border rounded p-2 bg-white">เรียนคุณ ${b.firstName},\n\n\n\nด้วยความเคารพ,\nทีมงาน ${appState.settings.brandName}</textarea></div>
+                </div>
+                <div class="mt-4 flex justify-end gap-2">
+                    <button onclick="closeInlinePanel()" class="border px-4 py-2 rounded text-sm bg-white">ยกเลิก</button>
+                    <button onclick="sendInlineEmailAction('${b.email}', '${b.firstName} ${b.lastName}')" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm"><i class="fas fa-paper-plane mr-1"></i> ส่งจดหมาย</button>
+                </div>
+            `;
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function sendInlineEmailAction(toEmail, toName) {
+            const subject = document.getElementById('inline-email-subject').value.trim();
+            const message = document.getElementById('inline-email-message').value.trim();
+            if(!subject || !message) return showToast('กรุณากรอกหัวข้อและข้อความให้ครบถ้วน', 'error');
+
+            closeInlinePanel();
             showToast('กำลังดำเนินการส่งอีเมล...', 'info');
             sendRealEmail(toEmail, toName, subject, message);
         }
