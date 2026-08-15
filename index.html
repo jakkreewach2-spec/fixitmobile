@@ -444,9 +444,8 @@
             renderCalendar();
             document.getElementById('acc-user').value = appState.auth.username;
             
-            // การตั้งค่า EmailJS (ใส่ Public Key ของคุณที่นี่)
-            // สมัครได้ที่ https://www.emailjs.com/
-            emailjs.init("sRqP7aZo15XZ-KvGO"); 
+            // ตั้งค่า EmailJS (ใส่ Public Key ของคุณที่นี่เมื่อต้องการใช้งานจริง)
+            emailjs.init("YOUR_PUBLIC_KEY"); 
         };
 
         function applySettingsToUI() {
@@ -557,12 +556,12 @@
             document.getElementById('price-display-container').classList.add('hidden');
             renderCalendar();
 
-            // 1. ส่งอีเมลหาลูกค้า (ผู้จอง)
+            // ส่งอีเมลหาลูกค้า
             const customerMsg = `สวัสดีคุณ ${newBooking.firstName},\n\nระบบได้รับข้อมูลการจองคิวซ่อมมือถือของคุณเรียบร้อยแล้ว\nรหัสการจอง: ${newBooking.id}\nสถานะปัจจุบัน: ${newBooking.status}\n\nคุณสามารถตรวจสอบสถานะการซ่อมได้ที่เว็บไซต์ของเราครับ`;
             sendRealEmail(newBooking.email, `${newBooking.firstName} ${newBooking.lastName}`, `ยืนยันการจองคิวซ่อมมือถือรหัส ${newBooking.id}`, customerMsg);
 
-            // 2. ส่งอีเมลแจ้งเตือนแอดมิน
-            const adminEmail = 'jakkreewach2@gmail.com'; // ** เปลี่ยนเป็นอีเมลของคุณ (แอดมิน) ที่นี่ **
+            // ส่งอีเมลแจ้งเตือนแอดมิน
+            const adminEmail = 'jakkreewach2@gmail.com'; 
             const adminMsg = `มีรายการจองคิวใหม่เข้ามา!\n\nรหัสการจอง: ${newBooking.id}\nลูกค้า: ${newBooking.firstName} ${newBooking.lastName}\nเบอร์โทร: ${newBooking.phone}\nบริการ: ${newBooking.service} (${newBooking.deviceModel})\nวันที่นัด: ${newBooking.bookingDate}`;
             sendRealEmail(adminEmail, 'Admin FixItMobile', `[แจ้งเตือน] มีคิวงานใหม่: ${newBooking.id}`, adminMsg);
 
@@ -804,10 +803,10 @@
                             </select>
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <div class="flex justify-center items-center gap-2">
-                                <button onclick="openBookingView('${b.id}')" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition" title="ดูรายละเอียด"><i class="fas fa-eye"></i></button>
-                                <button onclick="openBookingEdit('${b.id}')" class="text-yellow-600 hover:text-yellow-800 bg-yellow-50 hover:bg-yellow-100 p-2 rounded-lg transition" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>
-                                <button onclick="deleteBooking('${b.id}')" class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition" title="ลบรายการ"><i class="fas fa-trash"></i></button>
+                            <div class="flex justify-center items-center gap-1.5">
+                                <button onclick="openBookingView('${b.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg transition" title="ดูข้อมูล"><i class="fas fa-eye"></i></button>
+                                <button onclick="openBookingEdit('${b.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-600 p-2 rounded-lg transition" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteBooking('${b.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg transition" title="ลบรายการ"><i class="fas fa-trash-alt"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -824,7 +823,6 @@
                 selectElem.style.backgroundColor = getStatusColorCode(newStatus);
                 
                 if (oldStatus !== newStatus) {
-                    // 3. ส่งอีเมลแจ้งอัปเดตสถานะหาลูกค้า
                     const updateMsg = `สวัสดีคุณ ${b.firstName},\n\nสถานะงานซ่อมของคุณ (รหัส: ${b.id}) ถูกอัปเดตเป็น: [ ${newStatus} ] เรียบร้อยแล้วครับ`;
                     sendRealEmail(b.email, `${b.firstName} ${b.lastName}`, `อัปเดตสถานะการซ่อม: ${b.id}`, updateMsg);
                 }
@@ -833,7 +831,8 @@
             }
         }
 
-        // ฟังก์ชันจัดการ Dropdown แบบหน่วงเวลาเพื่อป้องกันการรีเซ็ตคำสั่งขัดข้อง
+        function deleteBooking(id) {
+            if (confirm(`คุณต้องการลบรายการจอง ${id} ใช่หรือไม่?`)) {
                 appState.bookings = appState.bookings.filter(x => x.id !== id);
                 renderAdminBookings();
                 renderAdminDashboard();
@@ -1019,9 +1018,8 @@
 
         // ฟังก์ชันส่งอีเมลจริงผ่านระบบ EmailJS
         function sendRealEmail(toEmail, toName, subject, message) {
-            // *** 1. ใส่ Service ID และ Template ID ของคุณที่นี่ ***
             const serviceID = 'dTlxHU3jqYTm_onAXKo7c'; 
-            const templateID = 'template_zrkutsl'; 
+            const templateID = 'service_701vx3q'; 
 
             const templateParams = {
                 to_email: toEmail,
@@ -1030,22 +1028,16 @@
                 message: message
             };
 
-            // ตรวจสอบว่าได้ตั้งค่า API Keys หรือยัง ป้องกันเว็บพังตอนทดสอบ
             if(serviceID === 'service_701vx3q') {
                 console.log(`[จำลองส่งอีเมล] ถึง: ${toEmail}\nหัวข้อ: ${subject}`);
-                showToast(`จำลองส่งอีเมล (กรุณาตั้งค่า EmailJS เพื่อใช้งานจริง)`, 'info');
                 return; 
             }
-
-            // showToast(`กำลังส่งอีเมลแจ้งเตือน...`, 'info');
 
             emailjs.send(serviceID, templateID, templateParams)
                 .then((response) => {
                     console.log('Email sent successfully!', response.status, response.text);
-                    showToast(`ส่งอีเมลแจ้งเตือนสำเร็จ`, 'success');
                 }, (err) => {
                     console.error('Failed to send email...', err);
-                    showToast(`เกิดข้อผิดพลาดในการส่งอีเมล`, 'error');
                 });
         }
 
@@ -1088,12 +1080,11 @@
             
             showToast('กำลังสร้างไฟล์ PDF...', 'info');
             
-            // สร้างโครงสร้าง HTML สำหรับเอกสาร PDF
             let htmlContent = `
                 <div style="font-family: sans-serif; padding: 20px; color: #333;">
                     <h2 style="text-align: center; margin-bottom: 20px; color: #1e3a8a;">รายงานข้อมูลการจองคิวซ่อมมือถือ</h2>
                     <p style="text-align: right; font-size: 12px; margin-bottom: 10px;">วันที่ออกรายงาน: ${new Date().toLocaleString('th-TH')}</p>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
                         <thead>
                             <tr style="background-color: #f3f4f6; border-bottom: 2px solid #d1d5db;">
                                 <th style="padding: 8px; border: 1px solid #e5e7eb; text-align: left;">รหัสจอง</th>
@@ -1111,13 +1102,13 @@
             appState.bookings.forEach(b => {
                 htmlContent += `
                     <tr>
-                        <td style="padding: 8px; border: 1px solid #e5e7eb;">${b.id}</td>
-                        <td style="padding: 8px; border: 1px solid #e5e7eb;">${b.bookingDate}</td>
-                        <td style="padding: 8px; border: 1px solid #e5e7eb;">${b.firstName} ${b.lastName}</td>
-                        <td style="padding: 8px; border: 1px solid #e5e7eb;">${b.phone}</td>
-                        <td style="padding: 8px; border: 1px solid #e5e7eb;">${b.service}<br><span style="font-size: 10px; color: #6b7280;">${b.deviceModel || '-'}</span></td>
-                        <td style="padding: 8px; border: 1px solid #e5e7eb; text-align: right;">${Number(b.totalPrice).toLocaleString()}</td>
-                        <td style="padding: 8px; border: 1px solid #e5e7eb;">${b.status}</td>
+                        <td style="padding: 6px; border: 1px solid #e5e7eb;">${b.id}</td>
+                        <td style="padding: 6px; border: 1px solid #e5e7eb;">${b.bookingDate}</td>
+                        <td style="padding: 6px; border: 1px solid #e5e7eb;">${b.firstName} ${b.lastName}</td>
+                        <td style="padding: 6px; border: 1px solid #e5e7eb;">${b.phone}</td>
+                        <td style="padding: 6px; border: 1px solid #e5e7eb;">${b.service}<br><span style="font-size: 10px; color: #6b7280;">${b.deviceModel || '-'}</span></td>
+                        <td style="padding: 6px; border: 1px solid #e5e7eb; text-align: right;">${Number(b.totalPrice).toLocaleString()}</td>
+                        <td style="padding: 6px; border: 1px solid #e5e7eb;">${b.status}</td>
                     </tr>
                 `;
             });
@@ -1128,7 +1119,6 @@
                 </div>
             `;
             
-            // ตั้งค่าการออก PDF (แนวนอน Landscape)
             const opt = {
                 margin:       10,
                 filename:     `bookings_report_${Date.now()}.pdf`,
@@ -1137,7 +1127,6 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
 
-            // เรียกใช้ html2pdf
             html2pdf().set(opt).from(htmlContent).save().then(() => {
                 showToast('ส่งออกไฟล์ PDF สำเร็จเรียบร้อย', 'success');
             }).catch(err => {
