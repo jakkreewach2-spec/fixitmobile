@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">FixItMobile - บริการซ่อมมือถือนอกสถานที่ (Cloud Realtime)</title>
+    <!-- STREAMING_CHUNK:Loading external stylesheets and libraries... -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
+    <!-- STREAMING_CHUNK:Initializing Firebase SDK... -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -65,6 +67,7 @@
 </head>
 <body class="bg-gray-50 font-sans min-h-screen flex flex-col relative text-gray-800">
 
+    <!-- STREAMING_CHUNK:Rendering Customer Portal UI... -->
     <div id="customer-app" class="flex-grow flex flex-col transition-all duration-300">
         <nav class="bg-blue-600 text-white shadow-md sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -133,21 +136,25 @@
                     </div>
 
                     <div class="bg-blue-50/50 p-5 rounded-xl border border-blue-100">
-                        <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center"><i class="fas fa-mobile-alt mr-2 text-blue-500"></i>ข้อมูลการซ่อม</h3>
+                        <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center"><i class="fas fa-mobile-alt mr-2 text-blue-500"></i>เลือกบริการที่ต้องการ</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-semibold mb-1 text-gray-700">บริการ <span class="text-red-500">*</span></label>
                                 <select name="service" id="select-service" required onchange="updateDynamicForm()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"></select>
                             </div>
                             <div>
+                                <label class="block text-sm font-semibold mb-1 text-gray-700">รายการ / อะไหล่ <span class="text-red-500">*</span></label>
+                                <select name="item" id="select-item" required onchange="updateDynamicForm()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"></select>
+                            </div>
+                            <div>
                                 <label class="block text-sm font-semibold mb-1 text-gray-700">ระบบปฏิบัติการ <span class="text-red-500">*</span></label>
                                 <select name="os" id="select-os" required onchange="updateDynamicForm()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"></select>
                             </div>
-                            <div id="container-model" class="hidden md:col-span-2 lg:col-span-1">
+                            <div id="container-model" class="hidden">
                                 <label class="block text-sm font-semibold mb-1 text-gray-700">รุ่นมือถือ <span class="text-red-500">*</span></label>
-                                <select name="deviceModel" id="select-model" required class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"></select>
+                                <select name="deviceModel" id="select-model" required onchange="calculatePrice()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"></select>
                             </div>
-                            <div id="container-grade" class="hidden md:col-span-2 lg:col-span-1">
+                            <div id="container-grade" class="hidden md:col-span-2">
                                 <label class="block text-sm font-semibold mb-1 text-gray-700">เกรดอะไหล่ / ราคา <span class="text-red-500">*</span></label>
                                 <select name="partGrade" id="select-grade" required onchange="calculatePrice()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"></select>
                             </div>
@@ -218,38 +225,22 @@
 
             <div id="customer-rates-tab" class="hidden fade-in">
                 <button onclick="navCustomer('home')" class="mb-4 text-sm text-gray-500 hover:text-blue-600 flex items-center"><i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ</button>
-                <div class="text-center mb-8"><h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">อัตราค่าบริการและอะไหล่</h2><p class="text-sm text-gray-500">ข้อมูลราคาประเมินเบื้องต้น อาจมีการเปลี่ยนแปลงตามรุ่น</p></div>
+                <div class="text-center mb-8"><h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">อัตราค่าบริการและอะไหล่</h2><p class="text-sm text-gray-500">ข้อมูลราคาประเมินจากระบบสินค้าและบริการปัจจุบัน</p></div>
                 
-                <div class="space-y-6">
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="bg-blue-600 px-6 py-4"><h3 class="text-lg font-bold text-white flex items-center"><i class="fas fa-mobile text-xl mr-2"></i>บริการเปลี่ยนหน้าจอ (iPhone / Android)</h3></div>
-                        <div class="p-6 overflow-x-auto custom-scrollbar">
-                            <table class="w-full text-sm text-left border-collapse min-w-[600px]">
-                                <thead class="bg-blue-50 text-blue-800 font-bold border-b-2"><tr><th class="p-3">เกรดอะไหล่จอ</th><th class="p-3">ราคาเริ่มต้น (บาท)</th><th class="p-3">ข้อดี</th><th class="p-3">ข้อเสีย</th></tr></thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    <tr><td class="p-3 font-semibold">แท้ศูนย์ (Original)</td><td class="p-3 font-bold text-green-600">3,500+</td><td class="p-3">สีสด ทัชลื่น 100% ทนทาน</td><td class="p-3 text-gray-500">ราคาสูง</td></tr>
-                                    <tr><td class="p-3 font-semibold">OLED เทียบแท้</td><td class="p-3 font-bold text-green-600">2,000+</td><td class="p-3">สีสันใกล้เคียงของแท้ คุ้มค่า</td><td class="p-3 text-gray-500">ขอบอาจหนากว่าแท้นิดหน่อย</td></tr>
-                                    <tr><td class="p-3 font-semibold">LCD งานเทียบ (AAA)</td><td class="p-3 font-bold text-green-600">900+</td><td class="p-3">ราคาถูกมาก เหมาะกับเครื่องรอง</td><td class="p-3 text-gray-500">สีดรอป ทัชอาจไม่ลื่นเท่าแท้</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="bg-green-600 px-6 py-4"><h3 class="text-lg font-bold text-white flex items-center"><i class="fas fa-battery-full text-xl mr-2"></i>บริการเปลี่ยนแบตเตอรี่ (มาตรฐาน / เพิ่มความจุ)</h3></div>
-                        <div class="p-6 overflow-x-auto custom-scrollbar">
-                            <table class="w-full text-sm text-left border-collapse min-w-[600px]">
-                                <thead class="bg-green-50 text-green-800 font-bold border-b-2"><tr><th class="p-3">ประเภทแบตเตอรี่</th><th class="p-3">ราคาเริ่มต้น (บาท)</th><th class="p-3">จุดเด่น</th></tr></thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    <tr><td class="p-3 font-semibold">แบตเตอรี่มาตรฐาน มอก.</td><td class="p-3 font-bold text-green-600">800+</td><td class="p-3">ความจุเท่าศูนย์เดิม ปลอดภัยได้มาตรฐาน มอก.</td></tr>
-                                    <tr><td class="p-3 font-semibold">แบตเตอรี่เพิ่มความจุ (High Capacity)</td><td class="p-3 font-bold text-green-600">1,200+</td><td class="p-3">ความจุมากกว่าปกติ 20-30% ใช้งานได้ยาวนานขึ้น</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="bg-amber-50 p-6 rounded-2xl border border-amber-200">
-                        <h3 class="font-bold text-amber-800 mb-2 flex items-center"><i class="fas fa-exclamation-triangle mr-2"></i>หมายเหตุเพิ่มเติม</h3>
-                        <p class="text-sm text-amber-700 leading-relaxed">- บริการเปลี่ยนอะไหล่อื่นๆ เช่น ตูดชาร์จ, กล้อง, ลำโพง เริ่มต้น 300 บาท<br>- ค่าเดินทางคิดตามระยะทางจริง (เริ่มต้น 100 บาท)<br>- สินค้ามีรับประกันงานซ่อม 1-3 เดือน</p>
-                    </div>
+                <div class="bg-white rounded-2xl shadow-sm border p-6 overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-sm text-left border-collapse min-w-[700px]">
+                        <thead class="bg-blue-50 text-blue-800 font-bold border-b-2">
+                            <tr>
+                                <th class="p-3">บริการ</th>
+                                <th class="p-3">รายการ</th>
+                                <th class="p-3">ระบบปฏิบัติการ</th>
+                                <th class="p-3">รุ่นมือถือ</th>
+                                <th class="p-3">เกรดอะไหล่</th>
+                                <th class="p-3 text-right">ราคา (บาท)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rates-table-body" class="divide-y divide-gray-100"></tbody>
+                    </table>
                 </div>
             </div>
 
@@ -294,6 +285,7 @@
         </footer>
     </div>
 
+    <!-- STREAMING_CHUNK:Rendering Admin Login Modal... -->
     <div id="admin-login-screen" class="hidden fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
         <div class="max-w-sm w-full bg-white p-8 rounded-2xl shadow-2xl relative">
             <button onclick="closeAdminLogin()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
@@ -306,6 +298,7 @@
         </div>
     </div>
 
+    <!-- STREAMING_CHUNK:Rendering Admin ERP Dashboard... -->
     <div id="admin-app" class="hidden h-screen bg-gray-100 flex overflow-hidden">
         
         <aside id="admin-sidebar" class="bg-slate-900 text-white w-64 flex-shrink-0 flex flex-col fixed inset-y-0 left-0 z-50 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
@@ -323,7 +316,7 @@
                 </ul>
                 <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-6 mb-2 px-2">ตั้งค่าระบบ</p>
                 <ul class="space-y-1">
-                    <li><button onclick="navAdmin('webconfig')" id="menu-webconfig" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-globe w-6 text-center"></i> จัดการหน้าเว็บ (CMS)</button></li>
+                    <li><button onclick="navAdmin('webconfig')" id="menu-webconfig" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-globe w-6 text-center"></i> จัดการหน้าเว็บไซต์ (CMS)</button></li>
                     <li><button onclick="navAdmin('products')" id="menu-products" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-tags w-6 text-center"></i> บริการและราคา</button></li>
                     <li><button onclick="navAdmin('settings')" id="menu-settings" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-cog w-6 text-center"></i> ระบบเชื่อมต่อ (API)</button></li>
                 </ul>
@@ -411,7 +404,7 @@
                             <form onsubmit="addFinanceRecord(event, 'expense')" class="space-y-3 text-sm">
                                 <div><label class="block font-bold mb-1">หมวดหมู่</label>
                                     <select id="fin-ex-cat" required class="w-full border rounded p-2 outline-none focus:border-red-500">
-                                        <option value="ค่าอะไหล่">ค่าอะไหล่ / ต้นทุนสินค้า</option><option value="ค่าเดินทาง">ค่าเดินทาง / น้ำมัน</option><option value="อื่นๆ">อื่นๆ</option>
+                                        <option value="ค่าอะไหล่">ค่าอะไหล่ / ต้นทุนสินค้า</option><option value="ค่าเดินทาง">ค่าเดินทาง / น้ำหนัก</option><option value="อื่นๆ">อื่นๆ</option>
                                     </select>
                                 </div>
                                 <div><label class="block font-bold mb-1">รายการ</label><input type="text" id="fin-ex-desc" required class="w-full border rounded p-2 outline-none focus:border-red-500" placeholder="เช่น ซื้อจอ iPhone 11"></div>
@@ -471,11 +464,11 @@
                 </div>
 
                 <div id="view-products" class="admin-view hidden space-y-6">
-                    <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">จัดการบริการและราคา (CSV)</h2></div>
+                    <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">จัดการรายการสินค้าและบริการ</h2></div>
                     
                     <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
-                        <h3 class="font-bold text-blue-800 border-b pb-2"><i class="fas fa-file-csv mr-2"></i>อัปเดตราคาผ่านไฟล์ CSV / ดาวน์โหลดตัวอย่าง</h3>
-                        <p class="text-xs text-gray-500">รูปแบบคอลัมน์ใน CSV: <code>service,grade,price,includeTravel</code> (ตัวอย่าง: เปลี่ยนหน้าจอ,เกรดแท้ศูนย์,4500,true)</p>
+                        <h3 class="font-bold text-blue-800 border-b pb-2"><i class="fas fa-file-csv mr-2"></i>อัปเดตผ่านไฟล์ CSV / ดาวน์โหลดตัวอย่าง</h3>
+                        <p class="text-xs text-gray-500">รูปแบบคอลัมน์ใน CSV: <code>service,item,os,deviceModel,grade,price</code></p>
                         <div class="flex flex-wrap gap-3">
                             <a href="#" onclick="downloadSampleCSV(event)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm flex items-center"><i class="fas fa-download mr-2"></i>ดาวน์โหลดไฟล์ตัวอย่าง CSV</a>
                             <label class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm cursor-pointer flex items-center"><i class="fas fa-upload mr-2"></i>อัปโหลดไฟล์ CSV <input type="file" accept=".csv" onchange="importPricingCSV(event)" class="hidden"></label>
@@ -483,17 +476,33 @@
                     </div>
 
                     <div class="bg-white p-5 rounded-xl shadow-sm border">
-                         <h3 class="font-bold text-green-700 mb-3 border-b pb-2"><i class="fas fa-plus-circle mr-2"></i>เพิ่มรายการด่วน (Manual)</h3>
-                         <form onsubmit="addManualProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm items-end">
-                            <div><label class="block font-semibold mb-1">หมวด</label><input type="text" id="add-prod-service" placeholder="เช่น เปลี่ยนแบต" required class="w-full border rounded p-2"></div>
-                            <div><label class="block font-semibold mb-1">เกรด/รุ่น</label><input type="text" id="add-prod-grade" placeholder="เช่น มอก." required class="w-full border rounded p-2"></div>
-                            <div><label class="block font-semibold mb-1">ราคา</label><input type="number" id="add-prod-price" required class="w-full border rounded p-2"></div>
-                            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded font-bold"><i class="fas fa-save"></i> บันทึก</button>
+                         <h3 class="font-bold text-green-700 mb-3 border-b pb-2"><i class="fas fa-plus-circle mr-2"></i>เพิ่มรายการสินค้าและบริการ (บริการ, รายการ, ระบบปฏิบัติการ, รุ่นมือถือ, เกรดอะไหล่, ราคา)</h3>
+                         <form onsubmit="addManualProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm items-end">
+                            <div><label class="block font-semibold mb-1">บริการ (Service)</label><input type="text" id="add-prod-service" placeholder="เช่น เปลี่ยนหน้าจอ" required class="w-full border rounded p-2"></div>
+                            <div><label class="block font-semibold mb-1">รายการ (Item)</label><input type="text" id="add-prod-item" placeholder="เช่น หน้าจอ OLED" required class="w-full border rounded p-2"></div>
+                            <div><label class="block font-semibold mb-1">ระบบปฏิบัติการ (OS)</label><input type="text" id="add-prod-os" placeholder="เช่น iPhone หรือ Android" required class="w-full border rounded p-2"></div>
+                            <div><label class="block font-semibold mb-1">รุ่นมือถือ (Model)</label><input type="text" id="add-prod-model" placeholder="เช่น iPhone 13, ทุกรุ่น" required class="w-full border rounded p-2"></div>
+                            <div><label class="block font-semibold mb-1">เกรดอะไหล่ (Grade)</label><input type="text" id="add-prod-grade" placeholder="เช่น เกรดแท้ศูนย์" required class="w-full border rounded p-2"></div>
+                            <div><label class="block font-semibold mb-1">ราคา (Price)</label><input type="number" id="add-prod-price" placeholder="เช่น 2500" required class="w-full border rounded p-2"></div>
+                            <div class="sm:col-span-2 lg:col-span-3"><button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded font-bold"><i class="fas fa-save mr-1"></i> บันทึกและซิงก์ลงชีต</button></div>
                         </form>
                     </div>
 
-                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-                        <table class="min-w-full text-sm"><thead class="bg-gray-100"><tr><th class="p-3 text-left">หมวดบริการ</th><th class="p-3 text-left">เกรด / รุ่นอะไหล่</th><th class="p-3 text-right">ราคา</th><th class="p-3 text-center">ลบ</th></tr></thead><tbody id="products-table-body" class="divide-y divide-gray-200"></tbody></table>
+                    <div class="bg-white rounded-xl shadow-sm border overflow-x-auto custom-scrollbar">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="p-3 text-left">บริการ</th>
+                                    <th class="p-3 text-left">รายการ</th>
+                                    <th class="p-3 text-left">ระบบปฏิบัติการ</th>
+                                    <th class="p-3 text-left">รุ่นมือถือ</th>
+                                    <th class="p-3 text-left">เกรดอะไหล่</th>
+                                    <th class="p-3 text-right">ราคา</th>
+                                    <th class="p-3 text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table-body" class="divide-y divide-gray-200"></tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -501,8 +510,8 @@
                     <h2 class="text-xl font-bold text-gray-800">ระบบเชื่อมต่อและตั้งค่าพื้นฐาน (API & Email)</h2>
                     
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-green-200">
-                        <h3 class="font-bold text-green-800 mb-2"><i class="fas fa-database mr-2"></i>ตั้งค่า Google Sheets (บันทึกข้อมูลไม่ให้หาย)</h3>
-                        <p class="text-xs text-gray-500 mb-3">นำ Web App URL จาก Google Apps Script มาวางที่นี่เพื่อบันทึกข้อมูลจองคิวและบัญชีอัตโนมัติ</p>
+                        <h3 class="font-bold text-green-800 mb-2"><i class="fas fa-database mr-2"></i>ตั้งค่า Google Sheets (บันทึกข้อมูลและซิงก์สินค้า)</h3>
+                        <p class="text-xs text-gray-500 mb-3">นำ Web App URL จาก Google Apps Script มาวางที่นี่เพื่อบันทึกข้อมูลจองคิว, บัญชี และรายการสินค้าอัตโนมัติ</p>
                         <div class="flex gap-2"><input type="text" id="cfg-sheet-url" class="flex-1 border rounded-lg p-2 text-sm" placeholder="https://script.google.com/macros/s/.../exec"><button onclick="saveSheetConfig()" class="bg-green-600 text-white font-bold px-4 py-2 rounded text-sm">บันทึก Google Sheets URL</button></div>
                     </div>
 
@@ -562,7 +571,6 @@
         </div>
     </div>
 
-    <!-- Email Review & Send Modal -->
     <div id="emailPreviewModal" class="fixed inset-0 z-[160] flex items-center justify-center hidden">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeEmailModal()"></div>
         <div class="bg-white rounded-2xl w-full max-w-lg mx-4 z-10 p-6 border shadow-2xl fade-in">
@@ -583,7 +591,6 @@
         </div>
     </div>
 
-    <!-- Test Email Modal -->
     <div id="testEmailModal" class="fixed inset-0 z-[160] flex items-center justify-center hidden">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeTestEmailModal()"></div>
         <div class="bg-white rounded-2xl w-full max-w-sm mx-4 z-10 p-6 border shadow-2xl fade-in">
@@ -619,14 +626,12 @@
         </div>
     </div>
 
+    <!-- STREAMING_CHUNK:Initializing Application JavaScript Logic... -->
     <script>
         const defaultData = {
-            osList: ['iPhone', 'Android'],
-            models: { 'iPhone': ['iPhone 15 Pro Max', 'iPhone 14', 'iPhone 13', 'iPhone 11'], 'Android': ['Samsung S24', 'Oppo Reno'] },
-            servicesList: ['เปลี่ยนหน้าจอ', 'เปลี่ยนแบตเตอรี่'],
             pricing: [
-                { id: 1, service: 'เปลี่ยนหน้าจอ', grade: 'เกรดแท้ศูนย์', price: 4500, includeTravel: true },
-                { id: 2, service: 'เปลี่ยนแบตเตอรี่', grade: 'มาตรฐาน', price: 900, includeTravel: false }
+                { id: 1, service: 'เปลี่ยนหน้าจอ', item: 'หน้าจอ OLED', os: 'iPhone', deviceModel: 'iPhone 13', grade: 'เกรดแท้ศูนย์', price: 4500 },
+                { id: 2, service: 'เปลี่ยนแบตเตอรี่', item: 'แบตเตอรี่ มอก.', os: 'iPhone', deviceModel: 'iPhone 11', grade: 'แบตเตอรี่มาตรฐาน มอก.', price: 900 }
             ]
         };
 
@@ -731,6 +736,15 @@
                         renderInventory();
                     }
                 }, (error) => { console.error("Inventory sync error:", error); });
+
+                const productsDoc = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'config', 'products');
+                onSnapshot(productsDoc, (docSnap) => {
+                    if (docSnap.exists() && docSnap.data().pricing) {
+                        appState.products.pricing = docSnap.data().pricing;
+                        saveToLocalStorage();
+                        initDynamicForm();
+                    }
+                });
             });
         };
 
@@ -806,7 +820,25 @@
             });
             const target = document.getElementById(`customer-${tab}-tab`);
             if(target) target.classList.remove('hidden');
+            if(tab === 'rates') renderRatesTable();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderRatesTable() {
+            const tbody = document.getElementById('rates-table-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            appState.products.pricing.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-semibold text-gray-800">${p.service}</td>
+                        <td class="p-3 text-gray-700">${p.item || '-'}</td>
+                        <td class="p-3 text-gray-600">${p.os || '-'}</td>
+                        <td class="p-3 text-gray-600">${p.deviceModel || '-'}</td>
+                        <td class="p-3 text-gray-600">${p.grade}</td>
+                        <td class="p-3 text-right font-bold text-green-600">${Number(p.price).toLocaleString()} บาท</td>
+                    </tr>`;
+            });
         }
 
         function alertDiag(msg) { showToast(msg, 'success'); }
@@ -828,23 +860,52 @@
         }
 
         function initDynamicForm() {
-            const sSelect = document.getElementById('select-service'); const osSelect = document.getElementById('select-os');
-            if(!sSelect || !osSelect) return;
-            sSelect.innerHTML = '<option value="">-- เลือกบริการ --</option>'; appState.products.servicesList.forEach(s => sSelect.innerHTML += `<option value="${s}">${s}</option>`);
-            osSelect.innerHTML = '<option value="">-- เลือกระบบ --</option>'; appState.products.osList.forEach(o => osSelect.innerHTML += `<option value="${o}">${o}</option>`);
+            const sSelect = document.getElementById('select-service'); 
+            if(!sSelect) return;
+
+            const uniqueServices = [...new Set(appState.products.pricing.map(p => p.service))];
+            sSelect.innerHTML = '<option value="">-- เลือกบริการ --</option>'; 
+            uniqueServices.forEach(s => sSelect.innerHTML += `<option value="${s}">${s}</option>`);
+
+            document.getElementById('select-item').innerHTML = '<option value="">-- เลือกรายการ --</option>';
+            document.getElementById('select-os').innerHTML = '<option value="">-- เลือกระบบ --</option>';
+            document.getElementById('select-model').innerHTML = '<option value="">-- เลือกรุ่น --</option>';
+            document.getElementById('select-grade').innerHTML = '<option value="">-- เลือกเกรด / ราคา --</option>';
         }
 
         function updateDynamicForm() {
-            const s = document.getElementById('select-service').value; const os = document.getElementById('select-os').value;
-            const mSelect = document.getElementById('select-model'); const gSelect = document.getElementById('select-grade');
+            const s = document.getElementById('select-service').value;
+            const itemSel = document.getElementById('select-item');
+            const osSel = document.getElementById('select-os');
+            const modelSel = document.getElementById('select-model');
+            const gradeSel = document.getElementById('select-grade');
             
-            if(os) { document.getElementById('container-model').classList.remove('hidden'); mSelect.innerHTML = '<option value="">-- เลือกรุ่น --</option>'; (appState.products.models[os] || []).forEach(m => mSelect.innerHTML += `<option value="${m}">${m}</option>`); } 
-            else { document.getElementById('container-model').classList.add('hidden'); }
+            const matched = appState.products.pricing.filter(p => p.service === s);
+            
+            const uniqueItems = [...new Set(matched.map(p => p.item))];
+            itemSel.innerHTML = '<option value="">-- เลือกรายการ --</option>';
+            uniqueItems.forEach(i => itemSel.innerHTML += `<option value="${i}">${i}</option>`);
 
-            if(s) {
-                document.getElementById('container-grade').classList.remove('hidden'); gSelect.innerHTML = '<option value="">-- เลือกเกรด/ราคา --</option>';
-                appState.products.pricing.filter(p => p.service === s).forEach(p => gSelect.innerHTML += `<option value="${p.grade}|${p.price}|${p.includeTravel}">${p.grade} - ${p.price} บ.</option>`);
-            } else { document.getElementById('container-grade').classList.add('hidden'); }
+            const uniqueOs = [...new Set(matched.map(p => p.os))];
+            osSel.innerHTML = '<option value="">-- เลือกระบบ --</option>';
+            uniqueOs.forEach(o => osSel.innerHTML += `<option value="${o}">${o}</option>`);
+
+            const uniqueModels = [...new Set(matched.map(p => p.deviceModel))];
+            if(uniqueModels.length > 0 && uniqueModels[0]) {
+                document.getElementById('container-model').classList.remove('hidden');
+                modelSel.innerHTML = '<option value="">-- เลือกรุ่น --</option>';
+                uniqueModels.forEach(m => modelSel.innerHTML += `<option value="${m}">${m}</option>`);
+            } else {
+                document.getElementById('container-model').classList.add('hidden');
+            }
+
+            const uniqueGrades = [...new Set(matched.map(p => `${p.grade}|${p.price}`))];
+            gradeSel.innerHTML = '<option value="">-- เลือกเกรด / ราคา --</option>';
+            uniqueGrades.forEach(g => {
+                const parts = g.split('|');
+                gradeSel.innerHTML += `<option value="${parts[0]}|${parts[1]}">${parts[0]} - ${Number(parts[1]).toLocaleString()} บ.</option>`;
+            });
+
             calculatePrice();
         }
 
@@ -855,7 +916,7 @@
                 const parts = v.split('|');
                 document.getElementById('display-total-price').textContent = Number(parts[1]).toLocaleString();
                 document.getElementById('input-total-price').value = parts[1];
-                document.getElementById('display-travel-fee-note').innerHTML = (parts[2] === 'true') ? '<span class="text-green-600">รวมค่าเดินทางแล้ว</span>' : '<span class="text-amber-600">ไม่รวมค่าเดินทาง</span>';
+                document.getElementById('display-travel-fee-note').innerHTML = '<span class="text-green-600">รวมค่าเดินทางแล้ว</span>';
                 pBox.classList.remove('hidden');
             } else { pBox.classList.add('hidden'); }
         }
@@ -891,7 +952,7 @@
             const newBooking = {
                 id: bId, bookingDate: data.bookingDate, bookingTime: data.bookingTime,
                 firstName: data.firstName, lastName: data.lastName, phone: data.phone, email: data.email||'-', lineId: data.lineId,
-                service: data.service, os: data.os, deviceModel: data.deviceModel, partGrade: data.partGrade.split('|')[0], totalPrice: data.totalPrice,
+                service: `${data.service} (${data.item || ''})`, os: data.os, deviceModel: data.deviceModel || '-', partGrade: data.partGrade.split('|')[0], totalPrice: data.totalPrice,
                 locType: document.querySelector('input[name="locType"]:checked').value, location: data.location, gps: data.gps||'-', additionalInfo: data.additionalInfo||'-',
                 status: 'รอยืนยัน', warrantyUntil: '-', createdAt: new Date().toISOString()
             };
@@ -1243,54 +1304,151 @@
             document.getElementById('modal-email-body').value = body;
             document.getElementById('emailPreviewModal').classList.remove('hidden');
         }
+
+        function closeEmailModal() { document.getElementById('emailPreviewModal').classList.add('hidden'); }
+        function confirmSendEmail() {
+            const bId = document.getElementById('modal-email-booking-id').value;
+            const to = document.getElementById('modal-email-to').value;
+            const subject = document.getElementById('modal-email-subject').value;
+            const body = document.getElementById('modal-email-body').value;
+
+            if(!appState.emailConfig.publicKey || !appState.emailConfig.serviceId) {
+                showToast('กรุณาตั้งค่า EmailJS ในเมนูระบบเชื่อมต่อ (API) ก่อน', 'error');
+                return closeEmailModal();
+            }
+
+            showToast('กำลังส่งอีเมล...', 'info');
+            emailjs.send(appState.emailConfig.serviceId, appState.emailConfig.templateId, {
+                to_name: to,
+                to_email: to,
+                booking_id: bId,
+                subject: subject,
+                message: body,
+                admin_email: appState.emailConfig.adminEmail
+            }).then(() => {
+                showToast('ส่งอีเมลสำเร็จเรียบร้อย', 'success');
+                closeEmailModal();
+            }).catch(err => {
+                console.error("Email send error:", err);
+                showToast('ส่งอีเมลไม่สำเร็จ (ตรวจสอบ Configuration)', 'error');
+            });
+        }
+
+        function openTestEmailModal() { document.getElementById('testEmailModal').classList.remove('hidden'); }
+        function closeTestEmailModal() { document.getElementById('testEmailModal').classList.add('hidden'); }
+        function executeTestEmail() {
+            const email = document.getElementById('test-email-input').value;
+            if(!email) return showToast('กรุณากรอกอีเมล', 'error');
+            if(!appState.emailConfig.publicKey || !appState.emailConfig.serviceId) return showToast('กรุณาตั้งค่า EmailJS ก่อน', 'error');
+
+            showToast('กำลังส่งอีเมลทดสอบ...', 'info');
+            emailjs.send(appState.emailConfig.serviceId, appState.emailConfig.templateId, {
+                to_name: 'Test User',
+                to_email: email,
+                booking_id: 'TEST-000',
+                subject: 'ทดสอบระบบส่งอีเมล FixItMobile',
+                message: 'นี่คือข้อความทดสอบจากระบบ FixItMobile ERP',
+                admin_email: appState.emailConfig.adminEmail
+            }).then(() => {
+                showToast('ส่งอีเมลทดสอบสำเร็จ!', 'success');
+                closeTestEmailModal();
+            }).catch(e => {
+                showToast('ส่งอีเมลไม่สำเร็จ', 'error');
+            });
+        }
+
         function saveSheetConfig() { 
             appState.sheetConfig.webAppUrl = document.getElementById('cfg-sheet-url').value; 
             saveToLocalStorage(); 
             showToast('บันทึก Google Sheets URL สำเร็จ','success'); 
         }
 
-        function syncProductsToSheet() {
-            if(!appState.sheetConfig.webAppUrl) return;
-            const payload = {
-                action: 'syncProducts',
-                products: appState.products.pricing
-            };
-            fetch(appState.sheetConfig.webAppUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(payload)
-            }).then(() => {
-                showToast('ซิงก์รายการสินค้าและบริการลง Google Sheets สำเร็จ', 'success');
-            }).catch(e => {
-                console.error("Sheets Sync Error:", e);
-                showToast('ซิงก์ข้อมูลลง Google Sheets ไม่สำเร็จ', 'error');
-            });
+        function saveEmailConfig() {
+            appState.emailConfig.publicKey = document.getElementById('cfg-email-public').value;
+            appState.emailConfig.serviceId = document.getElementById('cfg-email-service').value;
+            appState.emailConfig.templateId = document.getElementById('cfg-email-template').value;
+            appState.emailConfig.adminEmail = document.getElementById('cfg-email-admin').value;
+            if(appState.emailConfig.publicKey) emailjs.init(appState.emailConfig.publicKey);
+            saveToLocalStorage();
+            showToast('บันทึกการตั้งค่า Email สำเร็จ', 'success');
+        }
+
+        function saveEmailTemplateConfig() {
+            appState.emailConfig.subject = document.getElementById('cfg-email-subject').value;
+            appState.emailConfig.body = document.getElementById('cfg-email-body').value;
+            saveToLocalStorage();
+            showToast('บันทึก Email Template สำเร็จ', 'success');
+        }
+
+        function saveFormConfig() {
+            appState.formConfig.email = document.getElementById('form-field-email').checked;
+            appState.formConfig.gps = document.getElementById('form-field-gps').checked;
+            appState.formConfig.note = document.getElementById('form-field-note').checked;
+            saveToLocalStorage();
+            applyFormConfig();
+            showToast('บันทึกการตั้งค่าฟอร์มสำเร็จ', 'success');
+        }
+
+        function syncProductsToCloudAndSheet() {
+            saveToLocalStorage();
+            if (window.isFirebaseReady && window.db) {
+                import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, setDoc }) => {
+                    const docRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'config', 'products');
+                    setDoc(docRef, { pricing: appState.products.pricing }).catch(e => console.error(e));
+                });
+            }
+            if(appState.sheetConfig.webAppUrl) {
+                fetch(appState.sheetConfig.webAppUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ action: 'syncProducts', products: appState.products.pricing })
+                }).catch(e => {});
+            }
         }
 
         function addManualProduct(e) {
             e.preventDefault();
             const service = document.getElementById('add-prod-service').value;
+            const item = document.getElementById('add-prod-item').value;
+            const os = document.getElementById('add-prod-os').value;
+            const deviceModel = document.getElementById('add-prod-model').value;
             const grade = document.getElementById('add-prod-grade').value;
             const price = Number(document.getElementById('add-prod-price').value);
 
-            appState.products.pricing.push({ id: Date.now(), service, grade, price, includeTravel: true });
-            saveToLocalStorage();
+            appState.products.pricing.push({ id: Date.now(), service, item, os, deviceModel, grade, price });
+            syncProductsToCloudAndSheet();
             renderProducts();
             initDynamicForm();
-            syncProductsToSheet();
             e.target.reset();
-            showToast('เพิ่มรายการและซิงก์ลง Google Sheets สำเร็จ', 'success');
+            showToast('เพิ่มบริการและซิงก์ข้อมูลสำเร็จ', 'success');
         }
 
         function deleteProduct(id) {
             if(confirm('ต้องการลบรายการนี้ใช่หรือไม่?')) {
                 appState.products.pricing = appState.products.pricing.filter(p => p.id !== id);
-                saveToLocalStorage();
+                syncProductsToCloudAndSheet();
                 renderProducts();
                 initDynamicForm();
-                syncProductsToSheet();
                 showToast('ลบรายการสำเร็จ', 'success');
             }
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('products-table-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            appState.products.pricing.forEach(p => {
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3 font-semibold">${p.service}</td>
+                        <td class="p-3">${p.item || '-'}</td>
+                        <td class="p-3">${p.os || '-'}</td>
+                        <td class="p-3">${p.deviceModel || '-'}</td>
+                        <td class="p-3">${p.grade}</td>
+                        <td class="p-3 text-right font-bold text-green-600">${Number(p.price).toLocaleString()} บาท</td>
+                        <td class="p-3 text-center"><button onclick="deleteProduct(${p.id})" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
+            });
         }
 
         function importPricingCSV(e) {
@@ -1305,24 +1463,32 @@
                     const line = lines[i].trim();
                     if(!line) continue;
                     const cols = line.split(',');
-                    if(cols.length >= 3) {
+                    if(cols.length >= 6) {
                         appState.products.pricing.push({
                             id: Date.now() + i,
                             service: cols[0].trim(),
-                            grade: cols[1].trim(),
-                            price: Number(cols[2].trim()),
-                            includeTravel: cols[3] ? cols[3].trim() === 'true' : true
+                            item: cols[1].trim(),
+                            os: cols[2].trim(),
+                            deviceModel: cols[3].trim(),
+                            grade: cols[4].trim(),
+                            price: Number(cols[5].trim())
                         });
                         count++;
                     }
                 }
-                saveToLocalStorage();
+                syncProductsToCloudAndSheet();
                 renderProducts();
                 initDynamicForm();
-                syncProductsToSheet();
-                showToast(`นำเข้าสำเร็จ ${count} รายการ และซิงก์ลงชีตแล้ว`, 'success');
+                showToast(`นำเข้าสำเร็จ ${count} รายการ และซิงก์เรียบร้อย`, 'success');
             };
             reader.readAsText(file);
+        }
+
+        function downloadSampleCSV(e) {
+            e.preventDefault();
+            const csv = '\uFEFFservice,item,os,deviceModel,grade,price\nเปลี่ยนหน้าจอ,หน้าจอ OLED,iPhone,iPhone 13,เกรดแท้ศูนย์,4500\nเปลี่ยนแบตเตอรี่,แบตเตอรี่ มอก.,iPhone,iPhone 11,แบตมาตรฐาน,900';
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `Sample_Pricing.csv`; link.click();
         }
 
         function exportToCSV() {
@@ -1340,3 +1506,4 @@
     </script>
 </body>
 </html>
+```eof
