@@ -2,571 +2,463 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FixItMobile - ระบบจัดการร้านซ่อมมือถือ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap');
-        body { font-family: 'Prompt', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        
-        .glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
-        .gradient-hero { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
-        .hover-lift { transition: all 0.3s ease; }
-        .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
-        
-        .date-selectable { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; cursor: pointer; }
-        .date-selectable:hover { background-color: #bbf7d0; }
-        .date-selected { background-color: #16a34a !important; color: white !important; font-weight: bold; }
-        
-        #receipt-template { 
-            background: white; color: black; font-family: 'Prompt', sans-serif; 
-            width: 210mm; min-height: 297mm; padding: 20mm; font-size: 14px; box-sizing: border-box;
-        }
+        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; color: #1e293b; -webkit-tap-highlight-color: transparent; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(226, 232, 240, 0.8); }
+        .hover-lift { transition: transform 0.2s, box-shadow 0.2s; }
+        .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .sidebar-transition { transition: transform 0.3s ease-in-out; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col text-slate-800">
+<body onload="initApp()" class="flex flex-col min-h-screen">
 
-    <!-- Customer App -->
-    <div id="customer-app" class="flex-grow flex flex-col">
-        <nav class="glass-nav sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-                <div class="flex items-center space-x-3 cursor-pointer" onclick="navCustomer('home')">
-                    <div class="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-md">
-                        <i class="fas fa-tools"></i>
-                    </div>
-                    <span class="font-extrabold text-xl tracking-tight text-slate-800" id="nav-brand-name">FixItMobile</span>
-                </div>
-                <div class="flex space-x-2">
-                    <button onclick="navCustomer('home')" class="px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition"><i class="fas fa-home mr-1"></i>หน้าแรก</button>
-                    <button onclick="navCustomer('tracking')" class="px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition"><i class="fas fa-search mr-1"></i>ติดตามสถานะ</button>
-                </div>
+    <!-- Navbar -->
+    <nav class="glass-panel sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-2 md:gap-3 cursor-pointer" onclick="navCustomer('home')">
+                <button id="admin-menu-toggle" onclick="toggleAdminSidebar()" class="hidden text-slate-600 text-2xl mr-2"><i class="fas fa-bars"></i></button>
+                <div class="bg-blue-600 text-white w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-lg md:text-xl shadow-lg"><i class="fas fa-tools"></i></div>
+                <span class="font-black text-lg md:text-xl tracking-tight text-blue-900">FixItMobile</span>
             </div>
-        </nav>
-
-        <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
-            <!-- Home Tab -->
-            <div id="customer-home-tab" class="block">
-                <div class="gradient-hero text-white rounded-[2rem] p-8 md:p-12 text-center shadow-xl mb-10">
-                    <h1 id="ui-hero-title" class="text-3xl md:text-5xl font-black mb-3">ศูนย์ซ่อมมือถือนอกสถานที่</h1>
-                    <p id="ui-hero-subtitle" class="text-base md:text-lg text-blue-100 max-w-2xl mx-auto">บริการซ่อมถึงที่ สะดวก รวดเร็ว อะไหล่คุณภาพ รับประกันงานซ่อม</p>
-                </div>
-                <div id="dynamic-customer-menus" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            
+            <div class="hidden md:flex gap-2">
+                <button onclick="navCustomer('home')" class="px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition">หน้าแรก</button>
+                <button onclick="navCustomer('tracking')" class="px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition">ติดตามสถานะ</button>
+                <button onclick="switchMode('admin')" class="px-4 py-2 rounded-xl text-sm font-bold bg-slate-900 text-white shadow-md hover:bg-slate-800 transition"><i class="fas fa-lock mr-2"></i>ระบบจัดการ</button>
             </div>
+            
+            <div class="md:hidden flex items-center">
+                <button onclick="toggleMobileMenu()" class="text-slate-600 text-2xl focus:outline-none"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+        
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b shadow-lg absolute w-full z-40">
+            <div class="px-4 pt-2 pb-4 space-y-2">
+                <button onclick="navCustomer('home'); toggleMobileMenu()" class="block w-full text-left px-3 py-3 rounded-lg text-base font-bold text-slate-700 hover:bg-blue-50"><i class="fas fa-home mr-3 w-5 text-center"></i> หน้าแรก</button>
+                <button onclick="navCustomer('tracking'); toggleMobileMenu()" class="block w-full text-left px-3 py-3 rounded-lg text-base font-bold text-slate-700 hover:bg-blue-50"><i class="fas fa-search mr-3 w-5 text-center"></i> ติดตามสถานะ</button>
+                <button onclick="switchMode('admin'); toggleMobileMenu()" class="block w-full text-left px-3 py-3 rounded-lg text-base font-bold text-slate-700 hover:bg-slate-100"><i class="fas fa-lock mr-3 w-5 text-center"></i> ระบบจัดการ (Admin)</button>
+            </div>
+        </div>
+    </nav>
 
-            <!-- Booking Tab -->
-            <div id="customer-booking-tab" class="hidden">
-                <button onclick="navCustomer('home')" class="mb-4 text-sm font-bold text-slate-500 hover:text-blue-600 bg-white px-4 py-2 rounded-full border shadow-sm"><i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ</button>
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-black text-slate-800 mb-1">จองคิวซ่อมมือถือ</h2>
-                    <p class="text-sm text-slate-500">กรอกข้อมูลเพื่อให้ช่างเดินทางไปบริการคุณ</p>
+    <!-- CUSTOMER APP -->
+    <main id="app-customer" class="flex-grow w-full max-w-4xl mx-auto p-4 md:p-6 transition-all duration-300 block">
+        
+        <!-- 1. Home / Vertical Menus -->
+        <div id="view-home" class="animate-fade-in block">
+            <div class="bg-gradient-to-br from-blue-900 to-indigo-800 rounded-[2rem] p-8 md:p-12 text-center text-white shadow-2xl mb-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
+                <h1 class="text-3xl md:text-4xl font-black mb-3 relative z-10 leading-tight">ศูนย์ซ่อมมือถือนอกสถานที่</h1>
+                <p class="text-sm md:text-base text-blue-100 font-medium relative z-10">บริการรวดเร็ว อะไหล่คุณภาพ รับประกันงานซ่อม</p>
+            </div>
+            <div id="ui-quick-menus" class="flex flex-col space-y-4"></div>
+        </div>
+
+        <!-- 2. Booking Form -->
+        <div id="view-booking" class="animate-fade-in hidden">
+            <button onclick="navCustomer('home')" class="mb-4 px-4 py-2 bg-white rounded-full shadow-sm text-sm font-bold text-slate-500 hover:text-blue-600"><i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ</button>
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                <div class="bg-blue-50 p-6 md:p-8 border-b border-blue-100 text-center">
+                    <h2 class="text-2xl md:text-3xl font-black text-blue-900 mb-2">จองคิวซ่อมมือถือ</h2>
+                    <p class="text-blue-600 font-medium text-sm md:text-base">ระบบคำนวณราคาอัตโนมัติ</p>
                 </div>
-                <form id="bookingForm" class="space-y-6 bg-white p-6 md:p-8 rounded-[2rem] shadow-lg border border-slate-100" onsubmit="handleDirectSubmit(event)">
-                    <!-- Date Picker -->
-                    <div class="bg-slate-50 p-3 rounded-2xl border">
-                        <div class="bg-white p-4 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4 mb-3 shadow-sm">
-                            <div>
-                                <h3 class="font-bold text-slate-700"><i class="far fa-calendar-alt text-blue-600 mr-2"></i>เลือกวันและเวลา</h3>
-                                <p class="text-xs text-green-600 mt-0.5">เลือกวันที่เป็นสีเขียว</p>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 w-full md:w-auto">
-                                <input type="text" id="displaySelectedDate" name="bookingDate" readonly required class="border rounded-xl px-3 py-2 text-sm font-bold text-green-700 bg-slate-50 text-center" placeholder="คลิกเลือกปฏิทิน">
-                                <select name="bookingTime" required class="border rounded-xl px-3 py-2 text-sm font-bold bg-white">
-                                    <option value="">-- เลือกเวลา --</option>
-                                    <option value="09:00 - 10:00">09:00 - 10:00</option><option value="10:00 - 11:00">10:00 - 11:00</option>
-                                    <option value="13:00 - 14:00">13:00 - 14:00</option><option value="15:00 - 16:00">15:00 - 16:00</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="bg-white p-3 rounded-xl shadow-sm">
-                            <div class="flex justify-between items-center mb-3">
-                                <button type="button" onclick="changeMonth(-1)" class="p-2 hover:bg-slate-100 rounded-full"><i class="fas fa-chevron-left"></i></button>
-                                <h4 id="calendarMonthYear" class="font-bold text-sm">เดือน ปี</h4>
-                                <button type="button" onclick="changeMonth(1)" class="p-2 hover:bg-slate-100 rounded-full"><i class="fas fa-chevron-right"></i></button>
-                            </div>
-                            <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 mb-2">
-                                <div class="text-red-400">อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div class="text-blue-400">ส</div>
-                            </div>
-                            <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
+                <form id="form-booking" class="p-6 md:p-8 space-y-6 md:space-y-8" onsubmit="submitBooking(event)">
+                    <div>
+                        <h3 class="text-base md:text-lg font-bold mb-3 flex items-center"><i class="fas fa-calendar-alt text-blue-500 mr-2"></i>1. เลือกวันและเวลา</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                            <input type="date" name="bookDate" required class="w-full p-3 border-2 border-slate-200 rounded-xl font-bold text-slate-700 focus:border-blue-500 outline-none">
+                            <select name="bookTime" required class="w-full p-3 border-2 border-slate-200 rounded-xl font-bold text-slate-700 focus:border-blue-500 outline-none">
+                                <option value="">-- เลือกเวลา --</option><option value="09:00-10:00">09:00 - 10:00</option><option value="10:00-12:00">10:00 - 12:00</option><option value="13:00-15:00">13:00 - 15:00</option><option value="15:00-17:00">15:00 - 17:00</option>
+                            </select>
                         </div>
                     </div>
 
-                    <!-- Symptoms -->
-                    <div class="bg-amber-50 p-5 rounded-2xl border border-amber-100">
-                        <h3 class="font-bold text-slate-800 mb-2"><i class="fas fa-stethoscope text-amber-500 mr-2"></i>อาการที่พบ (เลือกได้มากกว่า 1 ข้อ)</h3>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                            <label class="flex items-center p-3 bg-white border rounded-xl hover:border-amber-400 cursor-pointer text-sm font-semibold shadow-sm"><input type="checkbox" name="symptoms" value="ชาร์จไม่เข้า" class="mr-2.5"> ชาร์จไม่เข้า</label>
-                            <label class="flex items-center p-3 bg-white border rounded-xl hover:border-amber-400 cursor-pointer text-sm font-semibold shadow-sm"><input type="checkbox" name="symptoms" value="จอเสีย" class="mr-2.5"> จอเสีย</label>
-                            <label class="flex items-center p-3 bg-white border rounded-xl hover:border-amber-400 cursor-pointer text-sm font-semibold shadow-sm"><input type="checkbox" name="symptoms" value="เครื่องตกน้ำ" class="mr-2.5"> เครื่องตกน้ำ</label>
-                            <label class="flex items-center p-3 bg-white border rounded-xl hover:border-amber-400 cursor-pointer text-sm font-semibold shadow-sm"><input type="checkbox" name="symptoms" value="ไม่มีสัญญาณ" class="mr-2.5"> ไม่มีสัญญาณ</label>
-                            <label class="flex items-center p-3 bg-white border rounded-xl hover:border-amber-400 cursor-pointer text-sm font-semibold shadow-sm"><input type="checkbox" name="symptoms" value="เครื่องล็อค" class="mr-2.5"> เครื่องล็อค</label>
-                            <label class="flex items-center p-3 bg-white border rounded-xl hover:border-amber-400 cursor-pointer text-sm font-semibold shadow-sm"><input type="checkbox" name="symptoms" value="เครื่องร้อน" class="mr-2.5"> เครื่องร้อน</label>
+                    <div>
+                        <h3 class="text-base md:text-lg font-bold mb-3 flex items-center"><i class="fas fa-stethoscope text-amber-500 mr-2"></i>2. อาการที่พบ (เลือกได้มากกว่า 1)</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+                            <label class="flex items-center p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer"><input type="checkbox" name="symptoms" value="ชาร์จไม่เข้า" class="w-4 h-4 mr-2 text-amber-600"><span class="font-bold text-xs md:text-sm">⚡ ชาร์จไม่เข้า</span></label>
+                            <label class="flex items-center p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer"><input type="checkbox" name="symptoms" value="จอเสีย" class="w-4 h-4 mr-2 text-amber-600"><span class="font-bold text-xs md:text-sm">📱 จอเสีย/แตก</span></label>
+                            <label class="flex items-center p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer"><input type="checkbox" name="symptoms" value="เครื่องตกน้ำ" class="w-4 h-4 mr-2 text-amber-600"><span class="font-bold text-xs md:text-sm">💧 เครื่องตกน้ำ</span></label>
+                            <label class="flex items-center p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer"><input type="checkbox" name="symptoms" value="ไม่มีสัญญาณ" class="w-4 h-4 mr-2 text-amber-600"><span class="font-bold text-xs md:text-sm">📡 ไม่มีสัญญาณ</span></label>
+                            <label class="flex items-center p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer"><input type="checkbox" name="symptoms" value="เครื่องล็อค" class="w-4 h-4 mr-2 text-amber-600"><span class="font-bold text-xs md:text-sm">🔒 เครื่องล็อค</span></label>
+                            <label class="flex items-center p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer"><input type="checkbox" name="symptoms" value="เครื่องร้อน" class="w-4 h-4 mr-2 text-amber-600"><span class="font-bold text-xs md:text-sm">🔥 เครื่องร้อนไว</span></label>
                         </div>
                     </div>
 
-                    <!-- Service & Price -->
-                    <div class="bg-blue-50 p-5 rounded-2xl border border-blue-100">
-                        <h3 class="font-bold text-slate-800 mb-3"><i class="fas fa-mobile-alt text-blue-500 mr-2"></i>เลือกบริการ</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-bold mb-1">บริการ</label><select name="service" id="select-service" required onchange="updateDynamicForm()" class="w-full border rounded-xl p-3 bg-white text-sm"></select></div>
-                            <div><label class="block text-sm font-bold mb-1">รายละเอียด / อะไหล่</label><select name="item" id="select-item" required onchange="updateDynamicForm()" class="w-full border rounded-xl p-3 bg-white text-sm"></select></div>
-                            <div><label class="block text-sm font-bold mb-1">OS</label><select name="os" id="select-os" required onchange="updateDynamicForm()" class="w-full border rounded-xl p-3 bg-white text-sm"><option value="">-- เลือกระบบ --</option><option value="Iphone">Iphone</option><option value="Android">Android</option></select></div>
-                            <div id="container-model" class="hidden"><label class="block text-sm font-bold mb-1">รุ่นมือถือ</label><select name="deviceModel" id="select-model" required onchange="calculatePrice()" class="w-full border rounded-xl p-3 bg-white text-sm"></select></div>
-                            <div id="container-grade" class="hidden md:col-span-2"><label class="block text-sm font-bold mb-1">เกรดอะไหล่</label><select name="partGrade" id="select-grade" required onchange="calculatePrice()" class="w-full border rounded-xl p-3 bg-white text-sm"></select></div>
+                    <div>
+                        <h3 class="text-base md:text-lg font-bold mb-3 flex items-center"><i class="fas fa-tools text-indigo-500 mr-2"></i>3. เลือกบริการ และประเมินราคา</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                            <div><label class="block text-xs md:text-sm font-bold mb-1">ประเภทการซ่อม</label><select id="f-type" onchange="renderBookingModels('customer')" class="w-full p-3 border-2 border-slate-200 rounded-xl font-bold text-sm md:text-base"><option value="">-- เลือก --</option><option value="screens">เปลี่ยนหน้าจอ</option><option value="batteries">เปลี่ยนแบตเตอรี่</option></select></div>
+                            <div><label class="block text-xs md:text-sm font-bold mb-1">รุ่นมือถือ</label><select id="f-model" onchange="renderBookingGrades('customer')" class="w-full p-3 border-2 border-slate-200 rounded-xl font-bold text-sm md:text-base" disabled><option value="">-- เลือกรุ่น --</option></select></div>
+                            <div class="md:col-span-2"><label class="block text-xs md:text-sm font-bold mb-1">เกรดอะไหล่</label><select id="f-grade" name="gradeData" onchange="updatePrice('customer')" class="w-full p-3 border-2 border-slate-200 rounded-xl font-bold text-indigo-700 text-sm md:text-base" disabled><option value="">-- เลือกเกรด --</option></select></div>
                         </div>
-                        <div class="mt-4 p-4 bg-blue-600 text-white rounded-xl flex justify-between items-center hidden" id="price-display-container">
-                            <span class="font-bold">ราคารวมประเมิน:</span>
-                            <span class="text-2xl font-black"><span id="display-total-price">0</span> บาท</span>
-                            <input type="hidden" name="totalPrice" id="input-total-price" value="0">
+                        <div id="f-price-box" class="hidden mt-4 bg-indigo-50 border-2 border-indigo-200 rounded-xl p-4 md:p-6 flex justify-between items-center">
+                            <span class="font-bold text-indigo-900 text-sm md:text-base">ราคาประเมินเบื้องต้น:</span>
+                            <span class="text-xl md:text-3xl font-black text-indigo-700"><span id="f-price-display">0</span> บาท</span>
+                            <input type="hidden" id="f-price-val" name="totalPrice" value="0">
                         </div>
                     </div>
 
-                    <!-- Customer Info -->
-                    <div class="bg-slate-50 p-5 rounded-2xl border">
-                        <h3 class="font-bold text-slate-800 mb-3"><i class="fas fa-id-card text-slate-500 mr-2"></i>ข้อมูลลูกค้า</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-bold mb-1">ชื่อ</label><input type="text" name="firstName" class="w-full border rounded-xl p-2.5 text-sm" required></div>
-                            <div><label class="block text-sm font-bold mb-1">นามสกุล</label><input type="text" name="lastName" class="w-full border rounded-xl p-2.5 text-sm" required></div>
-                            <div><label class="block text-sm font-bold mb-1">เบอร์โทรศัพท์</label><input type="tel" name="phone" class="w-full border rounded-xl p-2.5 text-sm" required pattern="[0-9]{9,10}"></div>
-                            <div><label class="block text-sm font-bold mb-1">Line ID</label><input type="text" name="lineId" class="w-full border rounded-xl p-2.5 text-sm" required></div>
-                            <div class="md:col-span-2"><label class="block text-sm font-bold mb-1">อีเมล</label><input type="email" name="email" class="w-full border rounded-xl p-2.5 text-sm" placeholder="สำหรับรับใบแจ้งซ่อม PDF"></div>
+                    <div>
+                        <h3 class="text-base md:text-lg font-bold mb-3 flex items-center"><i class="fas fa-user-circle text-green-500 mr-2"></i>4. ข้อมูลติดต่อและสถานที่</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                            <input type="text" name="cusName" placeholder="ชื่อ - นามสกุล" required class="w-full p-3 border-2 border-slate-200 rounded-xl font-bold focus:border-blue-500 outline-none text-sm md:text-base">
+                            <input type="tel" name="cusPhone" placeholder="เบอร์โทรศัพท์" required class="w-full p-3 border-2 border-slate-200 rounded-xl font-bold focus:border-blue-500 outline-none text-sm md:text-base">
+                            <input type="email" name="cusEmail" placeholder="อีเมล" required class="w-full p-3 border-2 border-slate-200 rounded-xl font-bold focus:border-blue-500 outline-none text-sm md:text-base md:col-span-2">
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-bold mb-1">สถานที่นัดซ่อม</label>
-                                <div class="flex gap-4 mb-2">
-                                    <label class="flex items-center"><input type="radio" name="locType" value="ที่บ้าน" required class="mr-2"> ที่บ้าน</label>
-                                    <label class="flex items-center"><input type="radio" name="locType" value="ที่ทำงาน" class="mr-2"> ที่ทำงาน</label>
-                                    <label class="flex items-center"><input type="radio" name="locType" value="อื่นๆ" class="mr-2"> อื่นๆ</label>
-                                </div>
-                                <textarea name="location" rows="2" class="w-full border rounded-xl p-2.5 text-sm" required placeholder="บ้านเลขที่ ซอย ถนน แขวง เขต..."></textarea>
+                                <textarea name="cusAddress" id="f-address" rows="3" required placeholder="สถานที่นัดซ่อม / ที่อยู่..." class="w-full p-3 border-2 border-slate-200 rounded-xl font-bold focus:border-blue-500 outline-none text-sm md:text-base"></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-green-600 text-white font-black py-4 rounded-xl hover:bg-green-700 shadow-lg text-lg"><i class="fas fa-check-circle mr-2"></i>ยืนยันการจองคิว</button>
+                    <button type="submit" class="w-full bg-blue-600 text-white text-lg md:text-xl font-black py-4 rounded-xl shadow-lg transition-all hover:bg-blue-700"><i class="fas fa-check-circle mr-2"></i> ยืนยันการจองคิวซ่อม</button>
                 </form>
             </div>
+        </div>
 
-            <!-- Tracking Tab -->
-            <div id="customer-tracking-tab" class="hidden">
-                <button onclick="navCustomer('home')" class="mb-4 text-sm font-bold text-slate-500 bg-white px-4 py-2 rounded-full border"><i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ</button>
-                <div class="bg-white p-8 rounded-[2rem] shadow-lg border text-center max-w-lg mx-auto">
-                    <h2 class="text-2xl font-black mb-2">ติดตามสถานะงานซ่อม</h2>
-                    <p class="text-sm text-slate-500 mb-6">กรอกเบอร์โทรศัพท์ที่ใช้จองคิว</p>
-                    <div class="space-y-4">
-                        <input type="tel" id="track-phone" placeholder="ระบุเบอร์โทรศัพท์..." class="w-full border-2 rounded-xl p-3 text-center text-lg font-bold">
-                        <button onclick="trackStatus()" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl">ค้นหา</button>
+        <!-- 3. เช็คอาการเสียเบื้องต้น (ตามที่ลูกค้าต้องการ) -->
+        <div id="view-diagnosis" class="animate-fade-in hidden">
+            <button onclick="navCustomer('home')" class="mb-4 px-4 py-2 bg-white rounded-full shadow-sm text-sm font-bold text-slate-500 hover:text-blue-600"><i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ</button>
+            <div class="bg-white rounded-3xl shadow-xl border p-6 md:p-8 space-y-6">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800 mb-2"><i class="fas fa-stethoscope text-amber-500 mr-2"></i>วิเคราะห์ปัญหาและแนวทางการแก้ไขเบื้องต้น</h2>
+                    <p class="text-slate-500 text-sm">เลือกอาการที่ท่านพบ เพื่อดูสาเหตุและแนวทางแก้ไขเบื้องต้นด้วยตนเอง</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="border p-5 rounded-2xl bg-slate-50">
+                        <h3 class="font-black text-blue-900 mb-2">⚡ อาการ: ชาร์จไม่เข้า / ไฟไม่เข้า</h3>
+                        <p class="text-xs text-slate-600 mb-2"><b>สาเหตุที่เป็นไปได้:</b> ฝุ่นอุดตันในพอร์ตชาร์จ, สายชาร์จ/หัวชาร์จเสื่อมสภาพ, หรือตูดชาร์จ (IC Power) เสียหาย</p>
+                        <p class="text-xs text-green-700 font-bold">🛠️ แนวทางแก้ไขเบื้องต้น: ใช้ไม้จิ้มฟันแคะฝุ่นในก้นชาร์จเบาๆ หรือลองเปลี่ยนสายชาร์จเส้นอื่น หากยังไม่หายแนะนำให้ช่างตรวจสอบตูดชาร์จ</p>
                     </div>
-                    <div id="track-result" class="mt-6 text-left hidden"></div>
+                    <div class="border p-5 rounded-2xl bg-slate-50">
+                        <h3 class="font-black text-blue-900 mb-2">📱 อาการ: จอเสีย / เส้นขึ้น / ทัชสกรีนไม่ได้</h3>
+                        <p class="text-xs text-slate-600 mb-2"><b>สาเหตุที่เป็นไปได้:</b> เครื่องตกกระแทก, โดนความชื้น, หรือแพรจอหลวม/ชำรุดภายใน</p>
+                        <p class="text-xs text-green-700 font-bold">🛠️ แนวทางแก้ไขเบื้องต้น: รีสตาร์ทเครื่องบังคับ (Force Restart) หากหน้าจอยังมีเส้นหรือมืดสนิท จำเป็นต้องเปลี่ยนชุดหน้าจอใหม่</p>
+                    </div>
+                    <div class="border p-5 rounded-2xl bg-slate-50">
+                        <h3 class="font-black text-blue-900 mb-2">💧 อาการ: เครื่องตกน้ำ / โดนความชื้น</h3>
+                        <p class="text-xs text-slate-600 mb-2"><b>สาเหตุที่เป็นไปได้:</b> น้ำเข้าภายในทำให้เกิดการลัดวงจรที่บอร์ด</p>
+                        <p class="text-xs text-green-700 font-bold">🛠️ แนวทางแก้ไขเบื้องต้น: ปิดเครื่องทันที ห้ามชาร์จแบตเด็ดขาด! รีบนำใส่ถุงซิปล็อคใส่ข้าวสารหรือนำส่งช่างล้างบอร์ดด่วนที่สุด</p>
+                    </div>
+                    <div class="border p-5 rounded-2xl bg-slate-50">
+                        <h3 class="font-black text-blue-900 mb-2">🔥 อาการ: แบตหมดไว / เครื่องร้อนผิดปกติ</h3>
+                        <p class="text-xs text-slate-600 mb-2"><b>สาเหตุที่เป็นไปได้:</b> แบตเตอรี่เสื่อมสภาพตามอายุการใช้งาน หรือมีแอปพลิเคชันรันเบื้องหลังเยอะเกินไป</p>
+                        <p class="text-xs text-green-700 font-bold">🛠️ แนวทางแก้ไขเบื้องต้น: ปิดแอปที่ไม่ใช้ ตรวจสอบสุขภาพแบตเตอรี่ หากต่ำกว่า 80% ควรถือโอกาสเปลี่ยนแบตเตอรี่ใหม่</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tracking Tab -->
+        <div id="view-tracking" class="animate-fade-in hidden max-w-lg mx-auto">
+            <button onclick="navCustomer('home')" class="mb-4 px-4 py-2 bg-white rounded-full shadow-sm text-sm font-bold text-slate-500"><i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ</button>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border text-center">
+                <h2 class="text-2xl font-black mb-2">ติดตามสถานะงานซ่อม</h2>
+                <input type="tel" id="track-input" placeholder="เบอร์โทรศัพท์..." class="w-full p-4 border-2 rounded-xl text-center font-bold mb-4">
+                <button onclick="checkTracking()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg">ค้นหาข้อมูล</button>
+                <div id="track-result" class="mt-6 text-left hidden"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ADMIN APP -->
+    <main id="app-admin" class="hidden flex-grow w-full max-w-[1400px] mx-auto md:p-4 flex h-screen md:h-[calc(100vh-4rem)] relative overflow-hidden">
+        <div id="admin-sidebar-overlay" onclick="toggleAdminSidebar()" class="fixed inset-0 bg-slate-900/50 z-30 hidden md:hidden"></div>
+
+        <aside id="admin-sidebar" class="fixed md:relative z-40 inset-y-0 left-0 transform -translate-x-full md:translate-x-0 w-64 bg-slate-900 text-slate-300 p-4 flex flex-col flex-shrink-0 shadow-2xl md:shadow-xl md:rounded-3xl sidebar-transition overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
+                <div><div class="text-lg font-black text-white">Admin ERP</div><div class="text-xs text-green-400">● Auto-Save</div></div>
+                <button onclick="toggleAdminSidebar()" class="md:hidden text-slate-400 text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-1 font-bold text-sm">
+                <button onclick="navAdmin('dashboard')" id="menu-dashboard" class="admin-menu w-full text-left p-3 rounded-xl hover:bg-slate-800 transition"><i class="fas fa-chart-pie w-6"></i> ภาพรวม</button>
+                <button onclick="navAdmin('calculator')" id="menu-calculator" class="admin-menu w-full text-left p-3 rounded-xl hover:bg-slate-800 transition text-blue-400"><i class="fas fa-calculator w-6"></i> คำนวณราคา (ด่วน)</button>
+                <button onclick="navAdmin('bookings')" id="menu-bookings" class="admin-menu w-full text-left p-3 rounded-xl hover:bg-slate-800 transition"><i class="fas fa-list w-6"></i> ข้อมูลการจอง (CRUD)</button>
+                <button onclick="navAdmin('customers')" id="menu-customers" class="admin-menu w-full text-left p-3 rounded-xl hover:bg-slate-800 transition"><i class="fas fa-users w-6"></i> รายชื่อลูกค้า (CRUD)</button>
+                <button onclick="navAdmin('products')" id="menu-products" class="admin-menu w-full text-left p-3 rounded-xl hover:bg-slate-800 transition"><i class="fas fa-box w-6"></i> สินค้าและราคา (CRUD)</button>
+                <button onclick="navAdmin('repair')" id="menu-repair" class="admin-menu w-full text-left p-3 rounded-xl hover:bg-slate-800 transition"><i class="fas fa-tools w-6"></i> สถานะการซ่อม</button>
+            </div>
+            <button onclick="switchMode('customer')" class="mt-auto w-full bg-slate-800 text-white p-3 rounded-xl hover:bg-slate-700 transition font-bold"><i class="fas fa-sign-out-alt mr-2"></i> ออกจากระบบ</button>
+        </aside>
+
+        <div class="flex-grow bg-slate-50 md:bg-white md:rounded-3xl shadow-sm border-0 md:border md:ml-6 p-4 md:p-8 overflow-y-auto w-full" oninput="autoSave()">
+            <!-- Dashboard -->
+            <div id="admin-view-dashboard" class="admin-view animate-fade-in block space-y-4">
+                <h2 class="text-xl md:text-2xl font-black text-slate-800">ภาพรวมระบบ</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="p-6 bg-blue-50 rounded-2xl border"><div class="text-sm font-bold text-slate-500">การจองทั้งหมด</div><div class="text-3xl font-black text-blue-700 mt-2" id="stat-total">0</div></div>
+                    <div class="p-6 bg-amber-50 rounded-2xl border"><div class="text-sm font-bold text-slate-500">กำลังดำเนินการ</div><div class="text-3xl font-black text-amber-600 mt-2" id="stat-pending">0</div></div>
+                    <div class="p-6 bg-green-50 rounded-2xl border"><div class="text-sm font-bold text-slate-500">เสร็จสิ้น</div><div class="text-3xl font-black text-green-600 mt-2" id="stat-done">0</div></div>
+                    <div class="p-6 bg-indigo-50 rounded-2xl border"><div class="text-sm font-bold text-slate-500">ลูกค้าทั้งหมด</div><div class="text-3xl font-black text-indigo-600 mt-2" id="stat-cus">0</div></div>
                 </div>
             </div>
 
-            <!-- Rates Tab -->
-            <div id="customer-rates-tab" class="hidden">
-                <button onclick="navCustomer('home')" class="mb-4 text-sm font-bold text-slate-500 bg-white px-4 py-2 rounded-full border"><i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ</button>
-                <div class="bg-white rounded-[2rem] shadow-lg border p-6 overflow-x-auto">
-                    <h3 class="font-black text-xl mb-4">ตารางราคาค่าบริการ</h3>
-                    <table class="w-full text-sm text-left border-collapse min-w-[700px]">
-                        <thead class="bg-slate-100"><tr><th class="p-3">บริการ</th><th class="p-3">รายการ</th><th class="p-3">OS</th><th class="p-3">รุ่น</th><th class="p-3">เกรด</th><th class="p-3 text-right">ราคา</th></tr></thead>
-                        <tbody id="rates-table-body" class="divide-y"></tbody>
+            <!-- Calculator -->
+            <div id="admin-view-calculator" class="admin-view animate-fade-in hidden space-y-4">
+                <h2 class="text-xl md:text-2xl font-black text-slate-800">เครื่องคิดเลขประเมินราคา (อัตโนมัติ)</h2>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm max-w-2xl">
+                    <div class="space-y-4">
+                        <div><label class="block text-sm font-bold mb-1">ประเภทการซ่อม</label><select id="calc-type" onchange="renderBookingModels('calc')" class="w-full p-3 border rounded-xl font-bold"><option value="">-- เลือก --</option><option value="screens">เปลี่ยนหน้าจอ</option><option value="batteries">เปลี่ยนแบตเตอรี่</option></select></div>
+                        <div><label class="block text-sm font-bold mb-1">รุ่นมือถือ</label><select id="calc-model" onchange="renderBookingGrades('calc')" class="w-full p-3 border rounded-xl font-bold" disabled><option value="">-- เลือกรุ่น --</option></select></div>
+                        <div><label class="block text-sm font-bold mb-1">เกรดอะไหล่</label><select id="calc-grade" onchange="updatePrice('calc')" class="w-full p-3 border rounded-xl font-bold text-indigo-700" disabled><option value="">-- เลือกเกรด --</option></select></div>
+                    </div>
+                    <div id="calc-price-box" class="hidden mt-6 bg-indigo-50 border rounded-xl p-6 text-center">
+                        <span class="font-bold text-indigo-900 block mb-2">ราคาสุทธิ</span>
+                        <span class="text-4xl font-black text-indigo-700"><span id="calc-price-display">0</span> บาท</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customers CRUD -->
+            <div id="admin-view-customers" class="admin-view animate-fade-in hidden space-y-4">
+                <div class="flex justify-between items-center"><h2 class="text-xl md:text-2xl font-black text-slate-800">ฐานข้อมูลลูกค้า (CRUD)</h2><button onclick="addCustomerForm()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold">เพิ่มลูกค้า</button></div>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border p-2">
+                    <table class="w-full text-xs md:text-sm text-left border-collapse min-w-[700px]">
+                        <thead class="bg-slate-100"><tr><th class="p-3">ชื่อ</th><th class="p-3">เบอร์โทร</th><th class="p-3">อีเมล</th><th class="p-3">ที่อยู่</th><th class="p-3 text-center">ลบ</th></tr></thead>
+                        <tbody id="ad-tb-customers" class="divide-y"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Contact Tab -->
-            <div id="customer-contact-tab" class="hidden">
-                <button onclick="navCustomer('home')" class="mb-4 text-sm font-bold text-slate-500 bg-white px-4 py-2 rounded-full border"><i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ</button>
-                <div class="bg-white p-10 rounded-[2rem] shadow-lg border max-w-md mx-auto text-center">
-                    <h2 class="text-2xl font-black mb-6">ติดต่อเรา</h2>
-                    <div class="space-y-4 font-bold text-lg">
-                        <div id="ui-contact-phone" class="p-4 bg-blue-50 text-blue-700 rounded-xl">080-123-4567</div>
-                        <div id="ui-contact-line" class="p-4 bg-green-50 text-green-700 rounded-xl">@FixItMobile</div>
-                    </div>
+            <!-- Bookings CRUD -->
+            <div id="admin-view-bookings" class="admin-view animate-fade-in hidden space-y-4">
+                <h2 class="text-xl md:text-2xl font-black text-slate-800">ข้อมูลการจอง (CRUD)</h2>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border p-2">
+                    <table class="w-full text-xs md:text-sm text-left border-collapse min-w-[900px]">
+                        <thead class="bg-slate-100"><tr><th class="p-3">รหัส/วันที่</th><th class="p-3">ลูกค้า</th><th class="p-3">บริการ/รุ่น</th><th class="p-3">ราคา</th><th class="p-3">สถานะ</th><th class="p-3 text-center">จัดการ</th></tr></thead>
+                        <tbody id="ad-tb-bookings" class="divide-y"></tbody>
+                    </table>
                 </div>
             </div>
-        </main>
-        
-        <footer class="bg-slate-900 py-6 text-center text-slate-400 text-sm mt-auto">
-            <p>© 2024 FixItMobile. All rights reserved.</p>
-            <button onclick="showAdminLogin()" class="mt-2 text-xs text-slate-500 hover:text-white underline"><i class="fas fa-shield-alt mr-1"></i>เข้าสู่ระบบหลังบ้าน (Admin)</button>
-        </footer>
-    </div>
 
-    <!-- Admin Login -->
-    <div id="admin-login-screen" class="hidden fixed inset-0 z-[100] bg-slate-950/90 flex items-center justify-center p-4">
-        <div class="max-w-sm w-full bg-white p-8 rounded-[2rem] shadow-2xl relative">
-            <button onclick="closeAdminLogin()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
-            <h3 class="text-2xl font-black text-center mb-6">Admin Login</h3>
-            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-                <input type="text" id="adminUser" class="w-full border rounded-xl px-4 py-3" placeholder="Username (admin)" required>
-                <input type="password" id="adminPass" class="w-full border rounded-xl px-4 py-3" placeholder="Password (password)" required>
-                <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl">เข้าสู่ระบบ</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Admin App -->
-    <div id="admin-app" class="hidden h-screen bg-slate-100 flex overflow-hidden">
-        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col">
-            <div class="h-16 flex items-center px-6 font-black text-lg text-white border-b border-slate-800">FixIt ERP</div>
-            <div class="p-4 flex-grow space-y-1 text-sm font-bold overflow-y-auto">
-                <button onclick="navAdmin('bookings')" id="menu-bookings" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white"><i class="fas fa-list-ul w-6"></i> จัดการคิวซ่อม</button>
-                <button onclick="navAdmin('repair-status')" id="menu-repair-status" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white"><i class="fas fa-tools w-6"></i> สถานะการซ่อม</button>
-                <button onclick="navAdmin('warranty')" id="menu-warranty" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white"><i class="fas fa-shield-alt w-6"></i> การรับประกัน</button>
-                <button onclick="navAdmin('products')" id="menu-products" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white"><i class="fas fa-box w-6"></i> สินค้าและราคา</button>
-                <button onclick="navAdmin('webconfig')" id="menu-webconfig" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white"><i class="fas fa-globe w-6"></i> จัดการเว็บไซต์ (CMS)</button>
-                <button onclick="navAdmin('backup')" id="menu-backup" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white text-amber-400"><i class="fas fa-database w-6"></i> สำรองข้อมูล</button>
-            </div>
-            <div class="p-4 border-t border-slate-800 space-y-2">
-                <button onclick="switchAppMode('customer')" class="w-full bg-slate-800 text-white p-2 rounded-lg text-xs font-bold">ดูหน้าเว็บลูกค้า</button>
-                <button onclick="adminLogout()" class="w-full bg-red-600/20 text-red-400 p-2 rounded-lg text-xs font-bold">ออกจากระบบ</button>
-            </div>
-        </aside>
-        
-        <main class="flex-1 p-6 overflow-y-auto bg-slate-100">
-            <h1 id="admin-header-title" class="text-2xl font-black mb-6 text-slate-800">จัดการระบบ</h1>
-            
-            <!-- Bookings -->
-            <div id="view-bookings" class="admin-view block bg-white p-5 rounded-2xl shadow-sm border overflow-x-auto">
-                <table class="w-full text-sm text-left"><thead class="bg-slate-100"><tr><th class="p-3">รหัส/วันที่</th><th class="p-3">ลูกค้า</th><th class="p-3">บริการ</th><th class="p-3">สถานะ</th><th class="p-3 text-center">ลบ</th></tr></thead><tbody id="all-bookings-body" class="divide-y"></tbody></table>
+            <!-- Products CRUD -->
+            <div id="admin-view-products" class="admin-view hidden animate-fade-in space-y-6">
+                <h2 class="text-xl md:text-2xl font-black text-slate-800">จัดการสินค้าและราคา (CRUD)</h2>
+                <div class="bg-slate-50 p-4 rounded-2xl border">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                        <select id="p-type" onchange="togglePForm()" class="border p-2 rounded text-sm"><option value="screens">หมวดหน้าจอ</option><option value="batteries">หมวดแบตเตอรี่</option></select>
+                        <input type="text" id="p-service" value="เปลี่ยนหน้าจอ" class="border p-2 rounded text-sm">
+                        <input type="text" id="p-product" value="จอชุด" class="border p-2 rounded text-sm">
+                        <select id="p-os" class="border p-2 rounded text-sm"><option value="iPhone">iPhone</option><option value="Android">Android</option></select>
+                    </div>
+                    <div class="mb-3"><input type="text" id="p-model" placeholder="ชื่อรุ่น (เช่น iPhone 13)" class="w-full border p-2 rounded text-sm"></div>
+                    <div id="pf-screens" class="grid grid-cols-3 gap-3"><input type="number" id="p-tft" placeholder="TFT" class="border p-2 rounded text-sm"><input type="number" id="p-incell" placeholder="Incell" class="border p-2 rounded text-sm"><input type="number" id="p-oled" placeholder="OLED" class="border p-2 rounded text-sm"></div>
+                    <div id="pf-batteries" class="grid grid-cols-2 gap-3 hidden"><input type="number" id="p-std" placeholder="ราคามาตรฐาน" class="border p-2 rounded text-sm"><input type="number" id="p-high" placeholder="ราคาเพิ่มความจุ" class="border p-2 rounded text-sm"></div>
+                    <button onclick="addProduct()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-bold">บันทึกสินค้า</button>
+                </div>
+                <div class="bg-white rounded-xl border p-2">
+                    <h3 class="font-bold text-blue-900 mb-2">หน้าจอ</h3>
+                    <table class="w-full text-xs text-left"><tbody id="ad-tb-screens"></tbody></table>
+                </div>
+                <div class="bg-white rounded-xl border p-2 mt-4">
+                    <h3 class="font-bold text-emerald-900 mb-2">แบตเตอรี่</h3>
+                    <table class="w-full text-xs text-left"><tbody id="ad-tb-batteries"></tbody></table>
+                </div>
             </div>
 
             <!-- Repair Status -->
-            <div id="view-repair-status" class="admin-view hidden bg-white p-5 rounded-2xl shadow-sm border overflow-x-auto">
-                <table class="w-full text-sm text-left"><thead class="bg-amber-50"><tr><th class="p-3">รหัส/ลูกค้า</th><th class="p-3">งานซ่อม</th><th class="p-3">สถานะ</th><th class="p-3">ระยะเวลาเสร็จ</th><th class="p-3 text-center">บันทึก</th></tr></thead><tbody id="repair-status-body" class="divide-y"></tbody></table>
+            <div id="admin-view-repair" class="admin-view hidden">
+                <h2 class="text-xl font-black mb-4">สถานะการซ่อม</h2>
+                <div class="bg-white rounded-xl border p-2"><table class="w-full text-xs"><tbody id="ad-tb-repair"></tbody></table></div>
             </div>
+        </div>
+    </main>
 
-            <!-- Warranty -->
-            <div id="view-warranty" class="admin-view hidden bg-white p-5 rounded-2xl shadow-sm border overflow-x-auto">
-                <table class="w-full text-sm text-left"><thead class="bg-green-50"><tr><th class="p-3">รหัส/ลูกค้า</th><th class="p-3">บริการ</th><th class="p-3">วันหมดประกัน</th><th class="p-3 text-center">ส่งอีเมล</th></tr></thead><tbody id="warranty-body" class="divide-y"></tbody></table>
-            </div>
-
-            <!-- Products -->
-            <div id="view-products" class="admin-view hidden bg-white p-5 rounded-2xl shadow-sm border space-y-4">
-                <h3 class="font-bold text-lg">รายการสินค้าและราคา (แก้ไขในตารางแล้วกดบันทึก)</h3>
-                <button onclick="saveInlineEdits()" class="bg-amber-600 text-white font-bold px-4 py-2 rounded-xl text-sm">บันทึกการแก้ไข</button>
-                <table class="w-full text-sm border-collapse"><thead class="bg-slate-100"><tr><th class="p-2">บริการ</th><th class="p-2">รายการ</th><th class="p-2">OS</th><th class="p-2">รุ่น</th><th class="p-2">เกรด</th><th class="p-2 text-right">ราคา</th></tr></thead><tbody id="products-table-body" class="divide-y"></tbody></table>
-            </div>
-
-            <!-- Web CMS -->
-            <div id="view-webconfig" class="admin-view hidden bg-white p-5 rounded-2xl shadow-sm border space-y-4">
-                <h3 class="font-bold text-lg">ตั้งค่าหน้าเว็บหลัก</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-bold mb-1">หัวข้อหลัก</label><input type="text" id="cfg-hero" class="w-full border p-2.5 rounded-xl"></div>
-                    <div><label class="block text-sm font-bold mb-1">คำอธิบาย</label><input type="text" id="cfg-sub" class="w-full border p-2.5 rounded-xl"></div>
-                    <div><label class="block text-sm font-bold mb-1">เบอร์โทร</label><input type="text" id="cfg-phone" class="w-full border p-2.5 rounded-xl"></div>
-                    <div><label class="block text-sm font-bold mb-1">Line ID</label><input type="text" id="cfg-line" class="w-full border p-2.5 rounded-xl"></div>
-                </div>
-                <button onclick="saveSiteConfig()" class="bg-blue-600 text-white font-bold px-6 py-2.5 rounded-xl">บันทึกตั้งค่าหน้าเว็บ</button>
-            </div>
-
-            <!-- Backup & Restore -->
-            <div id="view-backup" class="admin-view hidden bg-white p-8 rounded-2xl shadow-sm border max-w-xl mx-auto text-center space-y-6">
-                <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-2xl"><i class="fas fa-database"></i></div>
-                <h3 class="text-2xl font-black">สำรองข้อมูล / กู้คืนข้อมูล</h3>
-                <p class="text-sm text-slate-500">ข้อมูลทั้งหมดเก็บไว้ในเครื่องของคุณ คุณสามารถดาวน์โหลดเก็บไว้เป็นไฟล์สำรองเพื่อป้องกันข้อมูลหายได้ตลอดเวลา</p>
-                <div class="flex flex-col gap-3">
-                    <button onclick="exportBackupFile()" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl"><i class="fas fa-download mr-2"></i>ดาวน์โหลดไฟล์สำรองข้อมูล (JSON)</button>
-                    <label class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl cursor-pointer hover:bg-slate-900"><i class="fas fa-upload mr-2"></i>อัปโหลดไฟล์กู้คืนข้อมูล<input type="file" accept=".json" onchange="importBackupFile(event)" class="hidden"></label>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Success Modal -->
-    <div id="bookingSuccessModal" class="fixed inset-0 z-[150] flex items-center justify-center hidden bg-slate-950/80 backdrop-blur-sm">
-        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full mx-4 text-center shadow-2xl">
-            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl"><i class="fas fa-check"></i></div>
-            <h3 class="text-2xl font-black mb-2">จองคิวสำเร็จ!</h3>
-            <p class="text-sm text-blue-700 bg-blue-50 p-3 rounded-xl mb-6">ระบบบันทึกคิวเรียบร้อยแล้ว<br>กำลังพาไปหน้าตรวจสอบสถานะ...</p>
-            <button onclick="proceedToTracking()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl">ตกลง</button>
+    <!-- SUCCESS MODAL -->
+    <div id="modal-success" class="fixed inset-0 bg-slate-900/80 hidden flex items-center justify-center z-[100] px-4">
+        <div class="bg-white p-8 rounded-3xl text-center max-w-sm w-full shadow-2xl">
+            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fas fa-check"></i></div>
+            <h3 class="text-xl font-black mb-2">ทำรายการสำเร็จ!</h3>
+            <button onclick="document.getElementById('modal-success').classList.add('hidden')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">ตกลง</button>
         </div>
     </div>
 
-    <!-- Hidden PDF Template -->
-    <div id="receipt-container" class="hidden absolute top-0 left-[-9999px]">
-        <div id="receipt-template">
-            <h1 class="font-bold text-xl mb-2">FixItMobile - ใบรับแจ้งซ่อม</h1>
-            <p>รหัส: <span id="r-id"></span> | วันที่: <span id="r-date"></span></p>
-            <p>ลูกค้า: <span id="r-name"></span> (โทร: <span id="r-phone"></span>)</p>
-            <p>บริการ: <span id="r-service"></span></p>
-            <p>ยอดรวม: <span id="r-total"></span> บาท</p>
-        </div>
-    </div>
-
+    <!-- SCRIPT -->
     <script>
-        // Default Data
-        const defaultState = {
-            site: { heroTitle: 'ศูนย์ซ่อมมือถือนอกสถานที่', heroSubtitle: 'บริการซ่อมถึงที่ สะดวก รวดเร็ว อะไหล่คุณภาพ', phone: '080-123-4567', lineId: '@FixItMobile' },
-            products: [
-                { id: 1, service: 'เปลี่ยนหน้าจอ', item: 'จอชุด', os: 'Iphone', deviceModel: 'iPhone 13', grade: 'OLED (แท้)', price: 4500 },
-                { id: 2, service: 'เปลี่ยนแบตเตอร์รี่', item: 'แบตสำรอง', os: 'Iphone', deviceModel: 'iPhone 11', grade: 'เพิ่มความจุ', price: 1200 }
-            ],
-            bookings: []
+        const defaultMenus = [
+            { id: 1, title: 'เช็คอาการเสียเบื้องต้น เข้าไปดูการวิเคราะห์ปัญหาต่างๆ พร้อมแนวทางการแก้ไขเบื้องต้น', desc: 'วิเคราะห์อาการและวิธีแก้ไข', icon: 'fa-stethoscope', color: 'amber', isActive: true },
+            { id: 2, title: 'ซ่อมมือถือนอกสถานที่', desc: 'ช่างเดินทางไปซ่อมถึงบ้าน', icon: 'fa-wrench', color: 'indigo', isActive: true }
+        ];
+        const defaultProducts = {
+            screens: [{ id: 1, service: 'เปลี่ยนหน้าจอ', product: 'จอชุด', os: 'iPhone', model: 'iPhone 13', tft: 1500, incell: 2500, oled: 3800 }],
+            batteries: [{ id: 2, service: 'เปลี่ยนแบตเตอรี่', product: 'แบตเตอรี่', os: 'iPhone', model: 'iPhone 11', std: 800, high: 1200 }]
         };
 
-        let appState = JSON.parse(localStorage.getItem('fixit_local_db')) || defaultState;
-        let currentCalendarDate = new Date(); let selectedDateObj = null; let tempPhone = '';
+        let state = { bookings: [], customers: [], products: JSON.parse(JSON.stringify(defaultProducts)), menus: JSON.parse(JSON.stringify(defaultMenus)) };
 
-        function saveToLocal() { localStorage.setItem('fixit_local_db', JSON.stringify(appState)); }
-
-        window.onload = () => {
-            applySiteConfig();
+        let saveTimeout;
+        function autoSave() { clearTimeout(saveTimeout); saveTimeout = setTimeout(() => localStorage.setItem('fixitDataV6', JSON.stringify(state)), 500); }
+        function initApp() {
+            const saved = localStorage.getItem('fixitDataV6');
+            if(saved) state = { ...state, ...JSON.parse(saved) };
             renderCustomerMenus();
-            initDynamicForm();
-            renderCalendar();
-            renderRatesTable();
-        };
-
-        // --- SITE CONFIG & UI ---
-        function applySiteConfig() {
-            const s = appState.site;
-            document.getElementById('ui-hero-title').textContent = s.heroTitle;
-            document.getElementById('ui-hero-subtitle').textContent = s.heroSubtitle;
-            document.getElementById('ui-contact-phone').textContent = s.phone;
-            document.getElementById('ui-contact-line').textContent = s.lineId;
-            
-            if(document.getElementById('cfg-hero')) {
-                document.getElementById('cfg-hero').value = s.heroTitle;
-                document.getElementById('cfg-sub').value = s.heroSubtitle;
-                document.getElementById('cfg-phone').value = s.phone;
-                document.getElementById('cfg-line').value = s.lineId;
-            }
         }
 
-        function saveSiteConfig() {
-            appState.site.heroTitle = document.getElementById('cfg-hero').value;
-            appState.site.heroSubtitle = document.getElementById('cfg-sub').value;
-            appState.site.phone = document.getElementById('cfg-phone').value;
-            appState.site.lineId = document.getElementById('cfg-line').value;
-            saveToLocal(); applySiteConfig(); alert('บันทึกสำเร็จ');
+        function switchMode(mode) {
+            document.getElementById('app-customer').classList.toggle('hidden', mode === 'admin');
+            document.getElementById('app-admin').classList.toggle('hidden', mode !== 'admin');
+            document.getElementById('admin-menu-toggle').classList.toggle('hidden', mode !== 'admin');
+            if(mode === 'admin') navAdmin('dashboard');
+        }
+        function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }
+        function toggleAdminSidebar() { document.getElementById('admin-sidebar').classList.toggle('-translate-x-full'); document.getElementById('admin-sidebar-overlay').classList.toggle('hidden'); }
+
+        function navCustomer(view) {
+            ['home', 'booking', 'diagnosis', 'tracking'].forEach(v => document.getElementById(`view-${v}`)?.classList.add('hidden'));
+            if(view.includes('เช็คอาการ')) view = 'diagnosis';
+            if(view.includes('ซ่อม')) view = 'booking';
+            document.getElementById(`view-${view}`)?.classList.remove('hidden'); window.scrollTo(0,0);
         }
 
         function renderCustomerMenus() {
-            const menus = [
-                { id: 'booking', title: 'ซ่อมมือถือนอกสถานที่', desc: 'จองคิวช่างซ่อมถึงที่', icon: 'fa-wrench', color: 'blue' },
-                { id: 'rates', title: 'ราคาค่าบริการ', desc: 'เช็คราคาอะไหล่', icon: 'fa-tags', color: 'green' },
-                { id: 'tracking', title: 'ติดตามสถานะ', desc: 'เช็คสถานะงานซ่อม', icon: 'fa-search', color: 'amber' },
-                { id: 'contact', title: 'ติดต่อเรา', desc: 'เบอร์โทรและไลน์', icon: 'fa-phone-alt', color: 'purple' }
-            ];
-            const c = document.getElementById('dynamic-customer-menus'); c.innerHTML = '';
-            menus.forEach(m => {
-                c.innerHTML += `<button onclick="navCustomer('${m.id}')" class="bg-white p-6 rounded-3xl shadow-sm border hover-lift flex flex-col items-center text-center"><div class="w-16 h-16 bg-${m.color}-100 text-${m.color}-600 rounded-2xl flex items-center justify-center text-2xl mb-4"><i class="fas ${m.icon}"></i></div><h3 class="font-bold text-lg mb-1">${m.title}</h3><p class="text-xs text-slate-500">${m.desc}</p></button>`;
+            const flex = document.getElementById('ui-quick-menus'); flex.innerHTML = '';
+            state.menus.filter(m => m.isActive).forEach(m => {
+                flex.innerHTML += `<button onclick="navCustomer('${m.title}')" class="bg-white p-5 rounded-2xl shadow-sm border hover-lift w-full flex items-center gap-4 text-left"><div class="w-14 h-14 bg-${m.color}-100 text-${m.color}-600 rounded-xl flex items-center justify-center text-xl flex-shrink-0"><i class="fas ${m.icon}"></i></div><div><h3 class="font-black text-sm md:text-base mb-1">${m.title}</h3><p class="text-xs text-slate-500">${m.desc}</p></div></button>`;
             });
         }
 
-        function navCustomer(tab) {
-            ['home', 'booking', 'tracking', 'rates', 'contact'].forEach(t => document.getElementById(`customer-${t}-tab`)?.classList.add('hidden'));
-            document.getElementById(`customer-${tab}-tab`)?.classList.remove('hidden');
-            window.scrollTo({top:0, behavior:'smooth'});
-        }
-
-        // --- CALENDAR & DYNAMIC FORM ---
-        function renderCalendar() {
-            const year = currentCalendarDate.getFullYear(); const month = currentCalendarDate.getMonth();
-            const grid = document.getElementById('calendarGrid'); if(!grid) return;
-            document.getElementById('calendarMonthYear').textContent = `${["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."][month]} ${year + 543}`;
-            grid.innerHTML = '';
-            for (let i = 0; i < new Date(year, month, 1).getDay(); i++) grid.innerHTML += `<div></div>`;
-            const minDate = new Date(); minDate.setHours(0,0,0,0);
-            for (let day = 1; day <= new Date(year, month + 1, 0).getDate(); day++) {
-                const d = new Date(year, month, day); d.setHours(0,0,0,0);
-                const isSel = selectedDateObj && d.getTime() === selectedDateObj.getTime();
-                const isOk = d >= minDate;
-                let c = "h-8 w-8 rounded-full mx-auto font-medium text-xs flex items-center justify-center " + (isSel ? "date-selected" : isOk ? "date-selectable" : "bg-slate-100 text-slate-300");
-                grid.innerHTML += `<button type="button" ${isOk?'':'disabled'} onclick="selectCalendarDate(${year},${month},${day})" class="${c}">${day}</button>`;
+        // --- Auto Calculate Engine ---
+        function renderBookingModels(prefix) {
+            const type = document.getElementById(prefix === 'calc' ? 'calc-type' : 'f-type').value;
+            const mSel = document.getElementById(prefix === 'calc' ? 'calc-model' : 'f-model');
+            mSel.disabled = !type; mSel.innerHTML = '<option value="">-- เลือกรุ่น --</option>';
+            document.getElementById(prefix === 'calc' ? 'calc-grade' : 'f-grade').disabled = true;
+            document.getElementById(prefix === 'calc' ? 'calc-price-box' : 'f-price-box').classList.add('hidden');
+            if(type) {
+                [...new Set((type === 'screens' ? state.products.screens : state.products.batteries).map(p => p.model))].forEach(m => mSel.innerHTML += `<option value="${m}">${m}</option>`);
             }
         }
-        function changeMonth(d) { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + d); renderCalendar(); }
-        function selectCalendarDate(y, m, d) { selectedDateObj = new Date(y, m, d); document.getElementById('displaySelectedDate').value = `${d}/${m+1}/${y+543}`; renderCalendar(); }
-
-        function initDynamicForm() {
-            const sSelect = document.getElementById('select-service'); if(!sSelect) return;
-            const uniqueServices = [...new Set(appState.products.map(p => p.service))];
-            sSelect.innerHTML = '<option value="">-- เลือกบริการ --</option>';
-            uniqueServices.forEach(s => sSelect.innerHTML += `<option value="${s}">${s}</option>`);
+        function renderBookingGrades(prefix) {
+            const type = document.getElementById(prefix === 'calc' ? 'calc-type' : 'f-type').value;
+            const model = document.getElementById(prefix === 'calc' ? 'calc-model' : 'f-model').value;
+            const gSel = document.getElementById(prefix === 'calc' ? 'calc-grade' : 'f-grade');
+            gSel.disabled = !model; gSel.innerHTML = '<option value="">-- เลือกเกรด --</option>';
+            document.getElementById(prefix === 'calc' ? 'calc-price-box' : 'f-price-box').classList.add('hidden');
+            if(model) {
+                const item = (type === 'screens' ? state.products.screens : state.products.batteries).find(p => p.model === model);
+                if(item) {
+                    if(type === 'screens') {
+                        if(item.tft) gSel.innerHTML += `<option value="จอ TFT|${item.tft}">จอ TFT - ${item.tft} บ.</option>`;
+                        if(item.incell) gSel.innerHTML += `<option value="จอ Incell|${item.incell}">จอ Incell - ${item.incell} บ.</option>`;
+                        if(item.oled) gSel.innerHTML += `<option value="จอ OLED|${item.oled}">จอ OLED - ${item.oled} บ.</option>`;
+                    } else {
+                        if(item.std) gSel.innerHTML += `<option value="แบตมาตรฐาน|${item.std}">แบตมาตรฐาน - ${item.std} บ.</option>`;
+                        if(item.high) gSel.innerHTML += `<option value="แบตเพิ่มความจุ|${item.high}">แบตเพิ่มความจุ - ${item.high} บ.</option>`;
+                    }
+                }
+            }
         }
-
-        function updateDynamicForm() {
-            const s = document.getElementById('select-service').value;
-            const itemSel = document.getElementById('select-item');
-            const osSel = document.getElementById('select-os').value;
-            const modelSel = document.getElementById('select-model');
-            const gradeSel = document.getElementById('select-grade');
-            const matched = appState.products.filter(p => p.service === s);
-            
-            itemSel.innerHTML = '<option value="">-- เลือกรายการ --</option>';
-            [...new Set(matched.map(p => p.item))].forEach(i => itemSel.innerHTML += `<option value="${i}">${i}</option>`);
-
-            let fMatched = matched;
-            if(osSel) fMatched = fMatched.filter(p => p.os.toLowerCase() === osSel.toLowerCase());
-
-            const models = [...new Set(fMatched.map(p => p.deviceModel))];
-            if(models.length && models[0]) {
-                document.getElementById('container-model').classList.remove('hidden');
-                modelSel.innerHTML = '<option value="">-- เลือกรุ่น --</option>';
-                models.forEach(m => modelSel.innerHTML += `<option value="${m}">${m}</option>`);
-            } else { document.getElementById('container-model').classList.add('hidden'); }
-
-            gradeSel.innerHTML = '<option value="">-- เลือกเกรด/ราคา --</option>';
-            [...new Set(fMatched.map(p => `${p.grade}|${p.price}`))].forEach(g => {
-                const p = g.split('|'); gradeSel.innerHTML += `<option value="${g}">${p[0]} - ${Number(p[1]).toLocaleString()} บ.</option>`;
-            });
-            calculatePrice();
-        }
-
-        function calculatePrice() {
-            const v = document.getElementById('select-grade').value;
-            const box = document.getElementById('price-display-container');
-            if(v) {
-                const p = v.split('|');
-                document.getElementById('display-total-price').textContent = Number(p[1]).toLocaleString();
-                document.getElementById('input-total-price').value = p[1];
+        function updatePrice(prefix) {
+            const val = document.getElementById(prefix === 'calc' ? 'calc-grade' : 'f-grade').value;
+            const box = document.getElementById(prefix === 'calc' ? 'calc-price-box' : 'f-price-box');
+            if(val) {
+                document.getElementById(prefix === 'calc' ? 'calc-price-display' : 'f-price-display').textContent = Number(val.split('|')[1]).toLocaleString();
+                if(prefix !== 'calc') document.getElementById('f-price-val').value = val.split('|')[1];
                 box.classList.remove('hidden');
-            } else { box.classList.add('hidden'); }
+            } else box.classList.add('hidden');
         }
 
-        function renderRatesTable() {
-            const tb = document.getElementById('rates-table-body'); if(!tb) return;
-            tb.innerHTML = '';
-            appState.products.forEach(p => {
-                tb.innerHTML += `<tr><td class="p-3 font-semibold">${p.service}</td><td class="p-3">${p.item}</td><td class="p-3">${p.os}</td><td class="p-3">${p.deviceModel}</td><td class="p-3">${p.grade}</td><td class="p-3 text-right font-bold text-green-600">${Number(p.price).toLocaleString()} บ.</td></tr>`;
-            });
-        }
-
-        // --- BOOKINGS & TRACKING ---
-        function handleDirectSubmit(e) {
+        // --- Booking & Customer CRUD ---
+        function submitBooking(e) {
             e.preventDefault();
-            const fd = new FormData(e.target); const d = Object.fromEntries(fd.entries());
-            const bId = `BK-${String(Date.now()).slice(-4)}`;
-            const symptoms = Array.from(document.querySelectorAll('input[name="symptoms"]:checked')).map(el => el.value).join(', ') || 'ทั่วไป';
-            
-            const newBooking = {
-                id: bId, bookingDate: d.bookingDate, bookingTime: d.bookingTime, symptoms,
-                firstName: d.firstName, lastName: d.lastName, phone: d.phone, email: d.email||'',
-                service: `${d.service} (${d.item})`, deviceModel: d.deviceModel || d.os, totalPrice: d.totalPrice || '0',
-                location: `${d.locType}: ${d.location}`, status: 'รอยืนยัน', estCompletion: '-', warrantyUntil: '-'
+            const fd = new FormData(e.target);
+            const b = {
+                id: 'BK' + Date.now().toString().slice(-6), date: fd.get('bookDate'), symptoms: fd.getAll('symptoms').join(', '),
+                type: fd.get('f-type'), model: document.getElementById('f-model').value, grade: fd.get('gradeData').split('|')[0], price: fd.get('totalPrice'),
+                name: fd.get('cusName'), phone: fd.get('cusPhone'), email: fd.get('cusEmail'), address: fd.get('cusAddress'), status: 'รอยืนยัน'
             };
-
-            appState.bookings.unshift(newBooking);
-            saveToLocal();
-            tempPhone = d.phone;
-            e.target.reset(); selectedDateObj = null; renderCalendar();
-            document.getElementById('bookingSuccessModal').classList.remove('hidden');
+            state.bookings.unshift(b);
+            upsertCustomer(b.name, b.phone, b.email, b.address);
+            autoSave(); e.target.reset();
+            document.getElementById('modal-success').classList.remove('hidden');
         }
-
-        function proceedToTracking() {
-            document.getElementById('bookingSuccessModal').classList.add('hidden');
-            navCustomer('tracking');
-            document.getElementById('track-phone').value = tempPhone;
-            trackStatus();
+        function upsertCustomer(name, phone, email, address) {
+            const ex = state.customers.find(c => c.phone === phone);
+            if(ex) { ex.name = name; ex.email = email; ex.address = address; }
+            else { state.customers.unshift({ id: 'C' + Date.now().toString().slice(-5), name, phone, email, address }); }
         }
-
-        function trackStatus() {
-            const phone = document.getElementById('track-phone').value.trim();
+        function checkTracking() {
+            const phone = document.getElementById('track-input').value;
             const res = document.getElementById('track-result');
-            const found = appState.bookings.filter(b => b.phone === phone);
+            const found = state.bookings.filter(b => b.phone === phone);
             res.classList.remove('hidden');
-            if(!found.length) return res.innerHTML = `<p class="text-red-500 font-bold text-center">ไม่พบข้อมูลการจอง</p>`;
-            res.innerHTML = found.map(b => `<div class="p-4 bg-slate-50 border rounded-xl mb-3 text-sm"><div class="flex justify-between font-bold mb-1"><span class="text-blue-600">${b.id}</span><span class="text-amber-600">${b.status}</span></div><div><b>บริการ:</b> ${b.service}</div>${b.estCompletion!=='-'?`<div class="text-blue-600 mt-1">คาดว่าจะเสร็จ: ${b.estCompletion}</div>`:''}</div>`).join('');
+            if(!found.length) return res.innerHTML = `<div class="bg-red-50 text-red-600 p-4 rounded-xl font-bold">ไม่พบข้อมูล</div>`;
+            res.innerHTML = found.map(b => `<div class="bg-slate-50 p-4 border rounded-xl mb-3 text-sm"><b>${b.id}</b> - ${b.model} (${b.status})</div>`).join('');
         }
 
-        // --- BACKUP & RESTORE SYSTEM ---
-        function exportBackupFile() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
-            const dlAnchor = document.createElement('a');
-            dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", `FixItMobile_Backup_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(dlAnchor); dlAnchor.click(); dlAnchor.remove();
-        }
-
-        function importBackupFile(e) {
-            const file = e.target.files[0]; const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    appState = JSON.parse(evt.target.result);
-                    saveToLocal();
-                    applySiteConfig(); renderRatesTable();
-                    alert('กู้คืนข้อมูลสำเร็จ!');
-                } catch(err) { alert('ไฟล์ไม่ถูกต้อง'); }
-            }; reader.readAsText(file);
-        }
-
-        // --- ADMIN NAVIGATION & ACTIONS ---
-        function showAdminLogin() { document.getElementById('admin-login-screen').classList.remove('hidden'); }
-        function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); }
-        function handleAdminLogin(e) {
-            e.preventDefault();
-            if(document.getElementById('adminUser').value === 'admin' && document.getElementById('adminPass').value === 'password') {
-                closeAdminLogin(); switchAppMode('admin');
-            } else { alert('รหัสผ่านไม่ถูกต้อง (admin / password)'); }
-        }
-        function adminLogout() { switchAppMode('customer'); }
-        
-        function switchAppMode(mode) {
-            if(mode === 'admin') { document.getElementById('customer-app').classList.add('hidden'); document.getElementById('admin-app').classList.remove('hidden'); navAdmin('bookings'); }
-            else { document.getElementById('admin-app').classList.add('hidden'); document.getElementById('customer-app').classList.remove('hidden'); navCustomer('home'); }
-        }
-
+        // --- Admin Navigation & Render CRUD ---
         function navAdmin(view) {
             document.querySelectorAll('.admin-view').forEach(v => v.classList.add('hidden'));
-            document.querySelectorAll('.admin-menu').forEach(m => m.classList.remove('bg-slate-800','text-white'));
-            document.getElementById(`view-${view}`)?.classList.remove('hidden');
-            document.getElementById(`menu-${view}`)?.classList.add('bg-slate-800','text-white');
+            document.querySelectorAll('.admin-menu').forEach(m => m.classList.remove('bg-slate-800', 'text-white'));
+            document.getElementById(`admin-view-${view}`)?.classList.remove('hidden');
+            document.getElementById(`menu-${view}`)?.classList.add('bg-slate-800', 'text-white');
+            if(window.innerWidth < 768) { document.getElementById('admin-sidebar').classList.add('-translate-x-full'); document.getElementById('admin-sidebar-overlay').classList.add('hidden'); }
             
-            if(view === 'bookings') renderBookings();
-            if(view === 'repair-status') renderRepairStatus();
-            if(view === 'warranty') renderWarranty();
+            if(view === 'dashboard') {
+                document.getElementById('stat-total').textContent = state.bookings.length;
+                document.getElementById('stat-pending').textContent = state.bookings.filter(b=>!['ซ่อมเสร็จสิ้น','ยกเลิก'].includes(b.status)).length;
+                document.getElementById('stat-done').textContent = state.bookings.filter(b=>b.status==='ซ่อมเสร็จสิ้น').length;
+                document.getElementById('stat-cus').textContent = state.customers.length;
+            }
+            if(view === 'bookings') renderAdminBookings();
+            if(view === 'customers') renderAdminCustomers();
             if(view === 'products') renderAdminProducts();
-            if(view === 'webconfig') applySiteConfig();
+            if(view === 'repair') renderAdminRepair();
         }
 
-        function renderBookings() {
-            const tb = document.getElementById('all-bookings-body'); tb.innerHTML = '';
-            appState.bookings.forEach(b => {
-                tb.innerHTML += `<tr class="border-b"><td class="p-3">${b.id}<br><span class="text-xs text-slate-400">${b.bookingDate}</span></td><td class="p-3"><b>${b.firstName}</b><br>${b.phone}</td><td class="p-3">${b.service}</td><td class="p-3"><select onchange="updateStatus('${b.id}', this.value)" class="border p-1 rounded font-bold text-xs">['รอยืนยัน','กำลังซ่อม','ซ่อมเสร็จสิ้น','ยกเลิก'].map(o=>\`<option \${b.status===o?'selected':''}>\${o}</option>\`).join('')}</select></td><td class="p-3 text-center"><button onclick="deleteBooking('${b.id}')" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`;
+        function renderAdminCustomers() {
+            const tb = document.getElementById('ad-tb-customers'); tb.innerHTML = '';
+            state.customers.forEach((c, i) => {
+                tb.innerHTML += `<tr class="border-b"><td class="p-2"><input type="text" value="${c.name}" class="border p-1 w-full text-xs" oninput="state.customers[${i}].name=this.value"></td><td class="p-2"><input type="text" value="${c.phone}" class="border p-1 w-full text-xs" oninput="state.customers[${i}].phone=this.value"></td><td class="p-2"><input type="text" value="${c.email}" class="border p-1 w-full text-xs" oninput="state.customers[${i}].email=this.value"></td><td class="p-2"><input type="text" value="${c.address}" class="border p-1 w-full text-xs" oninput="state.customers[${i}].address=this.value"></td><td class="p-2 text-center"><button onclick="state.customers.splice(${i},1); autoSave(); renderAdminCustomers();" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`;
             });
         }
-        function updateStatus(id, stat) { const b = appState.bookings.find(x=>x.id===id); if(b) { b.status = stat; saveToLocal(); } }
-        function deleteBooking(id) { appState.bookings = appState.bookings.filter(b=>b.id!==id); saveToLocal(); renderBookings(); }
+        function addCustomerForm() { state.customers.unshift({ id: 'C' + Date.now(), name: 'ลูกค้าใหม่', phone: '', email: '', address: '' }); autoSave(); renderAdminCustomers(); }
 
-        function renderRepairStatus() {
-            const tb = document.getElementById('repair-status-body'); tb.innerHTML = '';
-            appState.bookings.filter(b => b.status === 'กำลังซ่อม').forEach((b, i) => {
-                tb.innerHTML += `<tr class="border-b"><td class="p-3 font-bold">${b.id}<br>${b.firstName}</td><td class="p-3">${b.service}</td><td class="p-3 text-amber-600 font-bold">${b.status}</td><td class="p-3"><input type="text" id="est-${i}" value="${b.estCompletion}" class="border p-1 rounded text-sm w-full"></td><td class="p-3 text-center"><button onclick="saveEst('${b.id}', ${i})" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">บันทึก</button></td></tr>`;
+        function renderAdminBookings() {
+            const tb = document.getElementById('ad-tb-bookings'); tb.innerHTML = '';
+            state.bookings.forEach((b, i) => {
+                tb.innerHTML += `<tr class="border-b"><td class="p-2 text-xs"><b>${b.id}</b></td><td class="p-2 text-xs">${b.name}<br>${b.phone}</td><td class="p-2 text-xs">${b.model}</td><td class="p-2 text-xs">${b.price}</td><td class="p-2"><select onchange="state.bookings[${i}].status=this.value; autoSave();" class="border p-1 text-xs"><option ${b.status==='รอยืนยัน'?'selected':''}>รอยืนยัน</option><option ${b.status==='ซ่อมเสร็จสิ้น'?'selected':''}>ซ่อมเสร็จสิ้น</option><option ${b.status==='ยกเลิก'?'selected':''}>ยกเลิก</option></select></td><td class="p-2 text-center"><button onclick="state.bookings.splice(${i},1); autoSave(); renderAdminBookings();" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`;
             });
         }
-        function saveEst(id, i) { const b = appState.bookings.find(x=>x.id===id); if(b) { b.estCompletion = document.getElementById(`est-${i}`).value; saveToLocal(); alert('บันทึกแล้ว'); } }
 
-        function renderWarranty() {
-            const tb = document.getElementById('warranty-body'); tb.innerHTML = '';
-            appState.bookings.filter(b => b.status === 'ซ่อมเสร็จสิ้น').forEach((b, i) => {
-                tb.innerHTML += `<tr class="border-b"><td class="p-3 font-bold">${b.id}<br>${b.firstName}</td><td class="p-3">${b.service}</td><td class="p-3"><input type="text" id="war-${i}" value="${b.warrantyUntil}" class="border p-1 rounded text-sm w-full" placeholder="30 วัน"></td><td class="p-3 text-center"><button onclick="saveWar('${b.id}', ${i})" class="bg-green-600 text-white px-3 py-1 rounded text-xs">บันทึก</button></td></tr>`;
+        function renderAdminRepair() {
+            const tb = document.getElementById('ad-tb-repair'); tb.innerHTML = '';
+            state.bookings.forEach((b, i) => {
+                tb.innerHTML += `<tr class="border-b"><td class="p-2 text-xs"><b>${b.id}</b> - ${b.model}</td><td class="p-2"><select onchange="state.bookings[${i}].status=this.value; autoSave();" class="border p-1 text-xs"><option ${b.status==='รอยืนยัน'?'selected':''}>รอยืนยัน</option><option ${b.status==='กำลังดำเนินการ'?'selected':''}>กำลังดำเนินการ</option><option ${b.status==='ซ่อมเสร็จสิ้น'?'selected':''}>ซ่อมเสร็จสิ้น</option></select></td></tr>`;
             });
         }
-        function saveWar(id, i) { const b = appState.bookings.find(x=>x.id===id); if(b) { b.warrantyUntil = document.getElementById(`war-${i}`).value; saveToLocal(); alert('บันทึกประกันแล้ว'); } }
 
+        function togglePForm() {
+            const isScreen = document.getElementById('p-type').value === 'screens';
+            document.getElementById('pf-screens').classList.toggle('hidden', !isScreen);
+            document.getElementById('pf-batteries').classList.toggle('hidden', isScreen);
+        }
+        function addProduct() {
+            const t = document.getElementById('p-type').value;
+            const p = { id: Date.now(), service: document.getElementById('p-service').value, product: document.getElementById('p-product').value, os: document.getElementById('p-os').value, model: document.getElementById('p-model').value };
+            if(!p.model) return alert('กรุณาใส่ชื่อรุ่น');
+            if(t === 'screens') { p.tft = document.getElementById('p-tft').value; p.incell = document.getElementById('p-incell').value; p.oled = document.getElementById('p-oled').value; state.products.screens.push(p); }
+            else { p.std = document.getElementById('p-std').value; p.high = document.getElementById('p-high').value; state.products.batteries.push(p); }
+            autoSave(); renderAdminProducts(); alert('เพิ่มสินค้าสำเร็จ');
+        }
         function renderAdminProducts() {
-            const tb = document.getElementById('products-table-body'); tb.innerHTML = '';
-            appState.products.forEach((p, i) => {
-                tb.innerHTML += `<tr><td class="p-1"><input type="text" value="${p.service}" id="p-s-${i}" class="border p-1 text-xs w-full"></td><td class="p-1"><input type="text" value="${p.item}" id="p-i-${i}" class="border p-1 text-xs w-full"></td><td class="p-1"><input type="text" value="${p.os}" id="p-o-${i}" class="border p-1 text-xs w-full"></td><td class="p-1"><input type="text" value="${p.deviceModel}" id="p-m-${i}" class="border p-1 text-xs w-full"></td><td class="p-1"><input type="text" value="${p.grade}" id="p-g-${i}" class="border p-1 text-xs w-full"></td><td class="p-1"><input type="number" value="${p.price}" id="p-pr-${i}" class="border p-1 text-xs w-full text-right"></td></tr>`;
-            });
-        }
-        function saveInlineEdits() {
-            appState.products.forEach((p, i) => {
-                p.service = document.getElementById(`p-s-${i}`).value;
-                p.item = document.getElementById(`p-i-${i}`).value;
-                p.os = document.getElementById(`p-o-${i}`).value;
-                p.deviceModel = document.getElementById(`p-m-${i}`).value;
-                p.grade = document.getElementById(`p-g-${i}`).value;
-                p.price = document.getElementById(`p-pr-${i}`).value;
-            });
-            saveToLocal(); initDynamicForm(); renderRatesTable(); alert('บันทึกข้อมูลสินค้าเรียบร้อย');
+            const ts = document.getElementById('ad-tb-screens'); ts.innerHTML = '';
+            state.products.screens.forEach((p, i) => ts.innerHTML += `<tr class="border-b"><td class="p-1"><input type="text" value="${p.model}" class="border p-1 text-xs w-full" oninput="state.products.screens[${i}].model=this.value"></td><td class="p-1"><button onclick="state.products.screens.splice(${i},1); autoSave(); renderAdminProducts();" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`);
+            const tb = document.getElementById('ad-tb-batteries'); tb.innerHTML = '';
+            state.products.batteries.forEach((p, i) => tb.innerHTML += `<tr class="border-b"><td class="p-1"><input type="text" value="${p.model}" class="border p-1 text-xs w-full" oninput="state.products.batteries[${i}].model=this.value"></td><td class="p-1"><button onclick="state.products.batteries.splice(${i},1); autoSave(); renderAdminProducts();" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`);
         }
     </script>
 </body>
