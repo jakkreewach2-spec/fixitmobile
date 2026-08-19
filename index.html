@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">FixItMobile - บริการซ่อมมือถือนอกสถานที่</title>
+    <!-- STREAMING_CHUNK:Loading Tailwind CSS and FontAwesome... -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -18,7 +19,7 @@
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Style สำหรับวันที่ในปฏิทินที่เลือกได้ */
+        /* Style สำหรับวันที่ในปฏิทินที่เลือกได้ (จองล่วงหน้า 3 วัน) */
         .date-selectable { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
         .date-selectable:hover { background-color: #bbf7d0; }
         .date-selected { background-color: #16a34a !important; color: white !important; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
@@ -72,7 +73,7 @@
                         <div class="bg-gray-50 p-4 border-b flex flex-col md:flex-row justify-between items-start md:items-center gap-4 rounded-t-xl">
                             <div>
                                 <h3 class="text-lg font-bold text-gray-700 flex items-center"><i class="far fa-calendar-check mr-2 text-green-600"></i>เลือกวันและเวลา <span class="text-red-500 ml-1">*</span></h3>
-                                <p class="text-xs text-green-600 mt-1"><i class="fas fa-info-circle mr-1"></i>เลือกได้เฉพาะ <b>วันที่เป็นสีเขียว</b> (จองล่วงหน้า 3 วัน)</p>
+                                <p class="text-xs text-green-600 mt-1"><i class="fas fa-info-circle mr-1"></i>โปรดเลือกเฉพาะ <b>วันที่เป็นสีเขียว</b> (เปิดให้จองล่วงหน้า 3 วันขึ้นไป)</p>
                             </div>
                             <div class="w-full md:w-auto grid grid-cols-2 gap-2">
                                 <input type="text" id="displaySelectedDate" name="bookingDate" readonly required class="bg-white border rounded-lg px-3 py-2 font-bold text-green-700 outline-none text-sm text-center shadow-inner cursor-default" placeholder="เลือกจากปฏิทิน">
@@ -141,7 +142,7 @@
                             <div><label class="block text-sm font-semibold mb-1">นามสกุล <span class="text-red-500">*</span></label><input type="text" name="lastName" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm" required></div>
                             <div><label class="block text-sm font-semibold mb-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label><input type="tel" name="phone" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm" required pattern="[0-9]{9,10}"></div>
                             <div><label class="block text-sm font-semibold mb-1">Line ID <span class="text-red-500">*</span></label><input type="text" name="lineId" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm" required placeholder="ระบุ Line ID"></div>
-                            <div><label class="block text-sm font-semibold mb-1">อีเมล (ถ้ามี)</label><input type="email" name="email" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm" placeholder="สำหรับรับใบเสร็จ/แจ้งเตือน"></div>
+                            <div class="md:col-span-2"><label class="block text-sm font-semibold mb-1">อีเมล (สำหรับรับใบเสร็จ/การแจ้งเตือน)</label><input type="email" name="email" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm" placeholder="example@email.com"></div>
                             
                             <div class="md:col-span-2 pt-2 border-t mt-2">
                                 <label class="block text-sm font-semibold mb-2">สถานที่นัดซ่อม <span class="text-red-500">*</span></label>
@@ -154,17 +155,17 @@
 
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-semibold mb-1" id="label-location-detail">รายละเอียดที่อยู่ <span class="text-red-500">*</span></label>
-                                <textarea name="location" id="input-location-detail" rows="2" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm" required></textarea>
+                                <textarea name="location" id="input-location-detail" rows="2" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm" required placeholder="บ้านเลขที่, ถนน, ซอย, จุดสังเกต..."></textarea>
                             </div>
 
                             <div class="md:col-span-2 bg-blue-50/50 p-3 rounded-lg border border-blue-100 flex flex-col md:flex-row gap-2 items-end">
                                 <div class="flex-grow w-full">
-                                    <label class="block text-sm font-semibold mb-1 text-blue-800"><i class="fas fa-map-marker-alt mr-1"></i>พิกัด GPS (ลิงก์แผนที่)</label>
-                                    <input type="text" name="gps" id="input-gps" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm" placeholder="วางลิงก์ หรือกดปุ่มด้านขวา">
+                                    <label class="block text-sm font-semibold mb-1 text-blue-800"><i class="fas fa-map-marker-alt mr-1"></i>พิกัด GPS (ลิงก์แผนที่ Google Maps)</label>
+                                    <input type="text" name="gps" id="input-gps" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm bg-white" placeholder="วางลิงก์ หรือกดปุ่มด้านขวาเพื่อปักหมุดอัตโนมัติ">
                                 </div>
-                                <button type="button" onclick="getLocationGPS()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition flex justify-center items-center"><i class="fas fa-location-arrow mr-2"></i>ปักหมุดปัจจุบัน</button>
+                                <button type="button" onclick="getLocationGPS()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition flex justify-center items-center shadow-sm"><i class="fas fa-location-arrow mr-2"></i>ปักหมุดปัจจุบัน</button>
                             </div>
-                            <div class="md:col-span-2 mt-2"><label class="block text-sm font-semibold mb-1">รายละเอียดอาการเสียเพิ่มเติม</label><textarea name="additionalInfo" rows="2" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm"></textarea></div>
+                            <div class="md:col-span-2 mt-2"><label class="block text-sm font-semibold mb-1">รายละเอียดอาการเสียเพิ่มเติม</label><textarea name="additionalInfo" rows="2" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm" placeholder="อาการเสียเบื้องต้น ประวัติการซ่อม..."></textarea></div>
                         </div>
                     </div>
 
@@ -180,10 +181,10 @@
                     <h2 class="text-2xl font-bold text-gray-800 mb-2">ตรวจเช็คอาการเสียเบื้องต้น</h2>
                     <p class="text-sm text-gray-500 mb-6">เลือกอาการเสียที่คุณพบเพื่อประเมินแนวทางแก้ไขเบื้องต้น</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-                        <div onclick="alertDiag('อาการจอแตก/ทัชสกรีนไม่ได้: แนะนำเปลี่ยนชุดหน้าจอใหม่')" class="p-4 border rounded-xl hover:bg-blue-50 cursor-pointer transition"><b>📱 จอแตก / ทัชไม่ได้</b><p class="text-xs text-gray-500 mt-1">หน้าจอแสดงผลผิดปกติ มีเส้น หรือทัชไม่ติด</p></div>
-                        <div onclick="alertDiag('อาการแบตเสื่อม/หมดไว: แนะนำเปลี่ยนแบตเตอรี่ใหม่')" class="p-4 border rounded-xl hover:bg-blue-50 cursor-pointer transition"><b>🔋 แบตหมดไว / บวม</b><p class="text-xs text-gray-500 mt-1">เครื่องดับเอง แบตลดเร็ว ชาร์จไม่เข้า</p></div>
-                        <div onclick="alertDiag('อาการชาร์จไม่เข้า: อาจเกิดจากตูดชาร์จสกปรกหรือแพรชาร์จเสีย')" class="p-4 border rounded-xl hover:bg-blue-50 cursor-pointer transition"><b>⚡ ชาร์จไม่เข้า / หลวม</b><p class="text-xs text-gray-500 mt-1">ต้องขยับสายชาร์จหรือชาร์จไม่ขึ้นเปอร์เซ็นต์</p></div>
-                        <div onclick="alertDiag('อาการกล้องเสีย/ใช้งานไม่ได้: แนะนำให้ช่างตรวจสอบชุดเลนส์')" class="p-4 border rounded-xl hover:bg-blue-50 cursor-pointer transition"><b>📷 กล้องหน้า/หลังมีปัญหา</b><p class="text-xs text-gray-500 mt-1">ถ่ายรูปไม่โฟกัส จอดำ หรือเปิดกล้องไม่ได้</p></div>
+                        <div onclick="alertDiag('อาการจอแตก/ทัชสกรีนไม่ได้: แนะนำเปลี่ยนชุดหน้าจอใหม่')" class="p-4 border rounded-xl hover:bg-blue-50 cursor-pointer transition shadow-sm"><b>📱 จอแตก / ทัชไม่ได้</b><p class="text-xs text-gray-500 mt-1">หน้าจอแสดงผลผิดปกติ มีเส้น หรือทัชไม่ติด</p></div>
+                        <div onclick="alertDiag('อาการแบตเสื่อม/หมดไว: แนะนำเปลี่ยนแบตเตอรี่ใหม่')" class="p-4 border rounded-xl hover:bg-blue-50 cursor-pointer transition shadow-sm"><b>🔋 แบตหมดไว / บวม</b><p class="text-xs text-gray-500 mt-1">เครื่องดับเอง แบตลดเร็ว ชาร์จไม่เข้า</p></div>
+                        <div onclick="alertDiag('อาการชาร์จไม่เข้า: อาจเกิดจากตูดชาร์จสกปรกหรือแพรชาร์จเสีย')" class="p-4 border rounded-xl hover:bg-blue-50 cursor-pointer transition shadow-sm"><b>⚡ ชาร์จไม่เข้า / หลวม</b><p class="text-xs text-gray-500 mt-1">ต้องขยับสายชาร์จหรือชาร์จไม่ขึ้นเปอร์เซ็นต์</p></div>
+                        <div onclick="alertDiag('อาการกล้องเสีย/ใช้งานไม่ได้: แนะนำให้ช่างตรวจสอบชุดเลนส์')" class="p-4 border rounded-xl hover:bg-blue-50 cursor-pointer transition shadow-sm"><b>📷 กล้องหน้า/หลังมีปัญหา</b><p class="text-xs text-gray-500 mt-1">ถ่ายรูปไม่โฟกัส จอดำ หรือเปิดกล้องไม่ได้</p></div>
                     </div>
                 </div>
             </div>
@@ -219,7 +220,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="bg-amber-50 p-6 rounded-2xl border border-amber-200">
+                    <div class="bg-amber-50 p-6 rounded-2xl border border-amber-200 shadow-sm">
                         <h3 class="font-bold text-amber-800 mb-2 flex items-center"><i class="fas fa-exclamation-triangle mr-2"></i>หมายเหตุเพิ่มเติม</h3>
                         <p class="text-sm text-amber-700 leading-relaxed">- บริการเปลี่ยนอะไหล่อื่นๆ เช่น ตูดชาร์จ, กล้อง, ลำโพง เริ่มต้น 300 บาท<br>- ค่าเดินทางคิดตามระยะทางจริง (เริ่มต้น 100 บาท)<br>- สินค้ามีรับประกันงานซ่อม 1-3 เดือน</p>
                     </div>
@@ -235,7 +236,7 @@
                     <p class="text-sm text-gray-500 mb-6">กรอกเบอร์โทรศัพท์ที่ใช้จองคิวเพื่อดูสถานะ และวันหมดประกัน</p>
                     <div class="flex flex-col gap-3">
                         <input type="tel" id="track-phone" placeholder="ระบุเบอร์โทรศัพท์..." class="w-full border border-gray-300 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500 text-center text-lg tracking-wider font-semibold">
-                        <button onclick="trackStatus()" class="w-full bg-gray-800 text-white font-bold py-3.5 rounded-xl hover:bg-gray-900 transition flex items-center justify-center"><i class="fas fa-search mr-2"></i> ค้นหาข้อมูล</button>
+                        <button onclick="trackStatus()" class="w-full bg-gray-800 text-white font-bold py-3.5 rounded-xl hover:bg-gray-900 transition flex items-center justify-center shadow-sm"><i class="fas fa-search mr-2"></i> ค้นหาข้อมูล</button>
                     </div>
                     <div id="track-result" class="mt-6 text-left hidden"></div>
                 </div>
@@ -247,11 +248,11 @@
                 <div class="bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100 max-w-2xl mx-auto">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">ช่องทางการติดต่อ</h2>
                     <div class="space-y-4">
-                        <a href="tel:0801234567" class="flex items-center p-4 border rounded-xl hover:bg-gray-50 transition">
+                        <a href="tel:0801234567" class="flex items-center p-4 border rounded-xl hover:bg-gray-50 transition shadow-sm">
                             <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xl mr-4"><i class="fas fa-phone-alt"></i></div>
                             <div><div class="font-bold text-gray-800">เบอร์โทรศัพท์</div><div class="text-gray-600">080-123-4567</div></div>
                         </a>
-                        <a href="#" class="flex items-center p-4 border rounded-xl hover:bg-green-50 transition">
+                        <a href="#" class="flex items-center p-4 border rounded-xl hover:bg-green-50 transition shadow-sm">
                             <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-2xl mr-4"><i class="fab fa-line"></i></div>
                             <div><div class="font-bold text-gray-800">Line Official</div><div class="text-gray-600">@FixItMobile</div></div>
                         </a>
@@ -265,19 +266,19 @@
         <footer class="bg-gray-100 mt-auto py-6 border-t border-gray-200">
             <div class="max-w-7xl mx-auto px-4 text-center">
                 <p class="text-sm text-gray-500">© 2024 FixItMobile Service. All rights reserved.</p>
-                <button onclick="showAdminLogin()" class="mt-2 text-xs text-gray-400 hover:text-gray-600 transition"><i class="fas fa-shield-alt mr-1"></i>ระบบจัดการ (Admin)</button>
+                <button onclick="showAdminLogin()" class="mt-2 text-xs text-gray-400 hover:text-gray-600 transition"><i class="fas fa-shield-alt mr-1"></i>ระบบจัดการ (Admin Login)</button>
             </div>
         </footer>
     </div>
 
-    <!-- Modal Admin Login (แยกออกจากฟอร์มจอง) -->
+    <!-- Modal Admin Login (แยกส่วนออกจากหน้าฟอร์มจอง) -->
     <div id="admin-login-screen" class="hidden fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
         <div class="max-w-sm w-full bg-white p-8 rounded-2xl shadow-2xl relative">
             <button onclick="closeAdminLogin()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
             <div class="text-center mb-6"><h3 class="text-2xl font-black text-gray-800">ระบบหลังบ้าน ERP</h3><p class="text-sm text-gray-500">ลงชื่อเข้าใช้สำหรับผู้ดูแลระบบ</p></div>
             <form id="adminLoginForm" onsubmit="handleAdminLogin(event)" class="space-y-4">
-                <div><input type="text" id="adminUser" class="w-full border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-slate-900 outline-none" placeholder="Username" required></div>
-                <div><input type="password" id="adminPass" class="w-full border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-slate-900 outline-none" placeholder="Password" required></div>
+                <div><input type="text" id="adminUser" class="w-full border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-slate-900 outline-none" placeholder="Username (admin)" required></div>
+                <div><input type="password" id="adminPass" class="w-full border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-slate-900 outline-none" placeholder="Password (password)" required></div>
                 <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-lg transition"><i class="fas fa-sign-in-alt mr-2"></i> เข้าสู่ระบบ</button>
             </form>
         </div>
@@ -303,7 +304,7 @@
                 </ul>
                 <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-6 mb-2 px-2">ตั้งค่าระบบ</p>
                 <ul class="space-y-1">
-                    <li><button onclick="navAdmin('webconfig')" id="menu-webconfig" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-globe w-6 text-center"></i> จัดการหน้าเว็บ (CMS)</button></li>
+                    <li><button onclick="navAdmin('webconfig')" id="menu-webconfig" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-globe w-6 text-center"></i> จัดการหน้าเว็บ & อีเมล</button></li>
                     <li><button onclick="navAdmin('products')" id="menu-products" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-tags w-6 text-center"></i> บริการและราคา</button></li>
                     <li><button onclick="navAdmin('settings')" id="menu-settings" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-cog w-6 text-center"></i> ระบบเชื่อมต่อ (API)</button></li>
                 </ul>
@@ -323,7 +324,7 @@
                     <h1 id="admin-header-title" class="font-bold text-gray-800 text-lg">แดชบอร์ด</h1>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div class="relative cursor-pointer text-gray-500" onclick="navAdmin('bookings')"><i class="fas fa-bell text-xl"></i><span id="top-noti-badge" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span></div>
+                    <div class="relative cursor-pointer text-gray-500 hover:text-blue-600 transition" onclick="navAdmin('bookings')"><i class="fas fa-bell text-xl"></i><span id="top-noti-badge" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span></div>
                     <div class="h-6 w-px bg-gray-300"></div>
                     <div class="text-sm font-semibold text-slate-700 flex items-center"><i class="fas fa-user-circle text-xl mr-2 text-blue-600"></i> แอดมิน</div>
                 </div>
@@ -343,7 +344,7 @@
                     </div>
                 </div>
 
-                <!-- View: Bookings (คิวงาน) -->
+                <!-- View: Bookings (คิวงาน / จัดการสถานะ & ส่งอีเมล พร้อมพรีวิว) -->
                 <div id="view-bookings" class="admin-view hidden">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
                         <h2 class="text-xl font-bold text-gray-800">รายการคิวซ่อม / รับประกัน</h2>
@@ -352,6 +353,7 @@
                         </div>
                     </div>
 
+                    <!-- Inline Panel สำหรับดูรายละเอียดและพรีวิวอีเมล -->
                     <div id="inline-management-panel" class="hidden mb-6 bg-white p-5 rounded-xl shadow-md border-2 border-blue-200 relative fade-in">
                         <div class="flex justify-between items-center border-b pb-2 mb-4">
                             <h3 id="panel-title" class="font-bold text-lg text-blue-800">จัดการข้อมูล</h3>
@@ -366,7 +368,7 @@
                                 <tr>
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">รหัสจอง</th>
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">นัดหมาย</th>
-                                    <th class="px-3 py-3 text-left font-bold text-slate-700">ลูกค้า</th>
+                                    <th class="px-3 py-3 text-left font-bold text-slate-700">ลูกค้า & Line ID</th>
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">บริการ</th>
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">สถานะ / ประกัน</th>
                                     <th class="px-3 py-3 text-center font-bold text-slate-700">จัดการ</th>
@@ -388,7 +390,7 @@
                                 <div><label class="block font-bold mb-1">รายการ</label><input type="text" id="fin-in-desc" required class="w-full border rounded p-2 outline-none focus:border-green-500" placeholder="เช่น ขายฟิล์มกระจก"></div>
                                 <div><label class="block font-bold mb-1">จำนวนเงิน (บาท)</label><input type="number" id="fin-in-amt" required class="w-full border rounded p-2 outline-none focus:border-green-500"></div>
                                 <div><label class="block font-bold mb-1">วันที่</label><input type="date" id="fin-in-date" required class="w-full border rounded p-2 outline-none focus:border-green-500"></div>
-                                <button type="submit" class="w-full bg-green-600 text-white font-bold py-2 rounded-lg"><i class="fas fa-save mr-1"></i> บันทึกรายรับ</button>
+                                <button type="submit" class="w-full bg-green-600 text-white font-bold py-2 rounded-lg shadow-sm"><i class="fas fa-save mr-1"></i> บันทึกรายรับ</button>
                             </form>
                         </div>
                         
@@ -403,7 +405,7 @@
                                 <div><label class="block font-bold mb-1">รายการ</label><input type="text" id="fin-ex-desc" required class="w-full border rounded p-2 outline-none focus:border-red-500" placeholder="เช่น ซื้อจอ iPhone 11"></div>
                                 <div><label class="block font-bold mb-1">จำนวนเงิน (บาท)</label><input type="number" id="fin-ex-amt" required class="w-full border rounded p-2 outline-none focus:border-red-500"></div>
                                 <div><label class="block font-bold mb-1">วันที่</label><input type="date" id="fin-ex-date" required class="w-full border rounded p-2 outline-none focus:border-red-500"></div>
-                                <button type="submit" class="w-full bg-red-600 text-white font-bold py-2 rounded-lg"><i class="fas fa-save mr-1"></i> บันทึกรายจ่าย</button>
+                                <button type="submit" class="w-full bg-red-600 text-white font-bold py-2 rounded-lg shadow-sm"><i class="fas fa-save mr-1"></i> บันทึกรายจ่าย</button>
                             </form>
                         </div>
                     </div>
@@ -422,11 +424,11 @@
                 <!-- View: Inventory (สต๊อกอะไหล่) -->
                 <div id="view-inventory" class="admin-view hidden space-y-4">
                     <h2 class="text-xl font-bold text-gray-800">ระบบสต๊อกอะไหล่พื้นฐาน</h2>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border flex flex-col md:flex-row gap-4">
-                        <input type="text" id="inv-name" placeholder="ชื่ออะไหล่ (เช่น จอ iPhone 11)" class="flex-1 border rounded p-2 text-sm outline-none">
-                        <input type="number" id="inv-qty" placeholder="จำนวน" class="w-full md:w-24 border rounded p-2 text-sm outline-none">
-                        <input type="number" id="inv-cost" placeholder="ต้นทุน/ชิ้น" class="w-full md:w-32 border rounded p-2 text-sm outline-none">
-                        <button onclick="addInventory()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded text-sm"><i class="fas fa-plus"></i> เพิ่มสต๊อก</button>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border flex flex-col md:flex-row gap-4 items-end">
+                        <div class="flex-1 w-full"><label class="block text-xs font-bold mb-1">ชื่ออะไหล่</label><input type="text" id="inv-name" placeholder="เช่น จอ iPhone 11" class="w-full border rounded p-2 text-sm outline-none"></div>
+                        <div class="w-full md:w-28"><label class="block text-xs font-bold mb-1">จำนวน</label><input type="number" id="inv-qty" placeholder="จำนวน" class="w-full border rounded p-2 text-sm outline-none"></div>
+                        <div class="w-full md:w-32"><label class="block text-xs font-bold mb-1">ต้นทุน/ชิ้น</label><input type="number" id="inv-cost" placeholder="ต้นทุน" class="w-full border rounded p-2 text-sm outline-none"></div>
+                        <button onclick="addInventory()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded text-sm shadow-sm"><i class="fas fa-plus mr-1"></i> เพิ่มสต๊อก</button>
                     </div>
                     <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
                         <table class="min-w-full text-sm text-left">
@@ -436,14 +438,36 @@
                     </div>
                 </div>
 
-                <!-- View: Web Content (CMS) -->
-                <div id="view-webconfig" class="admin-view hidden space-y-4">
-                    <h2 class="text-xl font-bold text-gray-800">จัดการหน้าเว็บไซต์ลูกค้า (CMS)</h2>
-                    <p class="text-sm text-gray-500 mb-4">ปรับแต่งเมนูและข้อความบนหน้าแรกของลูกค้าได้ที่นี่</p>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border">
-                        <h3 class="font-bold text-blue-800 mb-4 border-b pb-2">เมนูหลักหน้าแรก (Home Buttons)</h3>
+                <!-- View: Web Content & Email Template (CMS & Email Template Config) -->
+                <div id="view-webconfig" class="admin-view hidden space-y-6">
+                    <h2 class="text-xl font-bold text-gray-800">จัดการหน้าเว็บไซต์ & เทมเพลตอีเมล (CMS)</h2>
+                    
+                    <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
+                        <h3 class="font-bold text-blue-800 border-b pb-2">เมนูหลักหน้าแรก (Home Buttons)</h3>
                         <div id="cms-menus-container" class="space-y-3"></div>
-                        <button onclick="saveWebContent()" class="mt-4 bg-green-600 text-white font-bold px-6 py-2 rounded-lg"><i class="fas fa-save mr-2"></i>บันทึกการปรับแต่งหน้าเว็บ</button>
+                        <button onclick="saveWebContent()" class="mt-2 bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2.5 rounded-lg shadow-sm"><i class="fas fa-save mr-2"></i>บันทึกการปรับแต่งหน้าเว็บ</button>
+                    </div>
+
+                    <!-- Email Template Config View -->
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-purple-200 space-y-4">
+                        <h3 class="font-bold text-purple-800 border-b pb-2 flex items-center"><i class="fas fa-envelope-open-text mr-2"></i>ตั้งค่า Email Template แจ้งเตือนลูกค้า</h3>
+                        <p class="text-xs text-gray-500">คุณสามารถปรับแต่งข้อความหัวข้อและเนื้อหาที่จะส่งหาลูกค้าได้ (รองรับตัวแปร <code>{name}</code>, <code>{booking_id}</code>, <code>{service}</code>, <code>{date}</code>, <code>{total}</code>)</p>
+                        
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <label class="block font-bold mb-1 text-gray-700">หัวข้ออีเมล (Subject)</label>
+                                <input type="text" id="cfg-email-subject" class="w-full border rounded p-2.5 outline-none focus:ring-2 focus:ring-purple-500" placeholder="ยืนยันการจองคิวซ่อม FixItMobile - {booking_id}">
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1 text-gray-700">เนื้อหาอีเมล (Body Template)</label>
+                                <textarea id="cfg-email-body" rows="5" class="w-full border rounded p-2.5 outline-none focus:ring-2 focus:ring-purple-500 font-mono text-xs" placeholder="เรียนคุณ {name},&#10;&#10;ทางเราได้รับคำขอจองคิวซ่อมของคุณเรียบร้อยแล้ว&#10;รหัสการจอง: {booking_id}&#10;บริการ: {service}&#10;วันที่นัดหมาย: {date}&#10;ยอดประเมิน: {total} บาท&#10;&#10;กรุณารอช่างติดต่อกลับ ขอบคุณครับ"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-3 pt-2">
+                            <button onclick="saveEmailTemplate()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-lg shadow-sm text-sm"><i class="fas fa-save mr-2"></i>บันทึก Email Template</button>
+                            <button onclick="testSendEmail()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-lg shadow-sm text-sm"><i class="fas fa-paper-plane mr-2"></i>ทดสอบการส่งอีเมล (Test Email)</button>
+                        </div>
                     </div>
                 </div>
 
@@ -455,18 +479,18 @@
                         <h3 class="font-bold text-blue-800 border-b pb-2"><i class="fas fa-file-csv mr-2"></i>อัปเดตราคาผ่านไฟล์ CSV / ดาวน์โหลดตัวอย่าง</h3>
                         <p class="text-xs text-gray-500">รูปแบบคอลัมน์ใน CSV: <code>service,grade,price,includeTravel</code> (ตัวอย่าง: เปลี่ยนหน้าจอ,เกรดแท้ศูนย์,4500,true)</p>
                         <div class="flex flex-wrap gap-3">
-                            <a href="#" onclick="downloadSampleCSV(event)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm flex items-center"><i class="fas fa-download mr-2"></i>ดาวน์โหลดไฟล์ตัวอย่าง CSV</a>
-                            <label class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm cursor-pointer flex items-center"><i class="fas fa-upload mr-2"></i>อัปโหลดไฟล์ CSV <input type="file" accept=".csv" onchange="importPricingCSV(event)" class="hidden"></label>
+                            <a href="#" onclick="downloadSampleCSV(event)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm flex items-center shadow-sm"><i class="fas fa-download mr-2"></i>ดาวน์โหลดไฟล์ตัวอย่าง CSV</a>
+                            <label class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm cursor-pointer flex items-center shadow-sm"><i class="fas fa-upload mr-2"></i>อัปโหลดไฟล์ CSV <input type="file" accept=".csv" onchange="importPricingCSV(event)" class="hidden"></label>
                         </div>
                     </div>
 
                     <div class="bg-white p-5 rounded-xl shadow-sm border">
                          <h3 class="font-bold text-green-700 mb-3 border-b pb-2"><i class="fas fa-plus-circle mr-2"></i>เพิ่มรายการด่วน (Manual)</h3>
                          <form onsubmit="addManualProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm items-end">
-                            <div><label class="block font-semibold mb-1">หมวด</label><input type="text" id="add-prod-service" placeholder="เช่น เปลี่ยนแบต" required class="w-full border rounded p-2"></div>
-                            <div><label class="block font-semibold mb-1">เกรด/รุ่น</label><input type="text" id="add-prod-grade" placeholder="เช่น มอก." required class="w-full border rounded p-2"></div>
-                            <div><label class="block font-semibold mb-1">ราคา</label><input type="number" id="add-prod-price" required class="w-full border rounded p-2"></div>
-                            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded font-bold"><i class="fas fa-save"></i> บันทึก</button>
+                            <div><label class="block font-semibold mb-1">หมวดบริการ</label><input type="text" id="add-prod-service" placeholder="เช่น เปลี่ยนแบต" required class="w-full border rounded p-2"></div>
+                            <div><label class="block font-semibold mb-1">เกรด / รุ่น</label><input type="text" id="add-prod-grade" placeholder="เช่น มอก." required class="w-full border rounded p-2"></div>
+                            <div><label class="block font-semibold mb-1">ราคา (บาท)</label><input type="number" id="add-prod-price" required class="w-full border rounded p-2"></div>
+                            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded font-bold shadow-sm"><i class="fas fa-save mr-1"></i> บันทึก</button>
                         </form>
                     </div>
 
@@ -475,25 +499,25 @@
                     </div>
                 </div>
 
-                <!-- View: Settings (API & Google Sheets) -->
+                <!-- View: Settings (API & Google Sheets & EmailJS Config) -->
                 <div id="view-settings" class="admin-view hidden space-y-6">
-                    <h2 class="text-xl font-bold text-gray-800">ระบบเชื่อมต่อและตั้งค่าพื้นฐาน (API)</h2>
+                    <h2 class="text-xl font-bold text-gray-800">ระบบเชื่อมต่อและตั้งค่าพื้นฐาน (API & EmailJS)</h2>
                     
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-green-200">
                         <h3 class="font-bold text-green-800 mb-2"><i class="fas fa-database mr-2"></i>ตั้งค่า Google Sheets (บันทึกข้อมูลไม่ให้หาย)</h3>
-                        <p class="text-xs text-gray-500 mb-3">นำ Web App URL จาก Google Apps Script มาวางที่นี่เพื่อบันทึกข้อมูลจองคิวและบัญชีอัตโนมัติ</p>
-                        <div class="flex gap-2"><input type="text" id="cfg-sheet-url" class="flex-1 border rounded-lg p-2 text-sm" placeholder="https://script.google.com/macros/s/.../exec"><button onclick="saveSheetConfig()" class="bg-green-600 text-white font-bold px-4 py-2 rounded text-sm">บันทึก Google Sheets URL</button></div>
+                        <p class="text-xs text-gray-500 mb-3">นำ Web App URL จาก Google Apps Script มาวางที่นี่เพื่อบันทึกข้อมูลจองคิวและบัญชีอัตโนมัติลง Google Drive</p>
+                        <div class="flex gap-2"><input type="text" id="cfg-sheet-url" class="flex-1 border rounded-lg p-2 text-sm outline-none" placeholder="https://script.google.com/macros/s/.../exec"><button onclick="saveSheetConfig()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded text-sm shadow-sm">บันทึก Google Sheets URL</button></div>
                     </div>
 
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-blue-200">
-                        <h3 class="font-bold text-blue-800 mb-3"><i class="fas fa-envelope mr-2"></i>การตั้งค่า EmailJS (อีเมลแจ้งเตือน)</h3>
+                        <h3 class="font-bold text-blue-800 mb-3"><i class="fas fa-envelope mr-2"></i>การตั้งค่า EmailJS API Keys</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                            <div><label class="font-bold text-gray-600">Public Key</label><input type="text" id="cfg-email-public" class="w-full border rounded p-2"></div>
-                            <div><label class="font-bold text-gray-600">Service ID</label><input type="text" id="cfg-email-service" class="w-full border rounded p-2"></div>
-                            <div><label class="font-bold text-gray-600">Template ID</label><input type="text" id="cfg-email-template" class="w-full border rounded p-2"></div>
-                            <div><label class="font-bold text-gray-600">Admin Email</label><input type="email" id="cfg-email-admin" class="w-full border rounded p-2"></div>
+                            <div><label class="font-bold text-gray-600 mb-1 block">Public Key</label><input type="text" id="cfg-email-public" class="w-full border rounded p-2 outline-none"></div>
+                            <div><label class="font-bold text-gray-600 mb-1 block">Service ID</label><input type="text" id="cfg-email-service" class="w-full border rounded p-2 outline-none"></div>
+                            <div><label class="font-bold text-gray-600 mb-1 block">Template ID</label><input type="text" id="cfg-email-template" class="w-full border rounded p-2 outline-none"></div>
+                            <div><label class="font-bold text-gray-600 mb-1 block">Admin Email (อีเมลรับแจ้งเตือน)</label><input type="email" id="cfg-email-admin" class="w-full border rounded p-2 outline-none"></div>
                         </div>
-                        <button onclick="saveEmailConfig()" class="mt-3 bg-blue-600 text-white font-bold px-4 py-2 rounded text-sm">บันทึก Email Config</button>
+                        <button onclick="saveEmailConfig()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded text-sm shadow-sm"><i class="fas fa-save mr-2"></i>บันทึก Email API Config</button>
                     </div>
                 </div>
 
@@ -503,27 +527,27 @@
         <div id="admin-sidebar-overlay" onclick="toggleAdminSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
     </div>
 
-    <!-- Toast Notification -->
+    <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-[200] flex flex-col gap-3 print:hidden"></div>
 
-    <!-- Booking Success Modal -->
+    <!-- Booking Success Modal (Popup แจ้งเตือนการจองคิวสำเร็จ) -->
     <div id="bookingSuccessModal" class="fixed inset-0 z-[150] flex items-center justify-center hidden">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSuccessModal()"></div>
-        <div class="bg-white rounded-2xl w-full max-w-sm mx-4 z-10 p-6 text-center border border-green-100 fade-in">
-            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl"><i class="fas fa-check-circle"></i></div>
+        <div class="bg-white rounded-2xl w-full max-w-sm mx-4 z-10 p-6 text-center border border-green-100 shadow-2xl fade-in">
+            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-inner"><i class="fas fa-check-circle"></i></div>
             <h3 class="text-xl font-black text-gray-800 mb-2">จองคิวสำเร็จ!</h3>
             <div class="bg-blue-50 text-blue-800 font-bold px-4 py-2 rounded-lg text-sm mb-4" id="success-modal-booking-id">รหัสอ้างอิง: -</div>
             <p class="text-sm text-gray-600 mb-6 bg-gray-50 p-3 rounded-lg border">จองคิวเรียบร้อยแล้ว<br><b class="text-green-700">กรุณารอช่างติดต่อกลับเพื่อสอบถามข้อมูลเพิ่มเติมและยืนยันการจองคิว</b></p>
-            <button onclick="closeSuccessModal()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl text-lg">ตกลง / รับทราบ</button>
+            <button onclick="closeSuccessModal()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl text-lg shadow-sm">ตกลง / รับทราบ</button>
         </div>
     </div>
 
-    <!-- Hidden Template for PDF Receipt -->
+    <!-- Hidden Template for PDF Receipt / Warranty Document -->
     <div id="receipt-container" class="hidden">
         <div id="receipt-template" class="p-8 w-[800px] text-sm text-gray-800">
             <div class="flex justify-between items-start border-b-2 border-gray-800 pb-4 mb-4">
                 <div><h1 class="text-3xl font-black text-blue-800 mb-1">FixItMobile</h1><p>ศูนย์บริการซ่อมโทรศัพท์มือถือนอกสถานที่<br>โทร: 080-123-4567 | Line: @FixItMobile</p></div>
-                <div class="text-right"><h2 class="text-2xl font-bold text-gray-700">ใบเสร็จรับเงิน / ใบแจ้งหนี้</h2><p class="font-bold mt-2">รหัสอ้างอิง: <span id="r-id" class="text-blue-600"></span></p><p>วันที่ออกเอกสาร: <span id="r-date"></span></p></div>
+                <div class="text-right"><h2 class="text-2xl font-bold text-gray-700">ใบเสร็จรับเงิน / ใบรับประกัน</h2><p class="font-bold mt-2">รหัสอ้างอิง: <span id="r-id" class="text-blue-600"></span></p><p>วันที่ออกเอกสาร: <span id="r-date"></span></p></div>
             </div>
             <div class="mb-6 flex gap-10">
                 <div class="w-1/2"><b>ข้อมูลลูกค้า:</b><br><span id="r-name"></span><br>โทร: <span id="r-phone"></span><br>สถานที่: <span id="r-loc"></span></div>
@@ -558,10 +582,16 @@
             { id: 'contact', icon: 'fa-headset', color: 'purple', title: 'ติดต่อช่าง', desc: 'สอบถามข้อมูล ส่งพิกัดให้ช่าง', isActive: true }
         ];
 
+        const defaultEmailTemplate = {
+            subject: "ยืนยันการจองคิวซ่อม FixItMobile - {booking_id}",
+            body: "เรียนคุณ {name},\n\nทางเราได้รับคำขอจองคิวซ่อมของคุณเรียบร้อยแล้ว\nรหัสการจอง: {booking_id}\nบริการ: {service} ({model})\nวันที่นัดหมาย: {date} ({time})\nยอดประเมินรวม: {total} บาท\n\nกรุณารอช่างติดต่อกลับเพื่อยืนยันการเดินทาง\nขอบคุณที่ใช้บริการ FixItMobile ครับ"
+        };
+
         const appState = {
             auth: { username: 'admin', password: 'password', isLoggedIn: false },
             sheetConfig: { webAppUrl: '' },
             emailConfig: { publicKey: '', serviceId: '', templateId: '', adminEmail: '' },
+            emailTemplate: JSON.parse(JSON.stringify(defaultEmailTemplate)),
             bookings: [],
             finances: [],
             inventory: [],
@@ -581,6 +611,12 @@
             document.getElementById('cfg-email-service').value = appState.emailConfig.serviceId;
             document.getElementById('cfg-email-template').value = appState.emailConfig.templateId;
             document.getElementById('cfg-email-admin').value = appState.emailConfig.adminEmail;
+
+            if(appState.emailTemplate) {
+                document.getElementById('cfg-email-subject').value = appState.emailTemplate.subject;
+                document.getElementById('cfg-email-body').value = appState.emailTemplate.body;
+            }
+            
             if(appState.emailConfig.publicKey) emailjs.init(appState.emailConfig.publicKey);
 
             if(appState.auth.isLoggedIn) switchAppMode('admin');
@@ -591,7 +627,7 @@
                 localStorage.setItem('fixit_erp_state', JSON.stringify({
                     bookings: appState.bookings, finances: appState.finances, inventory: appState.inventory, 
                     webContent: appState.webContent, products: appState.products, auth: appState.auth,
-                    sheetConfig: appState.sheetConfig, emailConfig: appState.emailConfig
+                    sheetConfig: appState.sheetConfig, emailConfig: appState.emailConfig, emailTemplate: appState.emailTemplate
                 }));
                 updateNotiBadge();
             } catch(e) {}
@@ -610,6 +646,7 @@
                     if(p.auth) appState.auth = p.auth;
                     if(p.sheetConfig) appState.sheetConfig = p.sheetConfig;
                     if(p.emailConfig) appState.emailConfig = p.emailConfig;
+                    if(p.emailTemplate) appState.emailTemplate = p.emailTemplate;
                 }
             } catch(e) {}
             updateNotiBadge();
@@ -631,7 +668,7 @@
                         </button>`;
                 } else {
                     container.innerHTML += `
-                        <div class="bg-gray-50 rounded-2xl p-6 border flex flex-col items-center text-center opacity-70 relative">
+                        <div class="bg-gray-50 rounded-2xl p-6 border flex flex-col items-center text-center opacity-70 relative shadow-sm">
                             <div class="absolute top-2 right-2 bg-red-100 text-red-600 text-[10px] font-bold px-2 py-1 rounded-full">ยังไม่พร้อมให้บริการ</div>
                             <div class="w-16 h-16 ${bgColors.gray} rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas ${m.icon}"></i></div>
                             <h3 class="font-bold text-lg text-gray-600 mb-2">${m.title}</h3><p class="text-xs text-gray-400">${m.desc}</p>
@@ -665,7 +702,7 @@
         function toggleLocationFields() {
             const type = document.querySelector('input[name="locType"]:checked')?.value;
             const input = document.getElementById('input-location-detail');
-            input.placeholder = (type === 'อื่นๆ') ? "ระบุชื่อสถานที่ และรายละเอียด..." : "บ้านเลขที่, หมู่บ้าน, ซอย...";
+            input.placeholder = (type === 'อื่นๆ') ? "ระบุชื่อสถานที่ และรายละเอียด..." : "บ้านเลขที่, หมู่บ้าน, ซอย, ถนน...";
         }
 
         function initDynamicForm() {
@@ -696,11 +733,12 @@
                 const parts = v.split('|');
                 document.getElementById('display-total-price').textContent = Number(parts[1]).toLocaleString();
                 document.getElementById('input-total-price').value = parts[1];
-                document.getElementById('display-travel-fee-note').innerHTML = (parts[2] === 'true') ? '<span class="text-green-600">รวมค่าเดินทางแล้ว</span>' : '<span class="text-amber-600">ไม่รวมค่าเดินทาง</span>';
+                document.getElementById('display-travel-fee-note').innerHTML = (parts[2] === 'true') ? '<span class="text-green-600">รวมค่าเดินทางแล้ว</span>' : '<span class="text-amber-600">ไม่รวมค่าเดินทาง (คิดตามระยะทางจริง)</span>';
                 pBox.classList.remove('hidden');
             } else { pBox.classList.add('hidden'); }
         }
 
+        // ปฏิทินเลือกวันที่ (จองล่วงหน้า 3 วันขึ้นไป)
         let currentCalendarDate = new Date(); let selectedDateObj = null;
         function renderCalendar() {
             const year = currentCalendarDate.getFullYear(); const month = currentCalendarDate.getMonth();
@@ -709,7 +747,7 @@
             grid.innerHTML = '';
             for (let i = 0; i < new Date(year, month, 1).getDay(); i++) grid.innerHTML += `<div></div>`;
             
-            const minDate = new Date(); minDate.setHours(0,0,0,0); minDate.setDate(minDate.getDate() + 3); // จองล่วงหน้า 3 วัน
+            const minDate = new Date(); minDate.setHours(0,0,0,0); minDate.setDate(minDate.getDate() + 3); 
             for (let day = 1; day <= new Date(year, month + 1, 0).getDate(); day++) {
                 const d = new Date(year, month, day); d.setHours(0,0,0,0);
                 const isSel = selectedDateObj && d.getTime() === selectedDateObj.getTime();
@@ -739,25 +777,54 @@
 
             appState.bookings.unshift(newBooking); saveToLocalStorage();
             
+            // ส่งไป Google Sheets
             if(appState.sheetConfig.webAppUrl) {
                 fetch(appState.sheetConfig.webAppUrl, { method:'POST', mode:'no-cors', body:JSON.stringify({...newBooking, action: 'booking'}) }).catch(e=>{});
             }
-            if(appState.emailConfig.publicKey && appState.emailConfig.serviceId) {
-                emailjs.send(appState.emailConfig.serviceId, appState.emailConfig.templateId, {
-                    to_name: `${newBooking.firstName} ${newBooking.lastName}`,
-                    to_email: newBooking.email,
-                    booking_id: newBooking.id,
-                    booking_date: `${newBooking.bookingDate} (${newBooking.bookingTime})`,
-                    service_name: `${newBooking.service} - ${newBooking.deviceModel || newBooking.os}`,
-                    total_price: newBooking.totalPrice,
-                    admin_email: appState.emailConfig.adminEmail
-                }).catch(e=>{});
-            }
+            // ส่ง Email แจ้งเตือนผ่าน Template
+            sendBookingEmail(newBooking);
 
             e.target.reset(); selectedDateObj = null; renderCalendar(); updateDynamicForm();
             
             document.getElementById('success-modal-booking-id').textContent = `รหัสอ้างอิง: ${bId}`;
             document.getElementById('bookingSuccessModal').classList.remove('hidden');
+        }
+
+        function formatEmailText(booking, templateStr) {
+            return templateStr
+                .replace(/{name}/g, `${booking.firstName} ${booking.lastName}`)
+                .replace(/{booking_id}/g, booking.id)
+                .replace(/{service}/g, booking.service)
+                .replace(/{model}/g, booking.deviceModel || booking.os)
+                .replace(/{date}/g, booking.bookingDate)
+                .replace(/{time}/g, booking.bookingTime)
+                .replace(/{total}/g, Number(booking.totalPrice).toLocaleString());
+        }
+
+        function sendBookingEmail(booking) {
+            if(!appState.emailConfig.publicKey || !appState.emailConfig.serviceId || !appState.emailConfig.templateId) return;
+            
+            let customBody = formatEmailText(booking, appState.emailTemplate.body);
+            let customSubject = appState.emailTemplate.subject.replace(/{booking_id}/g, booking.id);
+
+            emailjs.send(appState.emailConfig.serviceId, appState.emailConfig.templateId, {
+                to_name: `${booking.firstName} ${booking.lastName}`,
+                to_email: booking.email,
+                subject: customSubject,
+                message: customBody,
+                booking_id: booking.id,
+                admin_email: appState.emailConfig.adminEmail
+            }).catch(e=>{});
+        }
+
+        function sendManualEmail(bookingId) {
+            const b = appState.bookings.find(x => x.id === bookingId);
+            if(!b || !b.email || b.email === '-') return showToast('ลูกค้ารายนี้ไม่ได้ระบุอีเมล', 'error');
+            if(!appState.emailConfig.publicKey) return showToast('ยังไม่ได้ตั้งค่า EmailJS API Keys', 'error');
+
+            showToast('กำลังส่งอีเมลหาลูกค้า...', 'info');
+            sendBookingEmail(b);
+            setTimeout(() => { showToast(`ส่งอีเมลแจ้งเตือนไปที่ ${b.email} สำเร็จ`, 'success'); }, 1000);
         }
 
         function closeSuccessModal() { document.getElementById('bookingSuccessModal').classList.add('hidden'); navCustomer('home'); }
@@ -768,14 +835,14 @@
             if(!phone) return showToast('กรุณากรอกเบอร์โทรศัพท์', 'error');
             const found = appState.bookings.filter(b => b.phone === phone);
             res.classList.remove('hidden');
-            if(found.length === 0) return res.innerHTML = `<div class="p-4 bg-red-50 text-red-600 text-center font-bold rounded-lg">ไม่พบข้อมูล</div>`;
+            if(found.length === 0) return res.innerHTML = `<div class="p-4 bg-red-50 text-red-600 text-center font-bold rounded-lg shadow-sm">ไม่พบข้อมูลการจองด้วยเบอร์โทรนี้</div>`;
             
             let h = `<div class="space-y-3">`;
             found.forEach(b => {
-                const wBadge = b.warrantyUntil !== '-' ? `<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs ml-2">ประกันถึง: ${b.warrantyUntil}</span>` : '';
+                const wBadge = b.warrantyUntil !== '-' ? `<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs ml-2 font-bold">ประกันถึง: ${b.warrantyUntil}</span>` : '';
                 h += `<div class="bg-gray-50 border rounded-lg p-4 shadow-sm text-sm">
                         <div class="flex justify-between font-bold mb-2"><span class="text-blue-700">${b.id}</span><span class="text-gray-600">${b.status}</span></div>
-                        <div>${b.service} (${b.deviceModel||'-'})</div>
+                        <div><b>บริการ:</b> ${b.service} (${b.deviceModel||'-'})</div>
                         <div class="mt-2 text-xs text-gray-500">${b.bookingDate} | ${b.bookingTime} ${wBadge}</div>
                       </div>`;
             });
@@ -801,7 +868,7 @@
             e.preventDefault();
             if(document.getElementById('adminUser').value === appState.auth.username && document.getElementById('adminPass').value === appState.auth.password) {
                 appState.auth.isLoggedIn = true; saveToLocalStorage(); closeAdminLogin(); switchAppMode('admin');
-            } else { showToast('Username/Password ผิด', 'error'); }
+            } else { showToast('Username หรือ Password ไม่ถูกต้อง', 'error'); }
         }
         function adminLogout() { appState.auth.isLoggedIn = false; saveToLocalStorage(); switchAppMode('customer'); }
         function adminBackToCustomer() { switchAppMode('customer'); }
@@ -814,7 +881,8 @@
         function navAdmin(view) {
             document.querySelectorAll('.admin-view').forEach(v => v.classList.add('hidden'));
             document.querySelectorAll('.admin-menu').forEach(m => { m.classList.remove('bg-slate-800','text-white'); m.classList.add('text-slate-300'); });
-            document.getElementById(`view-${view}`).classList.remove('hidden');
+            const viewEl = document.getElementById(`view-${view}`);
+            if(viewEl) viewEl.classList.remove('hidden');
             const btn = document.getElementById(`menu-${view}`); if(btn) { btn.classList.add('bg-slate-800','text-white'); btn.classList.remove('text-slate-300'); }
             
             if(window.innerWidth < 768) toggleAdminSidebar();
@@ -849,16 +917,18 @@
                     <tr class="hover:bg-slate-50 border-b">
                         <td class="px-3 py-2 font-bold text-blue-700">${b.id}</td>
                         <td class="px-3 py-2 text-xs">${b.bookingDate}<br>${b.bookingTime}</td>
-                        <td class="px-3 py-2 text-xs"><b>${b.firstName}</b><br>${b.phone}</td>
-                        <td class="px-3 py-2 text-xs">${b.service}<br>${b.totalPrice} บ.</td>
+                        <td class="px-3 py-2 text-xs"><b>${b.firstName} ${b.lastName}</b><br><span class="text-green-600 font-semibold">Line: ${b.lineId}</span><br>${b.phone}</td>
+                        <td class="px-3 py-2 text-xs">${b.service} (${b.deviceModel||'-'})<br><b class="text-blue-600">${b.totalPrice} บ.</b></td>
                         <td class="px-3 py-2">
-                            <select onchange="handleStatusChange('${b.id}', this.value)" class="border rounded p-1 text-xs font-bold bg-white outline-none w-full">${opts}</select>
-                            ${b.warrantyUntil !== '-' ? `<div class="text-[10px] text-green-600 mt-1">ประกัน: ${b.warrantyUntil}</div>` : ''}
+                            <select onchange="handleStatusChange('${b.id}', this.value)" class="border rounded p-1 text-xs font-bold bg-white outline-none w-full shadow-sm">${opts}</select>
+                            ${b.warrantyUntil !== '-' ? `<div class="text-[10px] text-green-600 mt-1 font-bold">ประกัน: ${b.warrantyUntil}</div>` : ''}
                         </td>
                         <td class="px-3 py-2 text-center whitespace-nowrap">
-                            <button onclick="viewBooking('${b.id}')" class="bg-blue-100 text-blue-600 p-1.5 rounded hover:bg-blue-200"><i class="fas fa-eye"></i></button>
-                            <button onclick="generateReceipt('${b.id}')" class="bg-purple-100 text-purple-600 p-1.5 rounded hover:bg-purple-200 ml-1" title="ออกใบเสร็จ"><i class="fas fa-print"></i></button>
-                            <button onclick="deleteBooking('${b.id}')" class="bg-red-100 text-red-600 p-1.5 rounded hover:bg-red-200 ml-1"><i class="fas fa-trash"></i></button>
+                            <button onclick="viewBooking('${b.id}')" class="bg-blue-100 text-blue-600 p-1.5 rounded hover:bg-blue-200 shadow-sm" title="ดูข้อมูล"><i class="fas fa-eye"></i></button>
+                            <button onclick="previewEmail('${b.id}')" class="bg-purple-100 text-purple-700 p-1.5 rounded hover:bg-purple-200 ml-1 shadow-sm" title="แสดงตัวอย่างอีเมล"><i class="fas fa-envelope-open-text"></i></button>
+                            <button onclick="sendManualEmail('${b.id}')" class="bg-amber-100 text-amber-700 p-1.5 rounded hover:bg-amber-200 ml-1 shadow-sm" title="ส่งอีเมลแจ้งเตือน"><i class="fas fa-paper-plane"></i></button>
+                            <button onclick="generateReceipt('${b.id}')" class="bg-indigo-100 text-indigo-600 p-1.5 rounded hover:bg-indigo-200 ml-1 shadow-sm" title="พิมพ์ใบเสร็จ"><i class="fas fa-print"></i></button>
+                            <button onclick="deleteBooking('${b.id}')" class="bg-red-100 text-red-600 p-1.5 rounded hover:bg-red-200 ml-1 shadow-sm" title="ลบข้อมูล"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>`;
             });
@@ -869,37 +939,63 @@
             b.status = status;
             
             if(status === 'ซ่อมเสร็จสิ้น') {
-                const w = prompt('เพิ่มระยะรับประกันให้ลูกค้าหรือไม่? (เช่น 1 เดือน, 3 เดือน)');
+                const w = prompt('เพิ่มระยะรับประกันให้ลูกค้าหรือไม่? (เช่น 1 เดือน, 3 เดือน)', '3 เดือน');
                 if(w) b.warrantyUntil = w;
                 
                 if(confirm(`ต้องการบันทึกยอด ${b.totalPrice} บาท เป็นรายรับเข้าบัญชีทันทีหรือไม่?`)) {
-                    const finRecord = { id: Date.now(), date: new Date().toISOString().split('T')[0], type: 'income', category: 'รายได้ค่าซ่อม', desc: `ค่าบริการ ${b.id}`, amount: Number(b.totalPrice) };
+                    const finRecord = { id: Date.now(), date: new Date().toISOString().split('T')[0], type: 'income', category: 'รายได้ค่าซ่อม', desc: `ค่าบริการ ${b.id} (${b.service})`, amount: Number(b.totalPrice) };
                     appState.finances.push(finRecord);
                     if(appState.sheetConfig.webAppUrl) {
                         fetch(appState.sheetConfig.webAppUrl, { method:'POST', mode:'no-cors', body:JSON.stringify({...finRecord, action: 'finance'}) }).catch(e=>{});
                     }
-                    showToast('บันทึกรายรับอัตโนมัติสำเร็จ', 'success');
+                    showToast('บันทึกรายรับเข้าบัญชีอัตโนมัติสำเร็จ', 'success');
                 }
             }
-            saveToLocalStorage(); renderAllBookings(); showToast(`อัปเดตสถานะเป็น ${status}`, 'success');
+            saveToLocalStorage(); renderAllBookings(); showToast(`อัปเดตสถานะเป็น ${status} สำเร็จ`, 'success');
         }
 
         function viewBooking(id) {
             const b = appState.bookings.find(x=>x.id===id); if(!b) return;
-            const h = `<div class="grid grid-cols-2 gap-2 text-sm">
-                <div><b>รหัส:</b> ${b.id}</div><div><b>สถานะ:</b> ${b.status}</div>
-                <div><b>ชื่อ:</b> ${b.firstName} ${b.lastName}</div><div><b>โทร:</b> ${b.phone}</div>
-                <div><b>Line ID:</b> ${b.lineId}</div><div><b>อีเมล:</b> ${b.email}</div>
-                <div class="col-span-2"><b>บริการ:</b> ${b.service} (${b.os} ${b.deviceModel||''}) - ${b.partGrade}</div>
-                <div class="col-span-2"><b>สถานที่:</b> ${b.locType} - ${b.location}</div>
+            const h = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <div><b>รหัสจอง:</b> <span class="text-blue-600 font-bold">${b.id}</span></div><div><b>สถานะ:</b> ${b.status}</div>
+                <div><b>ชื่อ-นามสกุล:</b> ${b.firstName} ${b.lastName}</div><div><b>เบอร์โทร:</b> ${b.phone}</div>
+                <div><b>Line ID:</b> <span class="text-green-600 font-bold">${b.lineId}</span></div><div><b>อีเมล:</b> ${b.email}</div>
+                <div class="col-span-2"><b>บริการ:</b> ${b.service} (${b.os} ${b.deviceModel||''}) - อะไหล่เกรด: ${b.partGrade}</div>
+                <div class="col-span-2"><b>สถานที่นัดซ่อม:</b> ${b.locType} - ${b.location}</div>
                 <div class="col-span-2"><b>พิกัด GPS:</b> <a href="${b.gps}" target="_blank" class="text-blue-500 underline">${b.gps}</a></div>
+                <div class="col-span-2"><b>อาการเพิ่มเติม:</b> ${b.additionalInfo}</div>
             </div>`;
             document.getElementById('panel-title').innerHTML = `ข้อมูลการจอง ${b.id}`;
             document.getElementById('panel-content-body').innerHTML = h;
             document.getElementById('inline-management-panel').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+
+        function previewEmail(id) {
+            const b = appState.bookings.find(x=>x.id===id); if(!b) return;
+            const sub = formatEmailText(b, appState.emailTemplate.subject);
+            const body = formatEmailText(b, appState.emailTemplate.body);
+
+            const h = `<div class="space-y-3 text-sm">
+                <div class="bg-purple-50 p-3 rounded border border-purple-200">
+                    <div class="text-xs text-purple-700 font-bold mb-1"><i class="fas fa-paper-plane mr-1"></i> ผู้รับ: ${b.email !== '-' ? b.email : '(ลูกค้ารายนี้ยังไม่ได้ระบุอีเมล)'}</div>
+                    <div class="font-bold text-gray-800 mb-2">หัวข้อ: ${sub}</div>
+                    <hr class="border-purple-200 mb-2">
+                    <div class="whitespace-pre-wrap font-sans text-gray-700 bg-white p-3 rounded border">${body}</div>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button onclick="sendManualEmail('${b.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded text-xs"><i class="fas fa-paper-plane mr-1"></i> ส่งอีเมลฉบับนี้ทันที</button>
+                    <button onclick="closeInlinePanel()" class="bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded text-xs">ปิด</button>
+                </div>
+            </div>`;
+            document.getElementById('panel-title').innerHTML = `ตัวอย่างอีเมล (Email Preview) - ${b.id}`;
+            document.getElementById('panel-content-body').innerHTML = h;
+            document.getElementById('inline-management-panel').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function closeInlinePanel() { document.getElementById('inline-management-panel').classList.add('hidden'); }
-        function deleteBooking(id) { if(confirm('ลบข้อมูลนี้?')) { appState.bookings = appState.bookings.filter(b=>b.id!==id); saveToLocalStorage(); renderAllBookings(); } }
+        function deleteBooking(id) { if(confirm('ต้องการลบข้อมูลการจองนี้?')) { appState.bookings = appState.bookings.filter(b=>b.id!==id); saveToLocalStorage(); renderAllBookings(); showToast('ลบข้อมูลเรียบร้อย', 'success'); } }
 
         function generateReceipt(id) {
             const b = appState.bookings.find(x=>x.id===id); if(!b) return;
@@ -907,18 +1003,18 @@
             document.getElementById('r-date').textContent = new Date().toLocaleDateString('th-TH');
             document.getElementById('r-name').textContent = `${b.firstName} ${b.lastName}`;
             document.getElementById('r-phone').textContent = b.phone;
-            document.getElementById('r-loc').textContent = b.location;
+            document.getElementById('r-loc').textContent = `${b.locType} (${b.location})`;
             document.getElementById('r-service').textContent = b.service;
-            document.getElementById('r-detail').textContent = `${b.os} ${b.deviceModel||''} (${b.partGrade})`;
+            document.getElementById('r-detail').textContent = `${b.os} ${b.deviceModel||''} [เกรด: ${b.partGrade}]`;
             document.getElementById('r-price').textContent = Number(b.totalPrice).toLocaleString();
             document.getElementById('r-total').textContent = Number(b.totalPrice).toLocaleString();
-            document.getElementById('r-warranty').textContent = b.warrantyUntil !== '-' ? b.warrantyUntil : 'ไม่มี';
+            document.getElementById('r-warranty').textContent = b.warrantyUntil !== '-' ? b.warrantyUntil : 'ไม่มีการรับประกัน';
 
             const opt = { margin: 10, filename: `Receipt_${b.id}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
             const el = document.getElementById('receipt-template');
             el.parentElement.classList.remove('hidden');
             html2pdf().from(el).set(opt).save().then(() => el.parentElement.classList.add('hidden'));
-            showToast('กำลังสร้างใบเสร็จ PDF...', 'info');
+            showToast('กำลังสร้างและดาวน์โหลดเอกสาร PDF...', 'info');
         }
 
         function renderFinance() {
@@ -932,9 +1028,9 @@
                     <tr class="border-b hover:bg-slate-50">
                         <td class="px-3 py-2 text-xs">${f.date}</td>
                         <td class="px-3 py-2 text-xs font-bold ${isInc?'text-green-600':'text-red-600'}">${isInc?'รายรับ':'รายจ่าย'}</td>
-                        <td class="px-3 py-2 text-xs">${f.desc}</td>
+                        <td class="px-3 py-2 text-xs">${f.desc} (${f.category})</td>
                         <td class="px-3 py-2 text-right font-bold ${isInc?'text-green-600':'text-red-600'}">${Number(f.amount).toLocaleString()}</td>
-                        <td class="px-3 py-2 text-center"><button onclick="delFinance(${f.id})" class="text-red-500"><i class="fas fa-trash"></i></button></td>
+                        <td class="px-3 py-2 text-center"><button onclick="delFinance(${f.id})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
                     </tr>`;
             });
         }
@@ -955,7 +1051,7 @@
             renderFinance(); e.target.reset();
             showToast('บันทึกบัญชีสำเร็จ', 'success');
         }
-        function delFinance(id) { if(confirm('ลบรายการบัญชีนี้?')) { appState.finances = appState.finances.filter(f=>f.id!==id); saveToLocalStorage(); renderFinance(); } }
+        function delFinance(id) { if(confirm('ต้องการลบรายการบัญชีนี้?')) { appState.finances = appState.finances.filter(f=>f.id!==id); saveToLocalStorage(); renderFinance(); showToast('ลบรายการสำเร็จ', 'success'); } }
 
         function renderInventory() {
             const tbody = document.getElementById('inventory-table-body'); tbody.innerHTML = '';
@@ -963,29 +1059,30 @@
                 tbody.innerHTML += `
                     <tr class="border-b hover:bg-slate-50">
                         <td class="px-3 py-2 font-bold">${i.name}</td>
-                        <td class="px-3 py-2 text-center"><span class="${i.qty<=2?'text-red-600 font-bold':''}">${i.qty}</span></td>
+                        <td class="px-3 py-2 text-center"><span class="${i.qty<=2?'text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded':''}">${i.qty}</span></td>
                         <td class="px-3 py-2 text-right">${Number(i.cost).toLocaleString()}</td>
-                        <td class="px-3 py-2 text-center"><button onclick="delInventory(${i.id})" class="text-red-500"><i class="fas fa-trash"></i></button></td>
+                        <td class="px-3 py-2 text-center"><button onclick="delInventory(${i.id})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
                     </tr>`;
             });
         }
         function addInventory() {
             const name = document.getElementById('inv-name').value; const qty = document.getElementById('inv-qty').value; const cost = document.getElementById('inv-cost').value;
-            if(!name || !qty) return showToast('กรุณากรอกชื่อและจำนวน', 'error');
+            if(!name || !qty) return showToast('กรุณากรอกชื่อและจำนวนอะไหล่', 'error');
             appState.inventory.push({ id: Date.now(), name, qty: Number(qty), cost: Number(cost||0) });
             saveToLocalStorage(); renderInventory(); document.getElementById('inv-name').value=''; document.getElementById('inv-qty').value=''; document.getElementById('inv-cost').value='';
+            showToast('เพิ่มสต๊อกสำเร็จ', 'success');
         }
-        function delInventory(id) { appState.inventory = appState.inventory.filter(i=>i.id!==id); saveToLocalStorage(); renderInventory(); }
+        function delInventory(id) { appState.inventory = appState.inventory.filter(i=>i.id!==id); saveToLocalStorage(); renderInventory(); showToast('ลบสต๊อกสำเร็จ', 'success'); }
 
         function renderWebConfig() {
             const c = document.getElementById('cms-menus-container'); c.innerHTML = '';
             appState.webContent.forEach((m, idx) => {
                 c.innerHTML += `
                     <div class="border rounded p-3 bg-slate-50 grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
-                        <div class="font-bold text-sm">เมนู: ${m.title}</div>
-                        <div><input type="text" id="cms-title-${idx}" value="${m.title}" class="w-full border p-1.5 text-xs rounded" placeholder="ชื่อเมนู"></div>
-                        <div><input type="text" id="cms-desc-${idx}" value="${m.desc}" class="w-full border p-1.5 text-xs rounded" placeholder="คำอธิบาย"></div>
-                        <div><label class="text-xs font-bold"><input type="checkbox" id="cms-active-${idx}" ${m.isActive?'checked':''}> เปิดใช้งาน (Active)</label></div>
+                        <div class="font-bold text-sm">รหัสเมนู: ${m.id}</div>
+                        <div><label class="block text-[10px] text-gray-500 font-bold">ชื่อเมนู</label><input type="text" id="cms-title-${idx}" value="${m.title}" class="w-full border p-2 text-xs rounded bg-white"></div>
+                        <div><label class="block text-[10px] text-gray-500 font-bold">คำอธิบาย</label><input type="text" id="cms-desc-${idx}" value="${m.desc}" class="w-full border p-2 text-xs rounded bg-white"></div>
+                        <div><label class="text-xs font-bold cursor-pointer"><input type="checkbox" id="cms-active-${idx}" ${m.isActive?'checked':''} class="mr-1"> เปิดใช้งานเมนู</label></div>
                     </div>`;
             });
         }
@@ -995,7 +1092,36 @@
                 m.desc = document.getElementById(`cms-desc-${idx}`).value;
                 m.isActive = document.getElementById(`cms-active-${idx}`).checked;
             });
-            saveToLocalStorage(); showToast('บันทึกหน้าเว็บสำเร็จ', 'success'); renderCustomerMenus();
+            saveToLocalStorage(); showToast('บันทึกการตั้งค่าหน้าเว็บสำเร็จ', 'success'); renderCustomerMenus();
+        }
+
+        function saveEmailTemplate() {
+            appState.emailTemplate.subject = document.getElementById('cfg-email-subject').value;
+            appState.emailTemplate.body = document.getElementById('cfg-email-body').value;
+            saveToLocalStorage();
+            showToast('บันทึก Email Template สำเร็จ', 'success');
+        }
+
+        function testSendEmail() {
+            const testEmail = prompt('กรอกอีเมลสำหรับรับข้อความทดสอบ:', 'example@email.com');
+            if(!testEmail) return;
+            if(!appState.emailConfig.publicKey || !appState.emailConfig.serviceId || !appState.emailConfig.templateId) {
+                return showToast('กรุณาตั้งค่า EmailJS API Keys ในเมนู "ระบบเชื่อมต่อ" ก่อน', 'error');
+            }
+
+            showToast('กำลังส่งอีเมลทดสอบ...', 'info');
+            emailjs.send(appState.emailConfig.serviceId, appState.emailConfig.templateId, {
+                to_name: 'ผู้ทดสอบระบบ',
+                to_email: testEmail,
+                subject: appState.emailTemplate.subject.replace(/{booking_id}/g, 'TEST-001'),
+                message: appState.emailTemplate.body.replace(/{name}/g, 'ผู้ทดสอบระบบ').replace(/{booking_id}/g, 'TEST-001').replace(/{service}/g, 'เปลี่ยนหน้าจอ').replace(/{model}/g, 'iPhone 15').replace(/{date}/g, '25/12/2569').replace(/{time}/g, '10:00').replace(/{total}/g, '4,500'),
+                booking_id: 'TEST-001',
+                admin_email: appState.emailConfig.adminEmail
+            }).then(() => {
+                showToast('ส่งอีเมลทดสอบสำเร็จ!', 'success');
+            }).catch(err => {
+                showToast('ส่งอีเมลไม่สำเร็จ: กรุณาตรวจสอบ API Keys', 'error');
+            });
         }
 
         // --- Products & CSV ---
@@ -1003,11 +1129,11 @@
             const tbody = document.getElementById('products-table-body'); tbody.innerHTML = '';
             appState.products.pricing.forEach(p => {
                 tbody.innerHTML += `
-                    <tr class="border-b">
+                    <tr class="border-b hover:bg-slate-50">
                         <td class="p-3 font-semibold">${p.service}</td>
-                        <td class="p-3">${p.grade} ${p.includeTravel ? '<span class="text-xs text-green-600">(รวมค่าเดินทาง)</span>' : ''}</td>
+                        <td class="p-3">${p.grade} ${p.includeTravel ? '<span class="text-xs text-green-600 font-bold ml-1">(รวมค่าเดินทาง)</span>' : ''}</td>
                         <td class="p-3 text-right font-bold text-blue-600">${Number(p.price).toLocaleString()}</td>
-                        <td class="p-3 text-center"><button onclick="delProduct(${p.id})" class="text-red-500"><i class="fas fa-trash"></i></button></td>
+                        <td class="p-3 text-center"><button onclick="delProduct(${p.id})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
                     </tr>`;
             });
         }
@@ -1019,15 +1145,16 @@
             appState.products.pricing.push({ id: Date.now(), service, grade, price, includeTravel: false });
             if(!appState.products.servicesList.includes(service)) appState.products.servicesList.push(service);
             saveToLocalStorage(); renderProducts(); initDynamicForm(); e.target.reset();
-            showToast('เพิ่มรายการสำเร็จ', 'success');
+            showToast('เพิ่มรายการราคาสำเร็จ', 'success');
         }
-        function delProduct(id) { appState.products.pricing = appState.products.pricing.filter(p=>p.id!==id); saveToLocalStorage(); renderProducts(); initDynamicForm(); }
+        function delProduct(id) { appState.products.pricing = appState.products.pricing.filter(p=>p.id!==id); saveToLocalStorage(); renderProducts(); initDynamicForm(); showToast('ลบรายการสำเร็จ', 'success'); }
 
         function downloadSampleCSV(e) {
             e.preventDefault();
             const csvContent = "service,grade,price,includeTravel\nเปลี่ยนหน้าจอ,เกรดแท้ศูนย์,4500,true\nเปลี่ยนแบตเตอรี่,มาตรฐาน,900,false\nเปลี่ยนตูดชาร์จ,เกรด A,500,false";
             const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `sample_pricing.csv`; link.click();
+            showToast('ดาวน์โหลดไฟล์ตัวอย่างสำเร็จ', 'success');
         }
 
         function importPricingCSV(e) {
@@ -1054,12 +1181,17 @@
                     }
                 }
                 saveToLocalStorage(); renderProducts(); initDynamicForm();
-                showToast(`นำเข้าสำเร็จ ${count} รายการ`, 'success');
+                showToast(`นำเข้าข้อมูลราคาสำเร็จ ${count} รายการ`, 'success');
             };
             reader.readAsText(file);
         }
 
-        function saveSheetConfig() { appState.sheetConfig.webAppUrl = document.getElementById('cfg-sheet-url').value; saveToLocalStorage(); showToast('บันทึกสำเร็จ','success'); }
+        function saveSheetConfig() { 
+            appState.sheetConfig.webAppUrl = document.getElementById('cfg-sheet-url').value; 
+            saveToLocalStorage(); 
+            showToast('บันทึก Google Sheets URL สำเร็จ', 'success'); 
+        }
+
         function saveEmailConfig() { 
             appState.emailConfig.publicKey = document.getElementById('cfg-email-public').value;
             appState.emailConfig.serviceId = document.getElementById('cfg-email-service').value;
@@ -1067,14 +1199,15 @@
             appState.emailConfig.adminEmail = document.getElementById('cfg-email-admin').value;
             saveToLocalStorage(); 
             if(appState.emailConfig.publicKey) emailjs.init(appState.emailConfig.publicKey);
-            showToast('บันทึก Email Config สำเร็จ','success'); 
+            showToast('บันทึกการตั้งค่า EmailJS API Keys สำเร็จ', 'success'); 
         }
 
         function exportToCSV() {
-            let csv = '\uFEFFรหัสจอง,วันที่,ชื่อ,บริการ,ราคา,สถานะ,ประกัน\n';
-            appState.bookings.forEach(b => csv += `"${b.id}","${b.bookingDate}","${b.firstName}","${b.service}","${b.totalPrice}","${b.status}","${b.warrantyUntil}"\n`);
+            let csv = '\uFEFFรหัสจอง,วันที่,ชื่อ,LineID,บริการ,ราคา,สถานะ,ประกัน\n';
+            appState.bookings.forEach(b => csv += `"${b.id}","${b.bookingDate}","${b.firstName} ${b.lastName}","${b.lineId}","${b.service}","${b.totalPrice}","${b.status}","${b.warrantyUntil}"\n`);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `FixIt_Bookings.csv`; link.click();
+            showToast('Export CSV สำเร็จ', 'success');
         }
 
         function showToast(msg, type='success') {
@@ -1085,3 +1218,4 @@
     </script>
 </body>
 </html>
+```eof
