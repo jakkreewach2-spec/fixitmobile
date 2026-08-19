@@ -140,22 +140,31 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-semibold mb-1 text-gray-700">บริการ <span class="text-red-500">*</span></label>
-                                <select name="service" id="select-service" required onchange="updateDynamicForm()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"></select>
+                                <select name="service" id="select-service" required onchange="updateDynamicForm()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+                                    <option value="">-- เลือกบริการ --</option>
+                                    <option value="เปลี่ยนหน้าจอ">เปลี่ยนหน้าจอ</option>
+                                    <option value="เปลี่ยนแบตเตอร์รี่">เปลี่ยนแบตเตอร์รี่</option>
+                                    <option value="อาการเสียอื่น">อาการเสียอื่น</option>
+                                </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold mb-1 text-gray-700">รายการ / อะไหล่ <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-semibold mb-1 text-gray-700">รายการละเอียด / อะไหล่ <span class="text-red-500">*</span></label>
                                 <select name="item" id="select-item" required onchange="updateDynamicForm()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"></select>
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold mb-1 text-gray-700">ระบบปฏิบัติการ <span class="text-red-500">*</span></label>
-                                <select name="os" id="select-os" required onchange="updateDynamicForm()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"></select>
+                                <label class="block text-sm font-semibold mb-1 text-gray-700">ระบบปฏิบัติการ (OS) <span class="text-red-500">*</span></label>
+                                <select name="os" id="select-os" required onchange="updateDynamicForm()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+                                    <option value="">-- เลือกระบบปฏิบัติการ --</option>
+                                    <option value="Iphone">Iphone</option>
+                                    <option value="Android">Android</option>
+                                </select>
                             </div>
                             <div id="container-model" class="hidden">
                                 <label class="block text-sm font-semibold mb-1 text-gray-700">รุ่นมือถือ <span class="text-red-500">*</span></label>
                                 <select name="deviceModel" id="select-model" required onchange="calculatePrice()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"></select>
                             </div>
                             <div id="container-grade" class="hidden md:col-span-2">
-                                <label class="block text-sm font-semibold mb-1 text-gray-700">เกรดอะไหล่ / ราคา <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-semibold mb-1 text-gray-700">เกรดอะไหล่ (Grade) <span class="text-red-500">*</span></label>
                                 <select name="partGrade" id="select-grade" required onchange="calculatePrice()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"></select>
                             </div>
                         </div>
@@ -233,9 +242,9 @@
                             <tr>
                                 <th class="p-3">บริการ</th>
                                 <th class="p-3">รายการ</th>
-                                <th class="p-3">ระบบปฏิบัติการ</th>
+                                <th class="p-3">ระบบปฏิบัติการ (OS)</th>
                                 <th class="p-3">รุ่นมือถือ</th>
-                                <th class="p-3">เกรดอะไหล่</th>
+                                <th class="p-3">เกรดอะไหล่ (Grade)</th>
                                 <th class="p-3 text-right">ราคา (บาท)</th>
                             </tr>
                         </thead>
@@ -404,7 +413,7 @@
                             <form onsubmit="addFinanceRecord(event, 'expense')" class="space-y-3 text-sm">
                                 <div><label class="block font-bold mb-1">หมวดหมู่</label>
                                     <select id="fin-ex-cat" required class="w-full border rounded p-2 outline-none focus:border-red-500">
-                                        <option value="ค่าอะไหล่">ค่าอะไหล่ / ต้นทุนสินค้า</option><option value="ค่าเดินทาง">ค่าเดินทาง / น้ำหนัก</option><option value="อื่นๆ">อื่นๆ</option>
+                                        <option value="ค่าอะไหล่">ค่าอะไหล่ / ต้นทุนสินค้า</option><option value="ค่าเดินทาง">ค่าเดินทาง</option><option value="อื่นๆ">อื่นๆ</option>
                                     </select>
                                 </div>
                                 <div><label class="block font-bold mb-1">รายการ</label><input type="text" id="fin-ex-desc" required class="w-full border rounded p-2 outline-none focus:border-red-500" placeholder="เช่น ซื้อจอ iPhone 11"></div>
@@ -429,7 +438,7 @@
                 <div id="view-inventory" class="admin-view hidden space-y-4">
                     <h2 class="text-xl font-bold text-gray-800">ระบบสต๊อกอะไหล่พื้นฐาน</h2>
                     <div class="bg-white p-5 rounded-xl shadow-sm border flex flex-col md:flex-row gap-4">
-                        <input type="text" id="inv-name" placeholder="ชื่ออะไหล่ (เช่น จอ iPhone 11)" class="flex-1 border rounded p-2 text-sm outline-none">
+                        <input type="text" id="inv-name" placeholder="ชื่ออะไหล่ (เช่น จอ iPhone 13 OLED)" class="flex-1 border rounded p-2 text-sm outline-none">
                         <input type="number" id="inv-qty" placeholder="จำนวน" class="w-full md:w-24 border rounded p-2 text-sm outline-none">
                         <input type="number" id="inv-cost" placeholder="ต้นทุน/ชิ้น" class="w-full md:w-32 border rounded p-2 text-sm outline-none">
                         <button onclick="addInventory()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded text-sm"><i class="fas fa-plus"></i> เพิ่มสต๊อก</button>
@@ -476,13 +485,37 @@
                     </div>
 
                     <div class="bg-white p-5 rounded-xl shadow-sm border">
-                         <h3 class="font-bold text-green-700 mb-3 border-b pb-2"><i class="fas fa-plus-circle mr-2"></i>เพิ่มรายการสินค้าและบริการ (บริการ, รายการ, ระบบปฏิบัติการ, รุ่นมือถือ, เกรดอะไหล่, ราคา)</h3>
+                         <h3 class="font-bold text-green-700 mb-3 border-b pb-2"><i class="fas fa-plus-circle mr-2"></i>เพิ่มรายการสินค้าและบริการ</h3>
                          <form onsubmit="addManualProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm items-end">
-                            <div><label class="block font-semibold mb-1">บริการ (Service)</label><input type="text" id="add-prod-service" placeholder="เช่น เปลี่ยนหน้าจอ" required class="w-full border rounded p-2"></div>
-                            <div><label class="block font-semibold mb-1">รายการ (Item)</label><input type="text" id="add-prod-item" placeholder="เช่น หน้าจอ OLED" required class="w-full border rounded p-2"></div>
-                            <div><label class="block font-semibold mb-1">ระบบปฏิบัติการ (OS)</label><input type="text" id="add-prod-os" placeholder="เช่น iPhone หรือ Android" required class="w-full border rounded p-2"></div>
+                            <div>
+                                <label class="block font-semibold mb-1">บริการ (Service)</label>
+                                <select id="add-prod-service" required class="w-full border rounded p-2 bg-white">
+                                    <option value="เปลี่ยนหน้าจอ">เปลี่ยนหน้าจอ</option>
+                                    <option value="เปลี่ยนแบตเตอร์รี่">เปลี่ยนแบตเตอร์รี่</option>
+                                    <option value="อาการเสียอื่น">อาการเสียอื่น</option>
+                                </select>
+                            </div>
+                            <div><label class="block font-semibold mb-1">รายการ (Item)</label><input type="text" id="add-prod-item" placeholder="เช่น จอชุด, แบตเตอรี่" required class="w-full border rounded p-2"></div>
+                            <div>
+                                <label class="block font-semibold mb-1">ระบบปฏิบัติการ (OS)</label>
+                                <select id="add-prod-os" required class="w-full border rounded p-2 bg-white">
+                                    <option value="Iphone">Iphone</option>
+                                    <option value="Android">Android</option>
+                                </select>
+                            </div>
                             <div><label class="block font-semibold mb-1">รุ่นมือถือ (Model)</label><input type="text" id="add-prod-model" placeholder="เช่น iPhone 13, ทุกรุ่น" required class="w-full border rounded p-2"></div>
-                            <div><label class="block font-semibold mb-1">เกรดอะไหล่ (Grade)</label><input type="text" id="add-prod-grade" placeholder="เช่น เกรดแท้ศูนย์" required class="w-full border rounded p-2"></div>
+                            <div>
+                                <label class="block font-semibold mb-1">เกรดอะไหล่ (Grade)</label>
+                                <select id="add-prod-grade" required class="w-full border rounded p-2 bg-white">
+                                    <option value="จอ TFT (เทียบ)">จอ TFT (เทียบ)</option>
+                                    <option value="Incell (เทียบแท้)">Incell (เทียบแท้)</option>
+                                    <option value="OLED (แท้)">OLED (แท้)</option>
+                                    <option value="แบต เทียบ มาตรฐาน">แบต เทียบ มาตรฐาน</option>
+                                    <option value="เพิ่มความจุ (แบต)">เพิ่มความจุ (แบต)</option>
+                                    <option value="ขั้วแท้/เทียบ">ขั้วแท้/เทียบ</option>
+                                    <option value="เกรดมาตรฐาน">เกรดมาตรฐาน</option>
+                                </select>
+                            </div>
                             <div><label class="block font-semibold mb-1">ราคา (Price)</label><input type="number" id="add-prod-price" placeholder="เช่น 2500" required class="w-full border rounded p-2"></div>
                             <div class="sm:col-span-2 lg:col-span-3"><button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded font-bold"><i class="fas fa-save mr-1"></i> บันทึกและซิงก์ลงชีต</button></div>
                         </form>
@@ -494,9 +527,9 @@
                                 <tr>
                                     <th class="p-3 text-left">บริการ</th>
                                     <th class="p-3 text-left">รายการ</th>
-                                    <th class="p-3 text-left">ระบบปฏิบัติการ</th>
+                                    <th class="p-3 text-left">ระบบปฏิบัติการ (OS)</th>
                                     <th class="p-3 text-left">รุ่นมือถือ</th>
-                                    <th class="p-3 text-left">เกรดอะไหล่</th>
+                                    <th class="p-3 text-left">เกรดอะไหล่ (Grade)</th>
                                     <th class="p-3 text-right">ราคา</th>
                                     <th class="p-3 text-center">จัดการ</th>
                                 </tr>
@@ -630,8 +663,9 @@
     <script>
         const defaultData = {
             pricing: [
-                { id: 1, service: 'เปลี่ยนหน้าจอ', item: 'หน้าจอ OLED', os: 'iPhone', deviceModel: 'iPhone 13', grade: 'เกรดแท้ศูนย์', price: 4500 },
-                { id: 2, service: 'เปลี่ยนแบตเตอรี่', item: 'แบตเตอรี่ มอก.', os: 'iPhone', deviceModel: 'iPhone 11', grade: 'แบตเตอรี่มาตรฐาน มอก.', price: 900 }
+                { id: 1, service: 'เปลี่ยนหน้าจอ', item: 'จอชุด OLED', os: 'Iphone', deviceModel: 'iPhone 13', grade: 'OLED (แท้)', price: 4500 },
+                { id: 2, service: 'เปลี่ยนแบตเตอร์รี่', item: 'แบตเตอรี่สำรอง', os: 'Iphone', deviceModel: 'iPhone 11', grade: 'เพิ่มความจุ (แบต)', price: 1200 },
+                { id: 3, service: 'อาการเสียอื่น', item: 'ตรวจเช็คอาการทั่วไป', os: 'Android', deviceModel: 'ทุกรุ่น', grade: 'เกรดมาตรฐาน', price: 300 }
             ]
         };
 
@@ -863,20 +897,15 @@
             const sSelect = document.getElementById('select-service'); 
             if(!sSelect) return;
 
-            const uniqueServices = [...new Set(appState.products.pricing.map(p => p.service))];
-            sSelect.innerHTML = '<option value="">-- เลือกบริการ --</option>'; 
-            uniqueServices.forEach(s => sSelect.innerHTML += `<option value="${s}">${s}</option>`);
-
             document.getElementById('select-item').innerHTML = '<option value="">-- เลือกรายการ --</option>';
-            document.getElementById('select-os').innerHTML = '<option value="">-- เลือกระบบ --</option>';
+            document.getElementById('select-os').innerHTML = '<option value="">-- เลือกระบบปฏิบัติการ --</option><option value="Iphone">Iphone</option><option value="Android">Android</option>';
             document.getElementById('select-model').innerHTML = '<option value="">-- เลือกรุ่น --</option>';
-            document.getElementById('select-grade').innerHTML = '<option value="">-- เลือกเกรด / ราคา --</option>';
+            document.getElementById('select-grade').innerHTML = '<option value="">-- เลือกเกรดอะไหล่ --</option>';
         }
 
         function updateDynamicForm() {
             const s = document.getElementById('select-service').value;
             const itemSel = document.getElementById('select-item');
-            const osSel = document.getElementById('select-os');
             const modelSel = document.getElementById('select-model');
             const gradeSel = document.getElementById('select-grade');
             
@@ -885,10 +914,6 @@
             const uniqueItems = [...new Set(matched.map(p => p.item))];
             itemSel.innerHTML = '<option value="">-- เลือกรายการ --</option>';
             uniqueItems.forEach(i => itemSel.innerHTML += `<option value="${i}">${i}</option>`);
-
-            const uniqueOs = [...new Set(matched.map(p => p.os))];
-            osSel.innerHTML = '<option value="">-- เลือกระบบ --</option>';
-            uniqueOs.forEach(o => osSel.innerHTML += `<option value="${o}">${o}</option>`);
 
             const uniqueModels = [...new Set(matched.map(p => p.deviceModel))];
             if(uniqueModels.length > 0 && uniqueModels[0]) {
@@ -982,7 +1007,7 @@
                 }).catch(e=>{});
             }
 
-            e.target.reset(); selectedDateObj = null; renderCalendar(); updateDynamicForm();
+            e.target.reset(); selectedDateObj = null; renderCalendar(); initDynamicForm();
             
             document.getElementById('success-modal-booking-id').textContent = `รหัสอ้างอิง: ${bId}`;
             document.getElementById('bookingSuccessModal').classList.remove('hidden');
@@ -1476,7 +1501,7 @@
                         count++;
                     }
                 }
-                syncProductsToCloudAndSheet();
+                syncProductsToCloudAndSpeed();
                 renderProducts();
                 initDynamicForm();
                 showToast(`นำเข้าสำเร็จ ${count} รายการ และซิงก์เรียบร้อย`, 'success');
@@ -1486,7 +1511,7 @@
 
         function downloadSampleCSV(e) {
             e.preventDefault();
-            const csv = '\uFEFFservice,item,os,deviceModel,grade,price\nเปลี่ยนหน้าจอ,หน้าจอ OLED,iPhone,iPhone 13,เกรดแท้ศูนย์,4500\nเปลี่ยนแบตเตอรี่,แบตเตอรี่ มอก.,iPhone,iPhone 11,แบตมาตรฐาน,900';
+            const csv = '\uFEFFservice,item,os,deviceModel,grade,price\nเปลี่ยนหน้าจอ,จอชุด OLED,Iphone,iPhone 13,OLED (แท้),4500\nเปลี่ยนแบตเตอร์รี่,แบตเตอรี่สำรอง,Iphone,iPhone 11,เพิ่มความจุ (แบต),1200';
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `Sample_Pricing.csv`; link.click();
         }
