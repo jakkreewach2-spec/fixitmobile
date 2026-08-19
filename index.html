@@ -135,7 +135,7 @@
                         </div>
                     </div>
 
-                    <!-- NEW: อาการเสียที่พบ (Checkboxes) -->
+                    <!-- อาการที่ต้องการซ่อม (Checkboxes เลือกได้มากกว่า 1 ข้อ) -->
                     <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
                         <h3 class="text-lg font-bold text-gray-700 mb-3 flex items-center"><i class="fas fa-stethoscope mr-2 text-red-500"></i>อาการที่ต้องการซ่อม <span class="text-xs font-normal text-gray-500 ml-2">(เลือกได้มากกว่า 1 ข้อ)</span></h3>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -157,7 +157,7 @@
                                 <select name="service" id="select-service" required onchange="updateDynamicForm()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm">
                                     <option value="">-- เลือกบริการ --</option>
                                     <option value="เปลี่ยนหน้าจอ">เปลี่ยนหน้าจอ</option>
-                                    <option value="เปลี่ยนแบตเตอร์รี่">เปลี่ยนแบตเตอร์รี่</option>
+                                    <option value="เปลี่ยนแบตเตอรี่">เปลี่ยนแบตเตอรี่</option>
                                     <option value="อาการเสียอื่น">อาการเสียอื่น</option>
                                 </select>
                             </div>
@@ -168,7 +168,7 @@
                             <div>
                                 <label class="block text-sm font-semibold mb-1 text-gray-700">ระบบปฏิบัติการ (OS) <span class="text-red-500">*</span></label>
                                 <select name="os" id="select-os" required onchange="updateDynamicForm()" class="w-full border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm">
-                                    <option value="">-- เลือกระบบปฏิบัติการ --</option>
+                                    <option value="">-- เลือกรบบปฏิบัติการ --</option>
                                     <option value="Iphone">Iphone</option>
                                     <option value="Android">Android</option>
                                 </select>
@@ -231,7 +231,7 @@
                 </form>
             </div>
 
-            <!-- Tabs: Diagnose, Rates, Tracking, Contact (Unchanged layout structure) -->
+            <!-- Customer Tabs: Diagnose, Rates, Tracking, Contact -->
             <div id="customer-diagnose-tab" class="hidden fade-in">
                 <button onclick="navCustomer('home')" class="mb-4 text-sm text-gray-500 hover:text-blue-600 flex items-center"><i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ</button>
                 <div class="bg-white p-6 md:p-10 rounded-2xl shadow-sm border max-w-2xl mx-auto text-center">
@@ -309,7 +309,7 @@
         </footer>
     </div>
 
-    <!-- Admin Panel Structure -->
+    <!-- Admin Login & Panel Structure -->
     <div id="admin-login-screen" class="hidden fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
         <div class="max-w-sm w-full bg-white p-8 rounded-2xl shadow-2xl relative">
             <button onclick="closeAdminLogin()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
@@ -447,50 +447,53 @@
                     </div>
                 </div>
 
-                <!-- NEW: Dynamic Products CMS (Inline Edit + Import) -->
+                <!-- Products CMS with Smart Form & Import Validation -->
                 <div id="view-products" class="admin-view hidden space-y-6">
-                    <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">จัดการรายการสินค้าและบริการ (Smart Entry & Inline Edit)</h2></div>
+                    <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">จัดการรายการสินค้าและบริการ (Smart Entry & Import)</h2></div>
                     
                     <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
-                        <h3 class="font-bold text-blue-800 border-b pb-2"><i class="fas fa-file-import mr-2"></i>นำเข้าข้อมูล (Import CSV / JSON)</h3>
-                        <p class="text-xs text-gray-500">รูปแบบข้อมูล: <code>service,item,os,deviceModel,grade,price</code></p>
+                        <h3 class="font-bold text-blue-800 border-b pb-2"><i class="fas fa-file-import mr-2"></i>นำเข้าข้อมูล (Import CSV / JSON พร้อมตรวจสอบความถูกต้อง)</h3>
+                        <p class="text-xs text-gray-500">รูปแบบฟอร์มรองรับ: <b>หมวดหน้าจอ</b> (`เปลี่ยนหน้าจอ, จอชุด, Iphone, iPhone 13, TFT, Incell, OLED, 1500, 2500, 4500`) หรือ <b>หมวดแบตเตอรี่</b> (`เปลี่ยนแบตเตอรี่, แบตเตอรี่, Iphone, iPhone 11, 900, 1200`)</p>
                         <div class="flex flex-wrap gap-3">
-                            <button onclick="downloadSampleData('csv')" class="bg-gray-800 hover:bg-gray-900 text-white font-bold px-4 py-2 rounded-lg text-sm flex items-center"><i class="fas fa-download mr-2"></i>ตัวอย่าง CSV</button>
-                            <button onclick="downloadSampleData('json')" class="bg-gray-800 hover:bg-gray-900 text-white font-bold px-4 py-2 rounded-lg text-sm flex items-center"><i class="fas fa-download mr-2"></i>ตัวอย่าง JSON</button>
-                            <label class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center"><i class="fas fa-upload mr-2"></i>อัปโหลดไฟล์ (.csv, .json) <input type="file" accept=".csv, .json" onchange="importPricingData(event)" class="hidden"></label>
+                            <button onclick="downloadSampleData('csv')" class="bg-gray-800 hover:bg-gray-900 text-white font-bold px-4 py-2 rounded-lg text-sm flex items-center"><i class="fas fa-download mr-2"></i>ดาวน์โหลดตัวอย่าง CSV</button>
+                            <button onclick="downloadSampleData('json')" class="bg-gray-800 hover:bg-gray-900 text-white font-bold px-4 py-2 rounded-lg text-sm flex items-center"><i class="fas fa-download mr-2"></i>ดาวน์โหลดตัวอย่าง JSON</button>
+                            <label class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center"><i class="fas fa-upload mr-2"></i>อัปโหลดไฟล์ข้อมูล (.csv, .json) <input type="file" accept=".csv, .json" onchange="importPricingData(event)" class="hidden"></label>
                         </div>
                     </div>
 
                     <div class="bg-white p-5 rounded-xl shadow-sm border">
                          <h3 class="font-bold text-green-700 mb-3 border-b pb-2"><i class="fas fa-plus-circle mr-2"></i>เพิ่มรายการสินค้าและบริการใหม่</h3>
                          <div class="mb-3">
-                            <label class="font-semibold text-sm mr-2">เลือกรูปแบบบริการ:</label>
+                            <label class="font-semibold text-sm mr-2">เลือกหมวดหมู่บริการ:</label>
                             <select id="add-prod-type" onchange="toggleProductFormType()" class="border rounded p-2 text-sm bg-gray-50 font-bold outline-none text-blue-700">
-                                <option value="screen">📱 หมวดหน้าจอ (ใส่ราคาแยกเกรด TFT, Incell, OLED)</option>
-                                <option value="battery">🔋 หมวดแบตเตอรี่ (ใส่ราคาแบตมาตรฐาน / เพิ่มความจุ)</option>
-                                <option value="other">🔧 บริการอื่นๆ (ใส่ราคาเดียว)</option>
+                                <option value="screen">📱 หมวดหน้าจอ (ชื่อบริการ, สินค้า, ระบบ OS, รุ่น, ราคา TFT, Incell, OLED)</option>
+                                <option value="battery">🔋 หมวดแบตเตอรี่ (ชื่อบริการ, สินค้า, ระบบ OS, รุ่น, ราคามาตรฐาน, ราคาเพิ่มความจุ)</option>
+                                <option value="other">🔧 บริการอื่นๆ (ชื่อบริการ, สินค้า, ระบบ OS, รุ่น, เกรด, ราคาเดียว)</option>
                             </select>
                          </div>
                          
                          <form id="smartProductForm" onsubmit="addSmartProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm items-start bg-gray-50 p-4 rounded-lg border">
-                            <div class="lg:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div class="lg:col-span-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+                                <div><label class="block font-semibold mb-1">ชื่อบริการ <span class="text-red-500">*</span></label><input type="text" id="sp-service" value="เปลี่ยนหน้าจอ" required class="w-full border rounded p-2 bg-white"></div>
+                                <div><label class="block font-semibold mb-1">สินค้า <span class="text-red-500">*</span></label><input type="text" id="sp-item" value="จอชุด" required class="w-full border rounded p-2 bg-white"></div>
                                 <div><label class="block font-semibold mb-1">ระบบ (OS) <span class="text-red-500">*</span></label><select id="sp-os" required class="w-full border rounded p-2 bg-white"><option value="Iphone">Iphone</option><option value="Android">Android</option></select></div>
-                                <div><label class="block font-semibold mb-1">ชื่อรุ่น (Model) <span class="text-red-500">*</span></label><input type="text" id="sp-model" placeholder="เช่น iPhone 13, Galaxy S22" required class="w-full border rounded p-2"></div>
-                                <div><label class="block font-semibold mb-1">สินค้า (Item) <span class="text-red-500">*</span></label><input type="text" id="sp-item" placeholder="เช่น จอชุด, แบตเตอรี่" required class="w-full border rounded p-2"></div>
+                                <div><label class="block font-semibold mb-1">ชื่อรุ่น (Model) <span class="text-red-500">*</span></label><input type="text" id="sp-model" placeholder="เช่น iPhone 13" required class="w-full border rounded p-2"></div>
                             </div>
                             
-                            <!-- Dynamic Pricing Fields -->
+                            <!-- Screen Prices -->
                             <div id="sp-prices-screen" class="lg:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-3 border-t pt-3 mt-1">
-                                <div><label class="block font-semibold mb-1 text-gray-600">ราคาจอ TFT (เทียบ)</label><input type="number" id="sp-price-tft" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
-                                <div><label class="block font-semibold mb-1 text-blue-600">ราคาจอ Incell (เทียบแท้)</label><input type="number" id="sp-price-incell" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
-                                <div><label class="block font-semibold mb-1 text-purple-600">ราคาจอ OLED (แท้)</label><input type="number" id="sp-price-oled" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
+                                <div><label class="block font-semibold mb-1 text-gray-600">ราคา TFT</label><input type="number" id="sp-price-tft" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
+                                <div><label class="block font-semibold mb-1 text-blue-600">ราคา Incell</label><input type="number" id="sp-price-incell" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
+                                <div><label class="block font-semibold mb-1 text-purple-600">ราคา OLED</label><input type="number" id="sp-price-oled" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
                             </div>
 
+                            <!-- Battery Prices -->
                             <div id="sp-prices-battery" class="lg:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-3 border-t pt-3 mt-1 hidden">
-                                <div><label class="block font-semibold mb-1 text-gray-600">ราคาแบตเทียบ มาตรฐาน</label><input type="number" id="sp-price-batt-std" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
-                                <div><label class="block font-semibold mb-1 text-green-600">ราคาแบตเพิ่มความจุ</label><input type="number" id="sp-price-batt-high" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
+                                <div><label class="block font-semibold mb-1 text-gray-600">ราคามาตรฐาน</label><input type="number" id="sp-price-batt-std" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
+                                <div><label class="block font-semibold mb-1 text-green-600">ราคาเพิ่มความจุ</label><input type="number" id="sp-price-batt-high" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
                             </div>
 
+                            <!-- Other Prices -->
                             <div id="sp-prices-other" class="lg:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-3 border-t pt-3 mt-1 hidden">
                                 <div><label class="block font-semibold mb-1">เกรดอะไหล่ <span class="text-red-500">*</span></label><input type="text" id="sp-grade-other" placeholder="เช่น เกรดมาตรฐาน" class="w-full border rounded p-2"></div>
                                 <div><label class="block font-semibold mb-1">ราคา <span class="text-red-500">*</span></label><input type="number" id="sp-price-other" placeholder="บาท" class="w-full border rounded p-2"></div>
@@ -502,7 +505,7 @@
 
                     <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
                         <div class="bg-yellow-50 p-3 border-b text-sm font-semibold text-yellow-800 flex justify-between items-center">
-                            <span><i class="fas fa-edit mr-2"></i>เคล็ดลับ: สามารถคลิกที่ข้อความในตารางเพื่อแก้ไขข้อมูลได้ทันที (Inline Edit) เมื่อคลิกจุดอื่นระบบจะบันทึกอัตโนมัติ</span>
+                            <span><i class="fas fa-edit mr-2"></i>เคล็ดลับ: สามารถคลิกแก้ไขข้อความในตารางได้ทันที (Inline Edit) ระบบจะบันทึกให้อัตโนมัติ</span>
                             <button onclick="forceSyncProducts()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs"><i class="fas fa-sync-alt mr-1"></i> ซิงก์ข้อมูลไปที่ Sheet</button>
                         </div>
                         <div class="overflow-x-auto custom-scrollbar">
@@ -510,7 +513,7 @@
                                 <thead class="bg-slate-100">
                                     <tr>
                                         <th class="p-3 text-left">บริการ</th>
-                                        <th class="p-3 text-left">รายการ</th>
+                                        <th class="p-3 text-left">สินค้า</th>
                                         <th class="p-3 text-left">OS</th>
                                         <th class="p-3 text-left">รุ่นมือถือ</th>
                                         <th class="p-3 text-left">เกรดอะไหล่ (Grade)</th>
@@ -524,7 +527,7 @@
                     </div>
                 </div>
 
-                <!-- Tabs: Finance, Inventory, Webconfig (Unchanged layout structure) -->
+                <!-- Admin Tabs: Finance, Inventory, Webconfig, Settings -->
                 <div id="view-finance" class="admin-view hidden space-y-6">
                     <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">ระบบบัญชี / การเงิน</h2></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -606,7 +609,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                             <div><label class="font-bold text-gray-600">Public Key</label><input type="text" id="cfg-email-public" class="w-full border rounded p-2"></div>
                             <div><label class="font-bold text-gray-600">Service ID</label><input type="text" id="cfg-email-service" class="w-full border rounded p-2"></div>
-                            <div><label class="font-bold text-gray-600">Admin Email (อีเมลแอดมินสำหรับรับอีเมลทดสอบ)</label><input type="email" id="cfg-email-admin" class="w-full border rounded p-2" placeholder="admin@example.com"></div>
+                            <div><label class="font-bold text-gray-600">Admin Email (อีเมลแอดมินสำหรับทดสอบส่ง)</label><input type="email" id="cfg-email-admin" class="w-full border rounded p-2" placeholder="admin@example.com"></div>
                         </div>
                         <div class="mt-4"><button onclick="saveEmailConfig()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded text-sm transition"><i class="fas fa-save mr-1"></i> บันทึก Email Config</button></div>
                     </div>
@@ -690,7 +693,7 @@
         </div>
     </div>
 
-    <!-- Receipt Template for PDF Generation (Hidden from view) -->
+    <!-- Receipt Template for PDF Generation -->
     <div id="receipt-container" class="hidden">
         <div id="receipt-template" class="p-8 w-[800px] text-sm text-gray-800 bg-white">
             <div class="flex justify-between items-start border-b-2 border-gray-800 pb-4 mb-4">
@@ -742,8 +745,8 @@
                 { id: 1, service: 'เปลี่ยนหน้าจอ', item: 'จอชุด', os: 'Iphone', deviceModel: 'iPhone 13', grade: 'จอ TFT (เทียบ)', price: 1500 },
                 { id: 2, service: 'เปลี่ยนหน้าจอ', item: 'จอชุด', os: 'Iphone', deviceModel: 'iPhone 13', grade: 'Incell (เทียบแท้)', price: 2500 },
                 { id: 3, service: 'เปลี่ยนหน้าจอ', item: 'จอชุด', os: 'Iphone', deviceModel: 'iPhone 13', grade: 'OLED (แท้)', price: 4500 },
-                { id: 4, service: 'เปลี่ยนแบตเตอร์รี่', item: 'แบตเตอรี่', os: 'Iphone', deviceModel: 'iPhone 11', grade: 'เพิ่มความจุ (แบต)', price: 1200 },
-                { id: 5, service: 'เปลี่ยนแบตเตอร์รี่', item: 'แบตเตอรี่', os: 'Android', deviceModel: 'Samsung S22', grade: 'แบต เทียบ มาตรฐาน', price: 900 }
+                { id: 4, service: 'เปลี่ยนแบตเตอรี่', item: 'แบตเตอรี่', os: 'Iphone', deviceModel: 'iPhone 11', grade: 'เพิ่มความจุ (แบต)', price: 1200 },
+                { id: 5, service: 'เปลี่ยนแบตเตอรี่', item: 'แบตเตอรี่', os: 'Android', deviceModel: 'Samsung S22', grade: 'แบต เทียบ มาตรฐาน', price: 900 }
             ]
         };
 
@@ -910,7 +913,6 @@
             if(!document.getElementById('displaySelectedDate').value) return showToast('กรุณาเลือกวันที่', 'error');
 
             const fd = new FormData(e.target); const data = Object.fromEntries(fd.entries());
-            // NEW: Get symptoms
             const sym = fd.getAll('symptoms');
             const symptomsStr = sym.length > 0 ? sym.join(', ') : '-';
 
@@ -919,7 +921,7 @@
                 id: bId, bookingDate: data.bookingDate, bookingTime: data.bookingTime,
                 firstName: data.firstName, lastName: data.lastName, phone: data.phone, email: data.email||'-', lineId: data.lineId,
                 service: `${data.service} (${data.item || ''})`, os: data.os, deviceModel: data.deviceModel || '-', partGrade: data.partGrade.split('|')[0], totalPrice: data.totalPrice,
-                symptoms: symptomsStr, // Add symptoms to object
+                symptoms: symptomsStr,
                 locType: document.querySelector('input[name="locType"]:checked').value, location: data.location, gps: data.gps||'-', additionalInfo: data.additionalInfo||'-',
                 status: 'รอยืนยัน', warrantyUntil: '-', repairEstimateTime: '-', createdAt: new Date().toISOString()
             };
@@ -932,7 +934,6 @@
             
             if(appState.sheetConfig.webAppUrl) fetch(appState.sheetConfig.webAppUrl, { method:'POST', mode:'no-cors', body:JSON.stringify({...nb, action: 'booking'}) }).catch(e=>{});
             
-            // Auto Email
             const t = appState.emailConfig.templates.booking;
             if(appState.emailConfig.publicKey && appState.emailConfig.serviceId && t.id && nb.email !== '-') {
                 emailjs.send(appState.emailConfig.serviceId, t.id, {
@@ -1007,7 +1008,6 @@
             const tbody = document.getElementById('all-bookings-body'); if(!tbody) return; tbody.innerHTML = '';
             appState.bookings.forEach(b => {
                 let opts = ''; appState.statusOptions.forEach(o => opts += `<option value="${o}" ${b.status===o?'selected':''}>${o}</option>`);
-                // Add Symptoms to display
                 const symDisp = b.symptoms && b.symptoms !== '-' ? `<br><span class="text-red-500 text-[10px]"><i class="fas fa-stethoscope"></i> ${b.symptoms}</span>` : '';
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 border-b">
@@ -1131,44 +1131,45 @@
         }
         function closeInlinePanel() { document.getElementById('inline-management-panel').classList.add('hidden'); }
 
-        // --- NEW: Dynamic Products CMS (Inline Edit) ---
+        // --- Products CMS & Smart Form / Import ---
         function toggleProductFormType() {
             const t = document.getElementById('add-prod-type').value;
             document.getElementById('sp-prices-screen').classList.add('hidden');
             document.getElementById('sp-prices-battery').classList.add('hidden');
             document.getElementById('sp-prices-other').classList.add('hidden');
             
-            if(t === 'screen') { document.getElementById('sp-prices-screen').classList.remove('hidden'); document.getElementById('sp-item').value = 'จอชุด'; }
-            if(t === 'battery') { document.getElementById('sp-prices-battery').classList.remove('hidden'); document.getElementById('sp-item').value = 'แบตเตอรี่'; }
-            if(t === 'other') { document.getElementById('sp-prices-other').classList.remove('hidden'); document.getElementById('sp-item').value = ''; }
+            if(t === 'screen') { document.getElementById('sp-prices-screen').classList.remove('hidden'); document.getElementById('sp-service').value = 'เปลี่ยนหน้าจอ'; document.getElementById('sp-item').value = 'จอชุด'; }
+            if(t === 'battery') { document.getElementById('sp-prices-battery').classList.remove('hidden'); document.getElementById('sp-service').value = 'เปลี่ยนแบตเตอรี่'; document.getElementById('sp-item').value = 'แบตเตอรี่'; }
+            if(t === 'other') { document.getElementById('sp-prices-other').classList.remove('hidden'); document.getElementById('sp-service').value = 'บริการอื่นๆ'; document.getElementById('sp-item').value = 'อื่นๆ'; }
         }
 
         function addSmartProduct(e) {
             e.preventDefault();
             const t = document.getElementById('add-prod-type').value;
+            const service = document.getElementById('sp-service').value;
+            const item = document.getElementById('sp-item').value;
             const os = document.getElementById('sp-os').value;
             const model = document.getElementById('sp-model').value;
-            const item = document.getElementById('sp-item').value;
             
             let newItems = [];
-            const baseObj = { os, deviceModel: model, item };
+            const baseObj = { service, item, os, deviceModel: model };
 
             if(t === 'screen') {
                 const tft = document.getElementById('sp-price-tft').value;
                 const incell = document.getElementById('sp-price-incell').value;
                 const oled = document.getElementById('sp-price-oled').value;
-                if(tft) newItems.push({ id: Date.now()+1, service: 'เปลี่ยนหน้าจอ', ...baseObj, grade: 'จอ TFT (เทียบ)', price: Number(tft) });
-                if(incell) newItems.push({ id: Date.now()+2, service: 'เปลี่ยนหน้าจอ', ...baseObj, grade: 'Incell (เทียบแท้)', price: Number(incell) });
-                if(oled) newItems.push({ id: Date.now()+3, service: 'เปลี่ยนหน้าจอ', ...baseObj, grade: 'OLED (แท้)', price: Number(oled) });
+                if(tft) newItems.push({ id: Date.now()+1, ...baseObj, grade: 'จอ TFT (เทียบ)', price: Number(tft) });
+                if(incell) newItems.push({ id: Date.now()+2, ...baseObj, grade: 'Incell (เทียบแท้)', price: Number(incell) });
+                if(oled) newItems.push({ id: Date.now()+3, ...baseObj, grade: 'OLED (แท้)', price: Number(oled) });
             } else if(t === 'battery') {
                 const std = document.getElementById('sp-price-batt-std').value;
                 const high = document.getElementById('sp-price-batt-high').value;
-                if(std) newItems.push({ id: Date.now()+1, service: 'เปลี่ยนแบตเตอร์รี่', ...baseObj, grade: 'แบต เทียบ มาตรฐาน', price: Number(std) });
-                if(high) newItems.push({ id: Date.now()+2, service: 'เปลี่ยนแบตเตอร์รี่', ...baseObj, grade: 'เพิ่มความจุ (แบต)', price: Number(high) });
+                if(std) newItems.push({ id: Date.now()+1, ...baseObj, grade: 'แบต เทียบ มาตรฐาน', price: Number(std) });
+                if(high) newItems.push({ id: Date.now()+2, ...baseObj, grade: 'เพิ่มความจุ (แบต)', price: Number(high) });
             } else {
                 const grade = document.getElementById('sp-grade-other').value;
                 const price = document.getElementById('sp-price-other').value;
-                newItems.push({ id: Date.now()+1, service: 'อาการเสียอื่น', ...baseObj, grade: grade||'ทั่วไป', price: Number(price) });
+                newItems.push({ id: Date.now()+1, ...baseObj, grade: grade||'ทั่วไป', price: Number(price) });
             }
 
             if(newItems.length === 0) return showToast('กรุณาระบุราคาอย่างน้อย 1 รายการ', 'error');
@@ -1199,7 +1200,7 @@
             const p = appState.products.pricing.find(x => x.id === id); if(!p) return;
             const cleanVal = value.trim();
             if(field === 'price') {
-                const n = Number(cleanVal); if(isNaN(n)) return renderProductsTable(); // revert
+                const n = Number(cleanVal); if(isNaN(n)) return renderProductsTable();
                 p.price = n;
             } else { p[field] = cleanVal; }
             saveToLocalStorage();
@@ -1222,13 +1223,13 @@
         function downloadSampleData(type) {
             let content = ''; let mime = ''; let ext = '';
             if(type === 'csv') {
-                content = "service,item,os,deviceModel,grade,price\nเปลี่ยนหน้าจอ,จอชุด,Iphone,iPhone 13,OLED (แท้),4500\nเปลี่ยนแบตเตอร์รี่,แบตเตอรี่,Android,S22,เพิ่มความจุ (แบต),1200";
+                content = "service,item,os,deviceModel,grade,price\nเปลี่ยนหน้าจอ,จอชุด,Iphone,iPhone 13,OLED (แท้),4500\nเปลี่ยนแบตเตอรี่,แบตเตอรี่,Android,Samsung S22,แบต เทียบ มาตรฐาน,900";
                 mime = 'text/csv;charset=utf-8;'; ext = 'csv';
             } else {
                 content = JSON.stringify([{service:"เปลี่ยนหน้าจอ",item:"จอชุด",os:"Iphone",deviceModel:"iPhone 13",grade:"OLED (แท้)",price:4500}], null, 2);
                 mime = 'application/json;charset=utf-8;'; ext = 'json';
             }
-            const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), content], { type: mime }); // UTF-8 BOM
+            const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), content], { type: mime });
             const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `sample_products.${ext}`; a.click();
         }
 
@@ -1240,26 +1241,59 @@
                     let newProds = [];
                     if(file.name.endsWith('.json')) {
                         const parsed = JSON.parse(evt.target.result);
-                        if(Array.isArray(parsed)) newProds = parsed.map((p,i) => ({id: Date.now()+i, service:p.service, item:p.item, os:p.os, deviceModel:p.deviceModel, grade:p.grade, price:Number(p.price)}));
+                        if(Array.isArray(parsed)) {
+                            newProds = parsed.map((p,i) => ({
+                                id: Date.now()+i,
+                                service: p.service || 'เปลี่ยนหน้าจอ',
+                                item: p.item || 'จอชุด',
+                                os: p.os || 'Iphone',
+                                deviceModel: p.deviceModel || p.model || 'Unknown',
+                                grade: p.grade || 'ทั่วไป',
+                                price: Number(p.price || 0)
+                            }));
+                        }
                     } else if(file.name.endsWith('.csv')) {
                         const lines = evt.target.result.split('\n');
                         for(let i=1; i<lines.length; i++) {
-                            const [s, it, o, m, g, pr] = lines[i].split(',');
-                            if(s && pr) newProds.push({id: Date.now()+i, service:s.trim(), item:it?.trim(), os:o?.trim(), deviceModel:m?.trim(), grade:g?.trim(), price:Number(pr.trim())});
+                            const row = lines[i].trim();
+                            if(!row) continue;
+                            const cols = row.split(',');
+                            if(cols.length >= 6) {
+                                newProds.push({
+                                    id: Date.now()+i,
+                                    service: cols[0].trim(),
+                                    item: cols[1].trim(),
+                                    os: cols[2].trim(),
+                                    deviceModel: cols[3].trim(),
+                                    grade: cols[4].trim(),
+                                    price: Number(cols[5].trim())
+                                });
+                            } else if(cols.length >= 5) {
+                                // รองรับ CSV รูปแบบตู้ข้อมูลแบตเตอรี่/จอแบบย่อ
+                                newProds.push({
+                                    id: Date.now()+i,
+                                    service: cols[0].trim(),
+                                    item: cols[1].trim(),
+                                    os: cols[2].trim(),
+                                    deviceModel: cols[3].trim(),
+                                    grade: 'เกรดมาตรฐาน',
+                                    price: Number(cols[4].trim())
+                                });
+                            }
                         }
                     }
                     
                     if(newProds.length > 0) {
-                        if(confirm(`พบข้อมูล ${newProds.length} รายการ\n- กด OK เพื่อเอาไปรวมกับของเดิม (Append)\n- กด Cancel เพื่อแทนที่ข้อมูลทั้งหมด (Replace)`)) {
+                        if(confirm(`ตรวจสอบพบข้อมูลถูกต้อง ${newProds.length} รายการ\n- กด OK เพื่อรวมกับข้อมูลเดิม (Append)\n- กด Cancel เพื่อแทนที่ข้อมูลทั้งหมด (Replace)`)) {
                             appState.products.pricing = [...appState.products.pricing, ...newProds];
                         } else {
                             appState.products.pricing = newProds;
                         }
                         saveToLocalStorage(); renderProductsTable(); forceSyncProducts();
-                        showToast('นำเข้าข้อมูลสำเร็จ!', 'success');
-                    } else { showToast('ไม่พบข้อมูลที่ถูกต้องในไฟล์', 'error'); }
-                } catch(err) { showToast('รูปแบบไฟล์ไม่ถูกต้อง', 'error'); console.error(err); }
-                e.target.value = ''; // reset
+                        showToast('นำเข้าและตรวจสอบข้อมูลสำเร็จ!', 'success');
+                    } else { showToast('ไม่พบข้อมูลที่ถูกต้องตามรูปแบบโครงสร้างไฟล์', 'error'); }
+                } catch(err) { showToast('เกิดข้อผิดพลาดในการอ่านไฟล์โครงสร้าง', 'error'); console.error(err); }
+                e.target.value = '';
             };
             reader.readAsText(file);
         }
@@ -1271,11 +1305,11 @@
             document.getElementById('r-price').textContent = Number(b.totalPrice).toLocaleString(); document.getElementById('r-total').textContent = Number(b.totalPrice).toLocaleString();
             if(isBookingCard) {
                 document.getElementById('r-doc-title').textContent = 'ใบนัดหมายคิวซ่อม (Booking)'; document.getElementById('r-loc').textContent = `${b.locType} - ${b.location}`;
-                document.getElementById('r-service').textContent = `[นัดหมาย] ${b.service}`; document.getElementById('r-detail').textContent = `${b.os} ${b.deviceModel||''} | วันนัด: ${b.bookingDate} (${b.bookingTime})`;
+                document.getElementById('r-service').textContent = `[นัดหมาย] ${b.service}`; document.getElementById('r-detail').textContent = `${b.os} ${b.deviceModel||''} | วันนัด: ${b.bookingDate} (${b.bookingTime}) | อาการ: ${b.symptoms||'-'}`;
                 document.getElementById('r-warranty-box').style.visibility = 'hidden';
             } else {
                 document.getElementById('r-doc-title').textContent = 'ใบเสร็จรับเงิน / ใบรับประกัน'; document.getElementById('r-loc').textContent = b.location;
-                document.getElementById('r-service').textContent = b.service; document.getElementById('r-detail').textContent = `${b.os} ${b.deviceModel||''} (${b.partGrade})`;
+                document.getElementById('r-service').textContent = b.service; document.getElementById('r-detail').textContent = `${b.os} ${b.deviceModel||''} (${b.partGrade}) | อาการ: ${b.symptoms||'-'}`;
                 document.getElementById('r-warranty').textContent = b.warrantyUntil !== '-' ? `ถึง ${b.warrantyUntil}` : 'ไม่มี'; document.getElementById('r-warranty-box').style.visibility = 'visible';
             }
         }
@@ -1309,7 +1343,6 @@
             if(appState.emailConfig.publicKey) emailjs.init(appState.emailConfig.publicKey); saveToLocalStorage(); showToast('บันทึกการตั้งค่า Email หลักสำเร็จ', 'success');
         }
 
-        // --- Test Email & Send Email ---
         function openEmailModalForBooking(id, type = 'booking') {
             const b = appState.bookings.find(x=>x.id===id); if(!b) return;
             if(!b.email || b.email === '-') { const em = prompt('ลูกค้ารายนี้ไม่ได้ใส่อีเมล กรุณาระบุอีเมลผู้รับ:', ''); if(!em) return; b.email = em; }
@@ -1353,18 +1386,18 @@
             if(!t.id) return showToast('กรุณาระบุ Template ID ก่อนทดสอบ', 'error');
             if(!appState.emailConfig.adminEmail) return showToast('กรุณาระบุ Admin Email ก่อนทดสอบ', 'error');
 
-            if(confirm(`ส่งอีเมลทดสอบ (${type}) ไปที่: ${appState.emailConfig.adminEmail}\nต้องการดำเนินการต่อหรือไม่?`)) {
+            if(confirm(`ส่งอีเมลทดสอบ (${type}) ไปที่อีเมลแอดมิน: ${appState.emailConfig.adminEmail}\nต้องการดำเนินการต่อหรือไม่?`)) {
                 if(!appState.emailConfig.publicKey || !appState.emailConfig.serviceId) return showToast('กรุณาตั้งค่า EmailJS ก่อน', 'error');
-                showToast('กำลังเตรียมการและส่งอีเมลทดสอบ...', 'info');
+                showToast('กำลังเตรียมการและส่งอีเมลทดสอบอัตโนมัติ...', 'info');
                 
-                const db = { id:'TEST-000', firstName:'Admin', lastName:'Test', phone:'080', service:'Test Service', totalPrice:999, locType:'Test', location:'Loc', os:'iOS', partGrade:'Test', warrantyUntil:'2025-01-01', bookingDate:'2024-12-01', bookingTime:'10:00' };
+                const db = { id:'TEST-000', firstName:'Admin', lastName:'Test', phone:'080', service:'Test Service', totalPrice:999, locType:'Test', location:'Loc', os:'iOS', partGrade:'Test', warrantyUntil:'2025-01-01', bookingDate:'2024-12-01', bookingTime:'10:00', symptoms:'ชาร์จไม่เข้า' };
                 prepareReceiptTemplate(db, type === 'booking'); const el = document.getElementById('receipt-template'); el.parentElement.classList.remove('hidden');
                 
                 html2pdf().from(el).set({ margin:10, html2canvas:{scale:2}, jsPDF:{unit:'mm',format:'a4'} }).outputPdf('datauristring').then(pdfBase64 => {
                     el.parentElement.classList.add('hidden');
                     const subj = t.subject.replace(/{name}/g,'Admin').replace(/{id}/g,'TEST-000'); const body = t.body.replace(/{name}/g,'Admin').replace(/{id}/g,'TEST-000').replace(/{date}/g,'2024-12-01 10:00').replace(/{service}/g,'Test Service').replace(/{price}/g,'999');
                     emailjs.send(appState.emailConfig.serviceId, t.id, { to_name:'Admin Tester', to_email:appState.emailConfig.adminEmail, subject:'[TEST] '+subj, message:body, admin_email:appState.emailConfig.adminEmail, content:pdfBase64.split('base64,')[1], filename:`TEST_Doc.pdf` })
-                    .then(() => showToast('ส่งอีเมลทดสอบสำเร็จ!', 'success')).catch(e => { console.error(e); showToast('ส่งอีเมลไม่สำเร็จ', 'error'); });
+                    .then(() => showToast('ส่งอีเมลทดสอบหา Admin สำเร็จ!', 'success')).catch(e => { console.error(e); showToast('ส่งอีเมลไม่สำเร็จ', 'error'); });
                 });
             }
         }
