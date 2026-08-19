@@ -234,9 +234,11 @@
 
             <div id="customer-rates-tab" class="hidden fade-in">
                 <button onclick="navCustomer('home')" class="mb-4 text-sm text-gray-500 hover:text-blue-600 flex items-center"><i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ</button>
-                <div class="text-center mb-8"><h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">อัตราค่าบริการและอะไหล่</h2><p class="text-sm text-gray-500">ข้อมูลราคาประเมินจากระบบสินค้าและบริการปัจจุบัน</p></div>
+                <div class="text-center mb-8"><h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">อัตราค่าบริการและอะไหล่</h2><p class="text-sm text-gray-500">ข้อมูลราคาประเมินจากระบบสินค้าและบริการปัจจุบัน พร้อมคู่มือเปรียบเทียบเกรดอะไหล่</p></div>
                 
-                <div class="bg-white rounded-2xl shadow-sm border p-6 overflow-x-auto custom-scrollbar">
+                <!-- Pricing Table -->
+                <div class="bg-white rounded-2xl shadow-sm border p-6 mb-8 overflow-x-auto custom-scrollbar">
+                    <h3 class="font-bold text-lg text-blue-800 mb-4 flex items-center"><i class="fas fa-tags mr-2"></i>ตารางราคากลางบริการและอะไหล่</h3>
                     <table class="w-full text-sm text-left border-collapse min-w-[700px]">
                         <thead class="bg-blue-50 text-blue-800 font-bold border-b-2">
                             <tr>
@@ -251,6 +253,79 @@
                         <tbody id="rates-table-body" class="divide-y divide-gray-100"></tbody>
                     </table>
                 </div>
+
+                <!-- Comprehensive Parts & Service Guide Section -->
+                <div class="space-y-8 bg-white p-6 md:p-8 rounded-2xl shadow-sm border">
+                    <h3 class="text-xl font-black text-gray-800 border-b pb-3 flex items-center"><i class="fas fa-book-open text-blue-600 mr-2"></i>คู่มือรายละเอียดเกรดหน้าจอ, แบตเตอรี่ และขอบเขตบริการ</h3>
+
+                    <!-- 1. Screen Grades Comparison -->
+                    <div>
+                        <h4 class="font-bold text-lg text-blue-700 mb-3"><i class="fas fa-mobile-alt mr-2"></i>1. เปรียบเทียบเกรดหน้าจอ (Screen Grades Comparison)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="border rounded-xl p-4 bg-gray-50">
+                                <h5 class="font-bold text-gray-800 mb-2">📱 จอเกรด TFT / LCD เทียบ</h5>
+                                <p class="text-xs text-gray-600 mb-2"><b>ลักษณะ:</b> LCD/TFT ทั่วไป ขอบหนากว่าจอแท้ สีสัน/ความสว่างดรอป 20-30%</p>
+                                <p class="text-xs text-green-700 mb-1"><b>ข้อดี:</b> ราคาถูกที่สุด ประหยัดงบสูงสุด</p>
+                                <p class="text-xs text-red-600"><b>ข้อเสีย:</b> ไม่รองรับ True Tone, กินแบตเพิ่มเล็กน้อย, สีเพี้ยน</p>
+                            </div>
+                            <div class="border rounded-xl p-4 bg-blue-50/50 border-blue-200">
+                                <h5 class="font-bold text-blue-800 mb-2">📱 จอเกรด Incell / เทียบแท้</h5>
+                                <p class="text-xs text-gray-600 mb-2"><b>ลักษณะ:</b> LCD คุณภาพสูง บางเฉียบ (In-Cell) ใกล้เคียงแท้ที่สุด</p>
+                                <p class="text-xs text-green-700 mb-1"><b>ข้อดี:</b> ทัชลื่น สีสด คุ้มค่า คุ้มราคาที่สุด</p>
+                                <p class="text-xs text-red-600"><b>ข้อเสีย:</b> ส่วนใหญ่ไม่รองรับ True Tone (ยกเว้นบางรุ่น)</p>
+                            </div>
+                            <div class="border rounded-xl p-4 bg-emerald-50/50 border-emerald-200">
+                                <h5 class="font-bold text-emerald-800 mb-2">📱 จอเกรด OLED / แท้</h5>
+                                <p class="text-xs text-gray-600 mb-2"><b>ลักษณะ:</b> OLED/AMOLED พิกเซลเปล่งแสงเอง ดำมืดสนิท</p>
+                                <p class="text-xs text-green-700 mb-1"><b>ข้อดี:</b> สีสวยคมชัด 100%, สู้แดดดี, รองรับ True Tone ครบ</p>
+                                <p class="text-xs text-red-600"><b>ข้อเสีย:</b> ราคาสูงที่สุด</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Battery Grades Comparison -->
+                    <div>
+                        <h4 class="font-bold text-lg text-blue-700 mb-3"><i class="fas fa-battery-three-quarters mr-2"></i>2. เปรียบเทียบเกรดแบตเตอรี่ (Battery Grades Comparison)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="border rounded-xl p-4 bg-gray-50">
+                                <h5 class="font-bold text-gray-800 mb-2">🔋 แบตเตอรี่เทียบมาตรฐาน (Standard)</h5>
+                                <p class="text-xs text-gray-600 mb-2"><b>ลักษณะ:</b> ความจุเท่าโรงงานเดิม ได้มาตรฐาน มอก.</p>
+                                <p class="text-xs text-green-700 mb-1"><b>ข้อดี:</b> ราคาประหยัด ปลอดภัย เครื่องไม่ดับระหว่างวัน</p>
+                                <p class="text-xs text-red-600"><b>ข้อเสีย:</b> ความจุเท่าเดิม</p>
+                            </div>
+                            <div class="border rounded-xl p-4 bg-blue-50/50 border-blue-200">
+                                <h5 class="font-bold text-blue-800 mb-2">🔋 แบตเตอรี่เพิ่มความจุ (High Capacity)</h5>
+                                <p class="text-xs text-gray-600 mb-2"><b>ลักษณะ:</b> ความจุมากกว่าเดิม 20-30% ขนาดเท่าเดิมใส่พอดี</p>
+                                <p class="text-xs text-green-700 mb-1"><b>ข้อดี:</b> ใช้งานยาวนานขึ้นอย่างเห็นได้ชัด เหมาะสำหรับสายลุย</p>
+                                <p class="text-xs text-red-600"><b>ข้อเสีย:</b> ราคาสูงกว่าแบตมาตรฐานเล็กน้อย</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Service Scope -->
+                    <div>
+                        <h4 class="font-bold text-lg text-blue-700 mb-3"><i class="fas fa-concierge-bell mr-2"></i>3. ขอบเขตงานบริการ (Service Scope)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                                <h5 class="font-bold text-green-800 mb-2 text-sm"><i class="fas fa-check-circle mr-1"></i> สิ่งที่ช่างนอกสถานที่ (On-site) ทำได้:</h5>
+                                <ul class="list-disc pl-4 space-y-1 text-gray-700">
+                                    <li>เปลี่ยนหน้าจอ เปลี่ยนแบตเตอรี่ เปลี่ยนแพรชาร์จ กล้องหน้า/หลัง กระจกหลัง</li>
+                                    <li>ตรวจเช็คอาการเสียเบื้องต้น ทำความสะอาดเครื่อง</li>
+                                    <li>ออกใบเสร็จรับเงิน ใบกำกับภาษี และออกใบรับประกันงานซ่อมทันทีหน้างาน</li>
+                                </ul>
+                            </div>
+                            <div class="bg-red-50 p-4 rounded-xl border border-red-200">
+                                <h5 class="font-bold text-red-800 mb-2 text-sm"><i class="fas fa-times-circle mr-1"></i> สิ่งที่ทำไม่ได้นอกสถานที่ (ต้องนำเครื่องกลับศูนย์):</h5>
+                                <ul class="list-disc pl-4 space-y-1 text-gray-700">
+                                    <li>งานซ่อมเมนบอร์ดที่ต้องใช้เครื่องมือขนาดใหญ่ (เช่น อบไอซี เปลี่ยนชิปเซ็ต)</li>
+                                    <li>ปลดล็อค Account Google / Apple ID ที่ติดรหัสผ่านความปลอดภัยสูง</li>
+                                    <li>งานซ่อมที่ต้องใช้เวลาแช่น้ำยาหรืออบกาวข้ามคืน</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div id="customer-tracking-tab" class="hidden fade-in">
@@ -673,6 +748,7 @@
             { id: 'booking', icon: 'fa-wrench', color: 'blue', title: 'ซ่อมมือถือนอกสถานที่', desc: 'จองคิวให้ช่างเดินทางไปซ่อมถึงที่', isActive: true },
             { id: 'rates', icon: 'fa-tags', color: 'green', title: 'ราคาค่าบริการ', desc: 'ตรวจสอบราคาอะไหล่และบริการ', isActive: true },
             { id: 'diagnose', icon: 'fa-stethoscope', color: 'indigo', title: 'ตรวจเช็คอาการเสียเบื้องต้น', desc: 'เช็คอาการเบื้องต้นก่อนซ่อม', isActive: true },
+            { id: 'tracking', icon: 'fa-search', color: 'amber', title: 'ติดตามสถานะการซ่อม', desc: 'เช็คสถานะงานซ่อมและวันประกัน', isActive: true },
             { id: 'unlock1', icon: 'fa-google', color: 'gray', title: 'ปลดล็อค Gmail', desc: 'ยังไม่พร้อมให้บริการ', isActive: false },
             { id: 'unlock2', icon: 'fa-lock-open', color: 'gray', title: 'ปลดล็อคเครื่อง', desc: 'ยังไม่พร้อมให้บริการ', isActive: false },
             { id: 'contact', icon: 'fa-headset', color: 'purple', title: 'ติดต่อช่าง', desc: 'สอบถามข้อมูล ส่งพิกัดให้ช่าง', isActive: true }
@@ -827,13 +903,13 @@
             if(!container) return;
             container.innerHTML = '';
             appState.webContent.forEach(m => {
-                const bgColors = { blue:'bg-blue-100 text-blue-600', green:'bg-green-100 text-green-600', indigo:'bg-indigo-100 text-indigo-600', purple:'bg-purple-100 text-purple-600', gray:'bg-gray-200 text-gray-400' };
-                const hoverColors = { blue:'group-hover:bg-blue-600', green:'group-hover:bg-green-600', indigo:'group-hover:bg-indigo-600', purple:'group-hover:bg-purple-600', gray:'' };
+                const bgColors = { blue:'bg-blue-100 text-blue-600', green:'bg-green-100 text-green-600', indigo:'bg-indigo-100 text-indigo-600', purple:'bg-purple-100 text-purple-600', amber:'bg-amber-100 text-amber-600', gray:'bg-gray-200 text-gray-400' };
+                const hoverColors = { blue:'group-hover:bg-blue-600', green:'group-hover:bg-green-600', indigo:'group-hover:bg-indigo-600', purple:'group-hover:bg-purple-600', amber:'group-hover:bg-amber-600', gray:'' };
                 
                 if(m.isActive) {
                     container.innerHTML += `
                         <button onclick="navCustomer('${m.id}')" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all group flex flex-col items-center text-center">
-                            <div class="w-16 h-16 ${bgColors[m.color]} rounded-full flex items-center justify-center text-2xl mb-4 ${hoverColors[m.color]} group-hover:text-white transition-colors"><i class="fas ${m.icon}"></i></div>
+                            <div class="w-16 h-16 ${bgColors[m.color] || bgColors.blue} rounded-full flex items-center justify-center text-2xl mb-4 ${hoverColors[m.color] || hoverColors.blue} group-hover:text-white transition-colors"><i class="fas ${m.icon}"></i></div>
                             <h3 class="font-bold text-lg text-gray-800 mb-2">${m.title}</h3><p class="text-xs text-gray-500">${m.desc}</p>
                         </button>`;
                 } else {
@@ -1501,7 +1577,7 @@
                         count++;
                     }
                 }
-                syncProductsToCloudAndSpeed();
+                syncProductsToCloudAndSheet();
                 renderProducts();
                 initDynamicForm();
                 showToast(`นำเข้าสำเร็จ ${count} รายการ และซิงก์เรียบร้อย`, 'success');
@@ -1531,4 +1607,3 @@
     </script>
 </body>
 </html>
-```eof
