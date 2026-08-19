@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- Update EmailJS to newer version for better attachment support -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <script type="module">
@@ -62,6 +61,9 @@
         .date-selected { background-color: #16a34a !important; color: white !important; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         
         #receipt-template { background: white; color: black; font-family: 'Sarabun', sans-serif; }
+        .editable-cell { cursor: text; outline: none; border-bottom: 1px dashed transparent; transition: border 0.2s; }
+        .editable-cell:hover { border-bottom: 1px dashed #3b82f6; background-color: #f8fafc; }
+        .editable-cell:focus { border-bottom: 1px solid #3b82f6; background-color: #fff; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); border-radius: 2px;}
     </style>
 </head>
 <body class="bg-gray-50 font-sans min-h-screen flex flex-col relative text-gray-800">
@@ -133,8 +135,22 @@
                         </div>
                     </div>
 
+                    <!-- NEW: อาการเสียที่พบ (Checkboxes) -->
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-700 mb-3 flex items-center"><i class="fas fa-stethoscope mr-2 text-red-500"></i>อาการที่ต้องการซ่อม <span class="text-xs font-normal text-gray-500 ml-2">(เลือกได้มากกว่า 1 ข้อ)</span></h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <label class="flex items-center space-x-2 bg-white border p-3 rounded-lg cursor-pointer hover:bg-blue-50 transition"><input type="checkbox" name="symptoms" value="ชาร์จไม่เข้า" class="w-4 h-4 text-blue-600"> <span class="text-sm font-medium">ชาร์จไม่เข้า</span></label>
+                            <label class="flex items-center space-x-2 bg-white border p-3 rounded-lg cursor-pointer hover:bg-blue-50 transition"><input type="checkbox" name="symptoms" value="จอเสีย" class="w-4 h-4 text-blue-600"> <span class="text-sm font-medium">จอเสีย</span></label>
+                            <label class="flex items-center space-x-2 bg-white border p-3 rounded-lg cursor-pointer hover:bg-blue-50 transition"><input type="checkbox" name="symptoms" value="เครื่องตกน้ำ" class="w-4 h-4 text-blue-600"> <span class="text-sm font-medium">เครื่องตกน้ำ</span></label>
+                            <label class="flex items-center space-x-2 bg-white border p-3 rounded-lg cursor-pointer hover:bg-blue-50 transition"><input type="checkbox" name="symptoms" value="ไม่มีสัญญาณ" class="w-4 h-4 text-blue-600"> <span class="text-sm font-medium">ไม่มีสัญญาณ</span></label>
+                            <label class="flex items-center space-x-2 bg-white border p-3 rounded-lg cursor-pointer hover:bg-blue-50 transition"><input type="checkbox" name="symptoms" value="เครื่องล็อค" class="w-4 h-4 text-blue-600"> <span class="text-sm font-medium">เครื่องล็อค</span></label>
+                            <label class="flex items-center space-x-2 bg-white border p-3 rounded-lg cursor-pointer hover:bg-blue-50 transition"><input type="checkbox" name="symptoms" value="เครื่องร้อน" class="w-4 h-4 text-blue-600"> <span class="text-sm font-medium">เครื่องร้อน</span></label>
+                            <label class="flex items-center space-x-2 bg-white border p-3 rounded-lg cursor-pointer hover:bg-blue-50 transition"><input type="checkbox" name="symptoms" value="อื่นๆ" class="w-4 h-4 text-blue-600"> <span class="text-sm font-medium">อื่นๆ</span></label>
+                        </div>
+                    </div>
+
                     <div class="bg-blue-50/50 p-5 rounded-xl border border-blue-100">
-                        <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center"><i class="fas fa-mobile-alt mr-2 text-blue-500"></i>เลือกบริการที่ต้องการ</h3>
+                        <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center"><i class="fas fa-mobile-alt mr-2 text-blue-500"></i>เลือกบริการ / อะไหล่</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-semibold mb-1 text-gray-700">บริการ <span class="text-red-500">*</span></label>
@@ -207,7 +223,7 @@
                                 </div>
                                 <button type="button" onclick="getLocationGPS()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition flex justify-center items-center"><i class="fas fa-location-arrow mr-2"></i>ปักหมุดปัจจุบัน</button>
                             </div>
-                            <div class="md:col-span-2 mt-2" id="field-container-note"><label class="block text-sm font-semibold mb-1">รายละเอียดอาการเสียเพิ่มเติม</label><textarea name="additionalInfo" rows="2" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm"></textarea></div>
+                            <div class="md:col-span-2 mt-2" id="field-container-note"><label class="block text-sm font-semibold mb-1">รายละเอียดอาการเพิ่มเติม (ถ้ามี)</label><textarea name="additionalInfo" rows="2" class="w-full border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 text-sm"></textarea></div>
                         </div>
                     </div>
 
@@ -215,6 +231,7 @@
                 </form>
             </div>
 
+            <!-- Tabs: Diagnose, Rates, Tracking, Contact (Unchanged layout structure) -->
             <div id="customer-diagnose-tab" class="hidden fade-in">
                 <button onclick="navCustomer('home')" class="mb-4 text-sm text-gray-500 hover:text-blue-600 flex items-center"><i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ</button>
                 <div class="bg-white p-6 md:p-10 rounded-2xl shadow-sm border max-w-2xl mx-auto text-center">
@@ -292,6 +309,7 @@
         </footer>
     </div>
 
+    <!-- Admin Panel Structure -->
     <div id="admin-login-screen" class="hidden fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
         <div class="max-w-sm w-full bg-white p-8 rounded-2xl shadow-2xl relative">
             <button onclick="closeAdminLogin()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
@@ -316,9 +334,7 @@
                 <ul class="space-y-1">
                     <li><button onclick="navAdmin('dashboard')" id="menu-dashboard" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-chart-pie w-6 text-center"></i> ภาพรวม (Dashboard)</button></li>
                     <li><button onclick="navAdmin('bookings')" id="menu-bookings" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center justify-between"><div class="flex items-center"><i class="fas fa-list-ul w-6 text-center"></i> งานซ่อม/คิวงาน</div><span class="bg-blue-600 text-xs px-2 py-0.5 rounded-full" id="side-noti-badge">0</span></button></li>
-                    <!-- New Menu: สถานะการซ่อม -->
                     <li><button onclick="navAdmin('repair_status')" id="menu-repair_status" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-spinner w-6 text-center"></i> สถานะการซ่อม</button></li>
-                     <!-- New Menu: การรับประกัน -->
                     <li><button onclick="navAdmin('warranty')" id="menu-warranty" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-shield-alt w-6 text-center"></i> การรับประกันสินค้า</button></li>
                     <li><button onclick="navAdmin('finance')" id="menu-finance" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-file-invoice-dollar w-6 text-center"></i> บัญชี/การเงิน</button></li>
                     <li><button onclick="navAdmin('inventory')" id="menu-inventory" class="admin-menu w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center"><i class="fas fa-boxes w-6 text-center"></i> สต๊อกอะไหล่</button></li>
@@ -363,7 +379,7 @@
 
                 <div id="view-bookings" class="admin-view hidden">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
-                        <h2 class="text-xl font-bold text-gray-800">รายการคิวซ่อม / รับประกัน</h2>
+                        <h2 class="text-xl font-bold text-gray-800">รายการคิวซ่อม</h2>
                         <div class="flex space-x-2 w-full md:w-auto">
                             <button onclick="exportToCSV()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm shadow-sm flex items-center justify-center font-bold"><i class="fas fa-file-csv mr-2"></i> Export CSV</button>
                         </div>
@@ -384,8 +400,8 @@
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">รหัสจอง</th>
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">นัดหมาย</th>
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">ลูกค้า</th>
-                                    <th class="px-3 py-3 text-left font-bold text-slate-700">บริการ</th>
-                                    <th class="px-3 py-3 text-left font-bold text-slate-700">สถานะ / ประกัน</th>
+                                    <th class="px-3 py-3 text-left font-bold text-slate-700">บริการ / อาการเสีย</th>
+                                    <th class="px-3 py-3 text-left font-bold text-slate-700">สถานะ</th>
                                     <th class="px-3 py-3 text-center font-bold text-slate-700">จัดการ</th>
                                 </tr>
                             </thead>
@@ -394,7 +410,6 @@
                     </div>
                 </div>
 
-                <!-- New Tab: Repair Status -->
                 <div id="view-repair_status" class="admin-view hidden">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">จัดการสถานะการซ่อม (กำลังดำเนินการ)</h2>
                     <div class="bg-white rounded-xl shadow-sm border overflow-x-auto custom-scrollbar">
@@ -403,7 +418,7 @@
                                 <tr>
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">รหัสจอง</th>
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">ลูกค้า</th>
-                                    <th class="px-3 py-3 text-left font-bold text-slate-700">รายการซ่อม</th>
+                                    <th class="px-3 py-3 text-left font-bold text-slate-700">รายการซ่อม / อาการเสีย</th>
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">สถานะปัจจุบัน</th>
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">ระยะเวลาดำเนินการ</th>
                                     <th class="px-3 py-3 text-center font-bold text-slate-700">อัปเดต</th>
@@ -414,9 +429,8 @@
                     </div>
                 </div>
 
-                <!-- New Tab: Warranty -->
                 <div id="view-warranty" class="admin-view hidden">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">จัดการข้อมูลการรับประกันสินค้า (ซ่อมเสร็จสิ้น)</h2>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">จัดการข้อมูลการรับประกันสินค้า (เฉพาะงานซ่อมเสร็จสิ้น)</h2>
                     <div class="bg-white rounded-xl shadow-sm border overflow-x-auto custom-scrollbar">
                         <table class="min-w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-slate-100">
@@ -425,7 +439,7 @@
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">ลูกค้า</th>
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">รายการรับประกัน</th>
                                     <th class="px-3 py-3 text-left font-bold text-slate-700">ระยะเวลารับประกัน</th>
-                                    <th class="px-3 py-3 text-center font-bold text-slate-700">จัดการ / เอกสาร</th>
+                                    <th class="px-3 py-3 text-center font-bold text-slate-700">เอกสาร / อีเมล</th>
                                 </tr>
                             </thead>
                             <tbody id="warranty-table-body" class="divide-y divide-gray-100"></tbody>
@@ -433,9 +447,86 @@
                     </div>
                 </div>
 
+                <!-- NEW: Dynamic Products CMS (Inline Edit + Import) -->
+                <div id="view-products" class="admin-view hidden space-y-6">
+                    <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">จัดการรายการสินค้าและบริการ (Smart Entry & Inline Edit)</h2></div>
+                    
+                    <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
+                        <h3 class="font-bold text-blue-800 border-b pb-2"><i class="fas fa-file-import mr-2"></i>นำเข้าข้อมูล (Import CSV / JSON)</h3>
+                        <p class="text-xs text-gray-500">รูปแบบข้อมูล: <code>service,item,os,deviceModel,grade,price</code></p>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="downloadSampleData('csv')" class="bg-gray-800 hover:bg-gray-900 text-white font-bold px-4 py-2 rounded-lg text-sm flex items-center"><i class="fas fa-download mr-2"></i>ตัวอย่าง CSV</button>
+                            <button onclick="downloadSampleData('json')" class="bg-gray-800 hover:bg-gray-900 text-white font-bold px-4 py-2 rounded-lg text-sm flex items-center"><i class="fas fa-download mr-2"></i>ตัวอย่าง JSON</button>
+                            <label class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center"><i class="fas fa-upload mr-2"></i>อัปโหลดไฟล์ (.csv, .json) <input type="file" accept=".csv, .json" onchange="importPricingData(event)" class="hidden"></label>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl shadow-sm border">
+                         <h3 class="font-bold text-green-700 mb-3 border-b pb-2"><i class="fas fa-plus-circle mr-2"></i>เพิ่มรายการสินค้าและบริการใหม่</h3>
+                         <div class="mb-3">
+                            <label class="font-semibold text-sm mr-2">เลือกรูปแบบบริการ:</label>
+                            <select id="add-prod-type" onchange="toggleProductFormType()" class="border rounded p-2 text-sm bg-gray-50 font-bold outline-none text-blue-700">
+                                <option value="screen">📱 หมวดหน้าจอ (ใส่ราคาแยกเกรด TFT, Incell, OLED)</option>
+                                <option value="battery">🔋 หมวดแบตเตอรี่ (ใส่ราคาแบตมาตรฐาน / เพิ่มความจุ)</option>
+                                <option value="other">🔧 บริการอื่นๆ (ใส่ราคาเดียว)</option>
+                            </select>
+                         </div>
+                         
+                         <form id="smartProductForm" onsubmit="addSmartProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm items-start bg-gray-50 p-4 rounded-lg border">
+                            <div class="lg:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div><label class="block font-semibold mb-1">ระบบ (OS) <span class="text-red-500">*</span></label><select id="sp-os" required class="w-full border rounded p-2 bg-white"><option value="Iphone">Iphone</option><option value="Android">Android</option></select></div>
+                                <div><label class="block font-semibold mb-1">ชื่อรุ่น (Model) <span class="text-red-500">*</span></label><input type="text" id="sp-model" placeholder="เช่น iPhone 13, Galaxy S22" required class="w-full border rounded p-2"></div>
+                                <div><label class="block font-semibold mb-1">สินค้า (Item) <span class="text-red-500">*</span></label><input type="text" id="sp-item" placeholder="เช่น จอชุด, แบตเตอรี่" required class="w-full border rounded p-2"></div>
+                            </div>
+                            
+                            <!-- Dynamic Pricing Fields -->
+                            <div id="sp-prices-screen" class="lg:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-3 border-t pt-3 mt-1">
+                                <div><label class="block font-semibold mb-1 text-gray-600">ราคาจอ TFT (เทียบ)</label><input type="number" id="sp-price-tft" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
+                                <div><label class="block font-semibold mb-1 text-blue-600">ราคาจอ Incell (เทียบแท้)</label><input type="number" id="sp-price-incell" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
+                                <div><label class="block font-semibold mb-1 text-purple-600">ราคาจอ OLED (แท้)</label><input type="number" id="sp-price-oled" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
+                            </div>
+
+                            <div id="sp-prices-battery" class="lg:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-3 border-t pt-3 mt-1 hidden">
+                                <div><label class="block font-semibold mb-1 text-gray-600">ราคาแบตเทียบ มาตรฐาน</label><input type="number" id="sp-price-batt-std" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
+                                <div><label class="block font-semibold mb-1 text-green-600">ราคาแบตเพิ่มความจุ</label><input type="number" id="sp-price-batt-high" placeholder="บาท (เว้นว่างได้)" class="w-full border rounded p-2"></div>
+                            </div>
+
+                            <div id="sp-prices-other" class="lg:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-3 border-t pt-3 mt-1 hidden">
+                                <div><label class="block font-semibold mb-1">เกรดอะไหล่ <span class="text-red-500">*</span></label><input type="text" id="sp-grade-other" placeholder="เช่น เกรดมาตรฐาน" class="w-full border rounded p-2"></div>
+                                <div><label class="block font-semibold mb-1">ราคา <span class="text-red-500">*</span></label><input type="number" id="sp-price-other" placeholder="บาท" class="w-full border rounded p-2"></div>
+                            </div>
+
+                            <div class="lg:col-span-4"><button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold transition shadow-sm"><i class="fas fa-save mr-1"></i> บันทึกข้อมูลเข้าระบบ</button></div>
+                        </form>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                        <div class="bg-yellow-50 p-3 border-b text-sm font-semibold text-yellow-800 flex justify-between items-center">
+                            <span><i class="fas fa-edit mr-2"></i>เคล็ดลับ: สามารถคลิกที่ข้อความในตารางเพื่อแก้ไขข้อมูลได้ทันที (Inline Edit) เมื่อคลิกจุดอื่นระบบจะบันทึกอัตโนมัติ</span>
+                            <button onclick="forceSyncProducts()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs"><i class="fas fa-sync-alt mr-1"></i> ซิงก์ข้อมูลไปที่ Sheet</button>
+                        </div>
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="min-w-full text-sm">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="p-3 text-left">บริการ</th>
+                                        <th class="p-3 text-left">รายการ</th>
+                                        <th class="p-3 text-left">OS</th>
+                                        <th class="p-3 text-left">รุ่นมือถือ</th>
+                                        <th class="p-3 text-left">เกรดอะไหล่ (Grade)</th>
+                                        <th class="p-3 text-right">ราคา</th>
+                                        <th class="p-3 text-center">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-table-body" class="divide-y divide-gray-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs: Finance, Inventory, Webconfig (Unchanged layout structure) -->
                 <div id="view-finance" class="admin-view hidden space-y-6">
                     <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">ระบบบัญชี / การเงิน</h2></div>
-                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-white p-5 rounded-xl shadow-sm border border-green-200">
                             <h3 class="font-bold text-green-700 mb-4 border-b pb-2 flex items-center"><i class="fas fa-arrow-down mr-2"></i>บันทึกรายรับ</h3>
@@ -446,7 +537,6 @@
                                 <button type="submit" class="w-full bg-green-600 text-white font-bold py-2 rounded-lg"><i class="fas fa-save mr-1"></i> บันทึกรายรับ</button>
                             </form>
                         </div>
-                        
                         <div class="bg-white p-5 rounded-xl shadow-sm border border-red-200">
                             <h3 class="font-bold text-red-700 mb-4 border-b pb-2 flex items-center"><i class="fas fa-arrow-up mr-2"></i>บันทึกรายจ่าย</h3>
                             <form onsubmit="addFinanceRecord(event, 'expense')" class="space-y-3 text-sm">
@@ -462,14 +552,10 @@
                             </form>
                         </div>
                     </div>
-
                     <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
                         <div class="bg-slate-100 px-4 py-3 border-b flex justify-between"><h4 class="font-bold text-gray-700">ประวัติการทำรายการ (เดือนปัจจุบัน)</h4></div>
                         <div class="overflow-x-auto custom-scrollbar max-h-80">
-                            <table class="min-w-full text-sm text-left">
-                                <thead class="bg-gray-50 sticky top-0"><tr><th class="p-3">วันที่</th><th class="p-3">ประเภท</th><th class="p-3">รายการ</th><th class="p-3 text-right">จำนวนเงิน</th><th class="p-3 text-center">ลบ</th></tr></thead>
-                                <tbody id="finance-table-body" class="divide-y divide-gray-100"></tbody>
-                            </table>
+                            <table class="min-w-full text-sm text-left"><thead class="bg-gray-50 sticky top-0"><tr><th class="p-3">วันที่</th><th class="p-3">ประเภท</th><th class="p-3">รายการ</th><th class="p-3 text-right">จำนวนเงิน</th><th class="p-3 text-center">ลบ</th></tr></thead><tbody id="finance-table-body" class="divide-y divide-gray-100"></tbody></table>
                         </div>
                     </div>
                 </div>
@@ -483,27 +569,22 @@
                         <button onclick="addInventory()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded text-sm"><i class="fas fa-plus"></i> เพิ่มสต๊อก</button>
                     </div>
                     <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-                        <table class="min-w-full text-sm text-left">
-                            <thead class="bg-slate-100"><tr><th class="p-3">ชื่ออะไหล่</th><th class="p-3 text-center">คงเหลือ (ชิ้น)</th><th class="p-3 text-right">ต้นทุน/ชิ้น</th><th class="p-3 text-center">จัดการ</th></tr></thead>
-                            <tbody id="inventory-table-body" class="divide-y divide-gray-100"></tbody>
-                        </table>
+                        <table class="min-w-full text-sm text-left"><thead class="bg-slate-100"><tr><th class="p-3">ชื่ออะไหล่</th><th class="p-3 text-center">คงเหลือ (ชิ้น)</th><th class="p-3 text-right">ต้นทุน/ชิ้น</th><th class="p-3 text-center">จัดการ</th></tr></thead><tbody id="inventory-table-body" class="divide-y divide-gray-100"></tbody></table>
                     </div>
                 </div>
 
                 <div id="view-webconfig" class="admin-view hidden space-y-4">
                     <h2 class="text-xl font-bold text-gray-800">จัดการหน้าเว็บไซต์ลูกค้า (CMS)</h2>
-                    <p class="text-sm text-gray-500 mb-4">ปรับแต่งเมนูและข้อความบนหน้าแรกของลูกค้าได้ที่นี่ เพิ่ม ลบ หรือสร้างเมนูใหม่ได้ตามต้องการ</p>
-                    
+                    <p class="text-sm text-gray-500 mb-4">ปรับแต่งเมนูและข้อความบนหน้าแรกของลูกค้าได้ที่นี่</p>
                     <div class="bg-white p-5 rounded-xl shadow-sm border mb-6">
                         <h3 class="font-bold text-green-700 mb-3 border-b pb-2"><i class="fas fa-plus-circle mr-2"></i>เพิ่มเมนูหน้าแรกใหม่</h3>
                         <form onsubmit="addNewCustomerMenu(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm items-end">
-                            <div><label class="block font-semibold mb-1">ชื่อเมนู (Title)</label><input type="text" id="new-menu-title" placeholder="เช่น บริการพิเศษ" required class="w-full border rounded p-2 outline-none"></div>
-                            <div><label class="block font-semibold mb-1">คำอธิบายย่อย (Desc)</label><input type="text" id="new-menu-desc" placeholder="เช่น รายละเอียดบริการ" required class="w-full border rounded p-2 outline-none"></div>
-                            <div><label class="block font-semibold mb-1">ไอคอน FontAwesome</label><input type="text" id="new-menu-icon" placeholder="fa-star, fa-shield-alt" value="fa-star" required class="w-full border rounded p-2 outline-none"></div>
-                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded text-sm transition"><i class="fas fa-plus mr-1"></i> เพิ่มเมนูใหม่</button>
+                            <div><label class="block font-semibold mb-1">ชื่อเมนู (Title)</label><input type="text" id="new-menu-title" required class="w-full border rounded p-2 outline-none"></div>
+                            <div><label class="block font-semibold mb-1">คำอธิบายย่อย (Desc)</label><input type="text" id="new-menu-desc" required class="w-full border rounded p-2 outline-none"></div>
+                            <div><label class="block font-semibold mb-1">ไอคอน FontAwesome</label><input type="text" id="new-menu-icon" value="fa-star" required class="w-full border rounded p-2 outline-none"></div>
+                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded text-sm transition"><i class="fas fa-plus mr-1"></i> เพิ่มเมนู</button>
                         </form>
                     </div>
-
                     <div class="bg-white p-5 rounded-xl shadow-sm border">
                         <h3 class="font-bold text-blue-800 mb-4 border-b pb-2">จัดการเมนูหลักหน้าแรก (Home Buttons)</h3>
                         <div id="cms-menus-container" class="space-y-3"></div>
@@ -511,143 +592,62 @@
                     </div>
                 </div>
 
-                <div id="view-products" class="admin-view hidden space-y-6">
-                    <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">จัดการรายการสินค้าและบริการ</h2></div>
-                    
-                    <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
-                        <h3 class="font-bold text-blue-800 border-b pb-2"><i class="fas fa-file-csv mr-2"></i>อัปเดตผ่านไฟล์ CSV / ดาวน์โหลดตัวอย่าง</h3>
-                        <p class="text-xs text-gray-500">รูปแบบคอลัมน์ใน CSV: <code>service,item,os,deviceModel,grade,price</code></p>
-                        <div class="flex flex-wrap gap-3">
-                            <a href="#" onclick="downloadSampleCSV(event)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm flex items-center"><i class="fas fa-download mr-2"></i>ดาวน์โหลดไฟล์ตัวอย่าง CSV</a>
-                            <label class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm cursor-pointer flex items-center"><i class="fas fa-upload mr-2"></i>อัปโหลดไฟล์ CSV <input type="file" accept=".csv" onchange="importPricingCSV(event)" class="hidden"></label>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl shadow-sm border">
-                         <h3 class="font-bold text-green-700 mb-3 border-b pb-2"><i class="fas fa-plus-circle mr-2"></i>เพิ่มรายการสินค้าและบริการ</h3>
-                         <form onsubmit="addManualProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm items-end">
-                            <div>
-                                <label class="block font-semibold mb-1">บริการ (Service)</label>
-                                <select id="add-prod-service" required class="w-full border rounded p-2 bg-white">
-                                    <option value="เปลี่ยนหน้าจอ">เปลี่ยนหน้าจอ</option>
-                                    <option value="เปลี่ยนแบตเตอร์รี่">เปลี่ยนแบตเตอร์รี่</option>
-                                    <option value="อาการเสียอื่น">อาการเสียอื่น</option>
-                                </select>
-                            </div>
-                            <div><label class="block font-semibold mb-1">รายการ (Item)</label><input type="text" id="add-prod-item" placeholder="เช่น จอชุด, แบตเตอรี่" required class="w-full border rounded p-2"></div>
-                            <div>
-                                <label class="block font-semibold mb-1">ระบบปฏิบัติการ (OS)</label>
-                                <select id="add-prod-os" required class="w-full border rounded p-2 bg-white">
-                                    <option value="Iphone">Iphone</option>
-                                    <option value="Android">Android</option>
-                                </select>
-                            </div>
-                            <div><label class="block font-semibold mb-1">รุ่นมือถือ (Model)</label><input type="text" id="add-prod-model" placeholder="เช่น iPhone 13, ทุกรุ่น" required class="w-full border rounded p-2"></div>
-                            <div>
-                                <label class="block font-semibold mb-1">เกรดอะไหล่ (Grade)</label>
-                                <select id="add-prod-grade" required class="w-full border rounded p-2 bg-white">
-                                    <option value="จอ TFT (เทียบ)">จอ TFT (เทียบ)</option>
-                                    <option value="Incell (เทียบแท้)">Incell (เทียบแท้)</option>
-                                    <option value="OLED (แท้)">OLED (แท้)</option>
-                                    <option value="แบต เทียบ มาตรฐาน">แบต เทียบ มาตรฐาน</option>
-                                    <option value="เพิ่มความจุ (แบต)">เพิ่มความจุ (แบต)</option>
-                                    <option value="ขั้วแท้/เทียบ">ขั้วแท้/เทียบ</option>
-                                    <option value="เกรดมาตรฐาน">เกรดมาตรฐาน</option>
-                                </select>
-                            </div>
-                            <div><label class="block font-semibold mb-1">ราคา (Price)</label><input type="number" id="add-prod-price" placeholder="เช่น 2500" required class="w-full border rounded p-2"></div>
-                            <div class="sm:col-span-2 lg:col-span-3"><button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded font-bold"><i class="fas fa-save mr-1"></i> บันทึกและซิงก์ลงชีต</button></div>
-                        </form>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm border overflow-x-auto custom-scrollbar">
-                        <table class="min-w-full text-sm">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="p-3 text-left">บริการ</th>
-                                    <th class="p-3 text-left">รายการ</th>
-                                    <th class="p-3 text-left">ระบบปฏิบัติการ (OS)</th>
-                                    <th class="p-3 text-left">รุ่นมือถือ</th>
-                                    <th class="p-3 text-left">เกรดอะไหล่ (Grade)</th>
-                                    <th class="p-3 text-right">ราคา</th>
-                                    <th class="p-3 text-center">จัดการ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="products-table-body" class="divide-y divide-gray-200"></tbody>
-                        </table>
-                    </div>
-                </div>
-
+                <!-- Email & API Settings -->
                 <div id="view-settings" class="admin-view hidden space-y-6">
                     <h2 class="text-xl font-bold text-gray-800">ระบบเชื่อมต่อและตั้งค่าพื้นฐาน (API & Email)</h2>
                     
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-green-200">
-                        <h3 class="font-bold text-green-800 mb-2"><i class="fas fa-database mr-2"></i>ตั้งค่า Google Sheets (บันทึกข้อมูลและซิงก์สินค้า)</h3>
-                        <p class="text-xs text-gray-500 mb-3">นำ Web App URL จาก Google Apps Script มาวางที่นี่เพื่อบันทึกข้อมูลจองคิว, บัญชี และรายการสินค้าอัตโนมัติ</p>
+                        <h3 class="font-bold text-green-800 mb-2"><i class="fas fa-database mr-2"></i>ตั้งค่า Google Sheets Webhook (บันทึกและซิงก์ข้อมูล)</h3>
                         <div class="flex gap-2"><input type="text" id="cfg-sheet-url" class="flex-1 border rounded-lg p-2 text-sm" placeholder="https://script.google.com/macros/s/.../exec"><button onclick="saveSheetConfig()" class="bg-green-600 text-white font-bold px-4 py-2 rounded text-sm">บันทึก Google Sheets URL</button></div>
                     </div>
 
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-blue-200">
-                        <h3 class="font-bold text-blue-800 mb-3"><i class="fas fa-envelope mr-2"></i>การตั้งค่า EmailJS (อีเมลแจ้งเตือน)</h3>
+                        <h3 class="font-bold text-blue-800 mb-3"><i class="fas fa-envelope mr-2"></i>การตั้งค่า EmailJS หลัก</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                             <div><label class="font-bold text-gray-600">Public Key</label><input type="text" id="cfg-email-public" class="w-full border rounded p-2"></div>
                             <div><label class="font-bold text-gray-600">Service ID</label><input type="text" id="cfg-email-service" class="w-full border rounded p-2"></div>
-                            <div><label class="font-bold text-gray-600">Admin Email (สำหรับรับอีเมลทดสอบ/แจ้งเตือน)</label><input type="email" id="cfg-email-admin" class="w-full border rounded p-2" placeholder="admin@example.com"></div>
+                            <div><label class="font-bold text-gray-600">Admin Email (อีเมลแอดมินสำหรับรับอีเมลทดสอบ)</label><input type="email" id="cfg-email-admin" class="w-full border rounded p-2" placeholder="admin@example.com"></div>
                         </div>
-                        <div class="mt-4">
-                            <button onclick="saveEmailConfig()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded text-sm transition"><i class="fas fa-save mr-1"></i> บันทึก Email Config</button>
-                        </div>
+                        <div class="mt-4"><button onclick="saveEmailConfig()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded text-sm transition"><i class="fas fa-save mr-1"></i> บันทึก Email Config</button></div>
                     </div>
 
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-indigo-200">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-bold text-indigo-800"><i class="fas fa-file-alt mr-2"></i>จัดการ Email Templates</h3>
-                            <select id="email-template-selector" class="border rounded p-1 text-sm bg-indigo-50 font-semibold text-indigo-800" onchange="loadSelectedTemplate()">
-                                <option value="booking">ส่งใบจองคิวซ่อม (Booking)</option>
-                                <option value="warranty">ส่งใบรับประกัน / ใบเสร็จ (Warranty)</option>
+                        <div class="flex justify-between items-center mb-4 border-b pb-2">
+                            <h3 class="font-bold text-indigo-800"><i class="fas fa-file-alt mr-2"></i>จัดการ Email Templates แยกฟอร์ม</h3>
+                            <select id="email-template-selector" class="border-2 rounded p-1.5 text-sm bg-indigo-50 font-bold text-indigo-800 outline-none" onchange="loadSelectedTemplate()">
+                                <option value="booking">ฟอร์มที่ 1: ส่งใบจองคิวซ่อม (Booking)</option>
+                                <option value="warranty">ฟอร์มที่ 2: ส่งใบรับประกัน/เสร็จ (Warranty)</option>
                             </select>
                         </div>
                         
                         <div id="template-editor-container" class="space-y-3 text-sm">
                             <input type="hidden" id="cfg-template-type" value="booking">
                             <div>
-                                <label class="block font-bold mb-1">Template ID (จาก EmailJS)</label>
+                                <label class="block font-bold mb-1">Template ID (จากหน้า EmailJS)</label>
                                 <input type="text" id="cfg-template-id" class="w-full border rounded p-2 bg-yellow-50" placeholder="เช่น template_xyz123">
                             </div>
                             <div>
                                 <label class="block font-bold mb-1">หัวข้ออีเมล (Subject)</label>
-                                <input type="text" id="cfg-template-subject" class="w-full border rounded p-2" placeholder="หัวข้ออีเมล">
+                                <input type="text" id="cfg-template-subject" class="w-full border rounded p-2">
                             </div>
                             <div>
                                 <label class="block font-bold mb-1">เนื้อหาข้อความ (Body) <span class="font-normal text-gray-500 text-xs ml-2">ตัวแปร: {name}, {id}, {date}, {service}, {price}</span></label>
                                 <textarea id="cfg-template-body" rows="6" class="w-full border rounded p-2 font-mono text-xs"></textarea>
                             </div>
-                            <div class="flex flex-wrap gap-2 pt-2">
-                                <button onclick="saveCurrentTemplate()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded text-sm transition"><i class="fas fa-save mr-1"></i> บันทึก Template นี้</button>
-                                <button onclick="openTestEmailModal()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded text-sm transition"><i class="fas fa-paper-plane mr-1"></i> ทดสอบส่งแบบฟอร์มนี้</button>
+                            <div class="flex flex-wrap gap-2 pt-2 border-t mt-4">
+                                <button onclick="saveCurrentTemplate()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition shadow"><i class="fas fa-save mr-1"></i> บันทึก Template นี้</button>
+                                <button onclick="openTestEmailModal()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition shadow"><i class="fas fa-paper-plane mr-1"></i> ทดสอบส่งฟอร์มนี้ (ส่งหา Admin)</button>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-amber-200">
-                        <h3 class="font-bold text-amber-800 mb-2"><i class="fas fa-list-check mr-2"></i>การจัดการฟอร์มการจองคิว (ฟิลด์ที่ต้องการ)</h3>
-                        <p class="text-xs text-gray-500 mb-3">เปิด/ปิดฟิลด์ข้อมูลที่ต้องการให้ลูกค้ากรอกในหน้าจองคิว</p>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                            <label class="flex items-center space-x-2 border p-3 rounded-lg"><input type="checkbox" id="form-field-line" checked disabled> <span>Line ID (บังคับ)</span></label>
-                            <label class="flex items-center space-x-2 border p-3 rounded-lg"><input type="checkbox" id="form-field-email" checked> <span>อีเมลลูกค้า</span></label>
-                            <label class="flex items-center space-x-2 border p-3 rounded-lg"><input type="checkbox" id="form-field-gps" checked> <span>พิกัด GPS แผนที่</span></label>
-                            <label class="flex items-center space-x-2 border p-3 rounded-lg"><input type="checkbox" id="form-field-note" checked> <span>อาการเสียเพิ่มเติม</span></label>
-                        </div>
-                        <button onclick="saveFormConfig()" class="mt-3 bg-amber-600 text-white font-bold px-4 py-2 rounded text-sm"><i class="fas fa-save mr-1"></i> บันทึกการตั้งค่าฟอร์ม</button>
                     </div>
                 </div>
 
             </main>
         </div>
-        
         <div id="admin-sidebar-overlay" onclick="toggleAdminSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
     </div>
 
+    <!-- Modals & Toasts -->
     <div id="toast-container" class="fixed top-5 right-5 z-[200] flex flex-col gap-3 print:hidden"></div>
 
     <div id="bookingSuccessModal" class="fixed inset-0 z-[150] flex items-center justify-center hidden">
@@ -669,7 +669,7 @@
                 <button onclick="closeEmailModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
             </div>
             <input type="hidden" id="modal-email-booking-id">
-            <input type="hidden" id="modal-email-type"> <!-- 'booking' or 'warranty' -->
+            <input type="hidden" id="modal-email-type">
             <div class="space-y-3 text-sm mb-6">
                 <div><label class="block font-bold text-gray-600 mb-1">ส่งถึงอีเมล:</label><input type="email" id="modal-email-to" class="w-full border rounded-lg p-2.5 bg-gray-50 font-semibold"></div>
                 <div><label class="block font-bold text-gray-600 mb-1">หัวข้อ (Subject):</label><input type="text" id="modal-email-subject" class="w-full border rounded-lg p-2.5"></div>
@@ -682,7 +682,6 @@
                         <div class="text-xs text-blue-600">ระบบจะทำการสร้างและแนบไฟล์เอกสาร <span id="modal-email-attachment-name" class="font-semibold"></span> ไปพร้อมกับอีเมลฉบับนี้</div>
                     </div>
                 </div>
-
             </div>
             <div class="flex justify-end space-x-2">
                 <button onclick="closeEmailModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-4 py-2.5 rounded-lg text-sm">ยกเลิก</button>
@@ -740,9 +739,11 @@
     <script>
         const defaultData = {
             pricing: [
-                { id: 1, service: 'เปลี่ยนหน้าจอ', item: 'จอชุด OLED', os: 'Iphone', deviceModel: 'iPhone 13', grade: 'OLED (แท้)', price: 4500 },
-                { id: 2, service: 'เปลี่ยนแบตเตอร์รี่', item: 'แบตเตอรี่สำรอง', os: 'Iphone', deviceModel: 'iPhone 11', grade: 'เพิ่มความจุ (แบต)', price: 1200 },
-                { id: 3, service: 'อาการเสียอื่น', item: 'ตรวจเช็คอาการทั่วไป', os: 'Android', deviceModel: 'ทุกรุ่น', grade: 'เกรดมาตรฐาน', price: 300 }
+                { id: 1, service: 'เปลี่ยนหน้าจอ', item: 'จอชุด', os: 'Iphone', deviceModel: 'iPhone 13', grade: 'จอ TFT (เทียบ)', price: 1500 },
+                { id: 2, service: 'เปลี่ยนหน้าจอ', item: 'จอชุด', os: 'Iphone', deviceModel: 'iPhone 13', grade: 'Incell (เทียบแท้)', price: 2500 },
+                { id: 3, service: 'เปลี่ยนหน้าจอ', item: 'จอชุด', os: 'Iphone', deviceModel: 'iPhone 13', grade: 'OLED (แท้)', price: 4500 },
+                { id: 4, service: 'เปลี่ยนแบตเตอร์รี่', item: 'แบตเตอรี่', os: 'Iphone', deviceModel: 'iPhone 11', grade: 'เพิ่มความจุ (แบต)', price: 1200 },
+                { id: 5, service: 'เปลี่ยนแบตเตอร์รี่', item: 'แบตเตอรี่', os: 'Android', deviceModel: 'Samsung S22', grade: 'แบต เทียบ มาตรฐาน', price: 900 }
             ]
         };
 
@@ -754,64 +755,45 @@
         ];
 
         const defaultTemplates = {
-            booking: {
-                id: '',
-                subject: 'ยืนยันการจองคิวซ่อมมือถือ - FixItMobile',
-                body: 'เรียนคุณ {name},\n\nทาง FixItMobile ได้รับคำสั่งจองคิวซ่อมของคุณเรียบร้อยแล้ว\nรหัสการจอง: {id}\nบริการ: {service}\nวันเวลานัดหมาย: {date}\nราคาประเมิน: {price} บาท\n\nเจ้าหน้าที่กำลังตรวจสอบข้อมูลและจะติดต่อกลับเพื่อยืนยันการเดินทางครับ\n\nขอบคุณที่ใช้บริการ FixItMobile'
-            },
-            warranty: {
-                id: '',
-                subject: 'ใบเสร็จรับเงิน และ ใบรับประกันงานซ่อม - FixItMobile',
-                body: 'เรียนคุณ {name},\n\nขอบคุณที่ไว้วางใจใช้บริการ FixItMobile ครับ\n\nรหัสอ้างอิง: {id}\nบริการที่ซ่อม: {service}\n\nทางเราได้แนบเอกสารใบเสร็จรับเงินและข้อมูลการรับประกันมาพร้อมกับอีเมลฉบับนี้แล้วครับ (ไฟล์ PDF)\n\nหากมีข้อสงสัยหรือพบปัญหาการใช้งาน สามารถติดต่อเราได้ตลอดเวลาครับ\n\nขอแสดงความนับถือ,\nทีมงาน FixItMobile'
-            }
+            booking: { id: '', subject: 'ยืนยันการจองคิวซ่อมมือถือ - FixItMobile', body: 'เรียนคุณ {name},\n\nทาง FixItMobile ได้รับคำสั่งจองคิวซ่อมของคุณเรียบร้อยแล้ว\nรหัสการจอง: {id}\nบริการ: {service}\nวันเวลานัดหมาย: {date}\nราคาประเมิน: {price} บาท\n\nเจ้าหน้าที่กำลังตรวจสอบข้อมูลและจะติดต่อกลับเพื่อยืนยันการเดินทางครับ\n\nขอบคุณที่ใช้บริการ FixItMobile' },
+            warranty: { id: '', subject: 'ใบเสร็จรับเงิน และ ใบรับประกันงานซ่อม - FixItMobile', body: 'เรียนคุณ {name},\n\nขอบคุณที่ไว้วางใจใช้บริการ FixItMobile ครับ\n\nรหัสอ้างอิง: {id}\nบริการที่ซ่อม: {service}\n\nทางเราได้แนบเอกสารใบเสร็จรับเงินและข้อมูลการรับประกันมาพร้อมกับอีเมลฉบับนี้แล้วครับ (ไฟล์ PDF)\n\nหากมีข้อสงสัยหรือพบปัญหาการใช้งาน สามารถติดต่อเราได้ตลอดเวลาครับ\n\nขอแสดงความนับถือ,\nทีมงาน FixItMobile' }
         };
 
         const appState = {
             auth: { username: 'admin', password: 'password', isLoggedIn: false },
             sheetConfig: { webAppUrl: '' },
-            emailConfig: { 
-                publicKey: '', serviceId: '', adminEmail: '',
-                templates: JSON.parse(JSON.stringify(defaultTemplates))
-            },
-            formConfig: { email: true, gps: true, note: true },
-            bookings: [],
-            finances: [],
-            inventory: [],
+            emailConfig: { publicKey: '', serviceId: '', adminEmail: '', templates: JSON.parse(JSON.stringify(defaultTemplates)) },
+            bookings: [], finances: [], inventory: [],
             products: JSON.parse(JSON.stringify(defaultData)),
             webContent: JSON.parse(JSON.stringify(defaultWebContent)),
-            statusOptions: ['รอยืนยัน', 'ยืนยันคิว', 'กำลังเดินทาง', 'กำลังซ่อม', 'ซ่อมเสร็จสิ้น', 'ยกเลิก']
+            statusOptions: ['รอยืนยัน', 'ยืนยันคิว', 'กำลังเดินทาง', 'กำลังซ่อม', 'รออะไหล่', 'ซ่อมเสร็จสิ้น', 'ยกเลิก']
         };
+
+        function showToast(msg, type = 'info') {
+            const tc = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            const bg = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-blue-600';
+            const icon = type === 'success' ? 'fa-check' : type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+            t.className = `${bg} text-white px-4 py-3 rounded-xl shadow-lg flex items-center transform transition-all duration-300 translate-x-full`;
+            t.innerHTML = `<i class="fas ${icon} mr-3"></i><span class="font-bold text-sm">${msg}</span>`;
+            tc.appendChild(t);
+            setTimeout(() => t.classList.remove('translate-x-full'), 10);
+            setTimeout(() => { t.classList.add('translate-x-full'); setTimeout(() => t.remove(), 300); }, 3000);
+        }
 
         window.onload = () => {
             loadFromLocalStorage();
-            renderCustomerMenus();
-            initDynamicForm();
-            renderCalendar();
-            applyFormConfig();
+            renderCustomerMenus(); initDynamicForm(); renderCalendar();
             
             document.getElementById('cfg-sheet-url').value = appState.sheetConfig.webAppUrl;
             document.getElementById('cfg-email-public').value = appState.emailConfig.publicKey;
             document.getElementById('cfg-email-service').value = appState.emailConfig.serviceId;
             document.getElementById('cfg-email-admin').value = appState.emailConfig.adminEmail;
             
-            // Ensure templates object exists
             if(!appState.emailConfig.templates) appState.emailConfig.templates = JSON.parse(JSON.stringify(defaultTemplates));
-            
-            // Backwards compatibility for old config
-            if(appState.emailConfig.templateId && !appState.emailConfig.templates.booking.id) {
-                appState.emailConfig.templates.booking.id = appState.emailConfig.templateId;
-                appState.emailConfig.templates.booking.subject = appState.emailConfig.subject || defaultTemplates.booking.subject;
-                appState.emailConfig.templates.booking.body = appState.emailConfig.body || defaultTemplates.booking.body;
-            }
-
             loadSelectedTemplate();
 
-            document.getElementById('form-field-email').checked = appState.formConfig.email;
-            document.getElementById('form-field-gps').checked = appState.formConfig.gps;
-            document.getElementById('form-field-note').checked = appState.formConfig.note;
-
             if(appState.emailConfig.publicKey) emailjs.init(appState.emailConfig.publicKey);
-
             if(appState.auth.isLoggedIn) switchAppMode('admin');
 
             const checkFirebaseInterval = setInterval(() => {
@@ -824,258 +806,139 @@
 
         window.initCloudListeners = function() {
             if (!window.db || !window.appId) return;
-            
             import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ collection, onSnapshot }) => {
                 const bookingsCol = collection(window.db, 'artifacts', window.appId, 'public', 'data', 'bookings');
                 onSnapshot(bookingsCol, (snapshot) => {
-                    const cloudBookings = [];
-                    snapshot.forEach(docSnap => {
-                        cloudBookings.push({ docId: docSnap.id, ...docSnap.data() });
-                    });
-                    cloudBookings.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-                    appState.bookings = cloudBookings;
-                    saveToLocalStorage();
+                    const cb = []; snapshot.forEach(d => cb.push({ docId: d.id, ...d.data() }));
+                    cb.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                    appState.bookings = cb; saveToLocalStorage();
                     
                     if(!document.getElementById('view-bookings').classList.contains('hidden')) renderAllBookings();
                     if(!document.getElementById('view-repair_status').classList.contains('hidden')) renderRepairStatus();
                     if(!document.getElementById('view-warranty').classList.contains('hidden')) renderWarranty();
-                    
-                    initAdminDashboard();
-                    updateNotiBadge();
-                }, (error) => { console.error("Bookings sync error:", error); });
-
-                const financeCol = collection(window.db, 'artifacts', window.appId, 'public', 'data', 'finances');
-                onSnapshot(financeCol, (snapshot) => {
-                    const cloudFinances = [];
-                    snapshot.forEach(docSnap => {
-                        cloudFinances.push({ docId: docSnap.id, ...docSnap.data() });
-                    });
-                    appState.finances = cloudFinances;
-                    saveToLocalStorage();
-                    if(!document.getElementById('view-finance').classList.contains('hidden')) renderFinance();
-                    initAdminDashboard();
-                }, (error) => { console.error("Finances sync error:", error); });
-
-                // Inventory & config sync omitted for brevity, keeping existing logic
+                    initAdminDashboard(); updateNotiBadge();
+                });
             });
         };
 
-        function saveToLocalStorage() {
-            try {
-                localStorage.setItem('fixit_erp_state', JSON.stringify({
-                    bookings: appState.bookings, finances: appState.finances, inventory: appState.inventory, 
-                    webContent: appState.webContent, products: appState.products, auth: appState.auth,
-                    sheetConfig: appState.sheetConfig, emailConfig: appState.emailConfig, formConfig: appState.formConfig
-                }));
-                updateNotiBadge();
-            } catch(e) {}
-        }
-
+        function saveToLocalStorage() { localStorage.setItem('fixit_erp_state', JSON.stringify(appState)); updateNotiBadge(); }
         function loadFromLocalStorage() {
             try {
-                const data = localStorage.getItem('fixit_erp_state');
-                if(data) {
-                    const p = JSON.parse(data);
-                    if(p.bookings) appState.bookings = p.bookings;
-                    if(p.finances) appState.finances = p.finances;
-                    if(p.inventory) appState.inventory = p.inventory;
-                    if(p.webContent) appState.webContent = p.webContent;
-                    if(p.products) appState.products = p.products;
-                    if(p.auth) appState.auth = p.auth;
-                    if(p.sheetConfig) appState.sheetConfig = p.sheetConfig;
-                    if(p.emailConfig) appState.emailConfig = { ...appState.emailConfig, ...p.emailConfig };
-                    if(p.formConfig) appState.formConfig = { ...appState.formConfig, ...p.formConfig };
+                const d = localStorage.getItem('fixit_erp_state');
+                if(d) {
+                    const p = JSON.parse(d);
+                    Object.keys(p).forEach(k => { if(typeof p[k] === 'object' && !Array.isArray(p[k])) appState[k] = {...appState[k], ...p[k]}; else appState[k] = p[k]; });
                 }
-            } catch(e) {}
-            updateNotiBadge();
+                if(appState.products.pricing.length && !appState.products.pricing[0].id) {
+                    appState.products.pricing = appState.products.pricing.map((p,i) => ({id: Date.now()+i, ...p}));
+                }
+            } catch(e) {} updateNotiBadge();
         }
 
-        // ... (Keep existing customer side functions: renderCustomerMenus, navCustomer, renderRatesTable, alertDiag, getLocationGPS, toggleLocationFields, initDynamicForm, updateDynamicForm, calculatePrice, renderCalendar, changeMonth, selectCalendarDate, trackStatus)
-        
-        function applyFormConfig() {
-            const emailContainer = document.getElementById('field-container-email');
-            const gpsContainer = document.getElementById('field-container-gps');
-            const noteContainer = document.getElementById('field-container-note');
-
-            if(emailContainer) emailContainer.style.display = appState.formConfig.email ? 'block' : 'none';
-            if(gpsContainer) gpsContainer.style.display = appState.formConfig.gps ? 'flex' : 'none';
-            if(noteContainer) noteContainer.style.display = appState.formConfig.note ? 'block' : 'none';
-        }
-
+        // --- Customer Side ---
         function renderCustomerMenus() {
-            const container = document.getElementById('dynamic-customer-menus');
-            if(!container) return;
+            const container = document.getElementById('dynamic-customer-menus'); if(!container) return;
             container.innerHTML = '';
             appState.webContent.forEach(m => {
-                const bgColors = { blue:'bg-blue-100 text-blue-600', green:'bg-green-100 text-green-600', indigo:'bg-indigo-100 text-indigo-600', purple:'bg-purple-100 text-purple-600', gray:'bg-gray-200 text-gray-400' };
-                const hoverColors = { blue:'group-hover:bg-blue-600', green:'group-hover:bg-green-600', indigo:'group-hover:bg-indigo-600', purple:'group-hover:bg-purple-600', gray:'' };
-                
                 if(m.isActive) {
-                    container.innerHTML += `
-                        <button onclick="navCustomer('${m.id}')" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all group flex flex-col items-center text-center">
-                            <div class="w-16 h-16 ${bgColors[m.color]} rounded-full flex items-center justify-center text-2xl mb-4 ${hoverColors[m.color]} group-hover:text-white transition-colors"><i class="fas ${m.icon}"></i></div>
-                            <h3 class="font-bold text-lg text-gray-800 mb-2">${m.title}</h3><p class="text-xs text-gray-500">${m.desc}</p>
-                        </button>`;
+                    const bgColors = { blue:'bg-blue-100 text-blue-600', green:'bg-green-100 text-green-600', indigo:'bg-indigo-100 text-indigo-600', purple:'bg-purple-100 text-purple-600' };
+                    container.innerHTML += `<button onclick="navCustomer('${m.id}')" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition group flex flex-col items-center"><div class="w-16 h-16 ${bgColors[m.color||'blue']} rounded-full flex items-center justify-center text-2xl mb-4 group-hover:bg-${m.color||'blue'}-600 group-hover:text-white transition"><i class="fas ${m.icon}"></i></div><h3 class="font-bold text-lg mb-2">${m.title}</h3><p class="text-xs text-gray-500">${m.desc}</p></button>`;
                 }
             });
         }
-        function navCustomer(tab) {
-            ['home', 'booking', 'diagnose', 'tracking', 'rates', 'contact'].forEach(t => {
-                const el = document.getElementById(`customer-${t}-tab`);
-                if(el) el.classList.add('hidden');
-            });
-            const target = document.getElementById(`customer-${tab}-tab`);
-            if(target) target.classList.remove('hidden');
-            if(tab === 'rates') renderRatesTable();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        function navCustomer(tab) { ['home','booking','diagnose','tracking','rates','contact'].forEach(t => document.getElementById(`customer-${t}-tab`)?.classList.add('hidden')); document.getElementById(`customer-${tab}-tab`)?.classList.remove('hidden'); if(tab==='rates') renderRatesTable(); window.scrollTo({top:0,behavior:'smooth'}); }
         
         function renderRatesTable() {
-            const tbody = document.getElementById('rates-table-body');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            appState.products.pricing.forEach(p => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-3 font-semibold text-gray-800">${p.service}</td>
-                        <td class="p-3 text-gray-700">${p.item || '-'}</td>
-                        <td class="p-3 text-gray-600">${p.os || '-'}</td>
-                        <td class="p-3 text-gray-600">${p.deviceModel || '-'}</td>
-                        <td class="p-3 text-gray-600">${p.grade}</td>
-                        <td class="p-3 text-right font-bold text-green-600">${Number(p.price).toLocaleString()} บาท</td>
-                    </tr>`;
-            });
+            const tbody = document.getElementById('rates-table-body'); if(!tbody) return; tbody.innerHTML = '';
+            appState.products.pricing.forEach(p => tbody.innerHTML += `<tr><td class="p-3 font-semibold">${p.service}</td><td class="p-3">${p.item||'-'}</td><td class="p-3">${p.os||'-'}</td><td class="p-3">${p.deviceModel||'-'}</td><td class="p-3">${p.grade}</td><td class="p-3 text-right font-bold text-green-600">${Number(p.price).toLocaleString()} บ.</td></tr>`);
         }
-
         function alertDiag(msg) { showToast(msg, 'success'); }
-        function getLocationGPS() {
-            if (navigator.geolocation) {
-                showToast('กำลังดึงตำแหน่ง...', 'info');
-                navigator.geolocation.getCurrentPosition((pos) => {
-                    document.getElementById('input-gps').value = `https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                    showToast('ปักหมุดสำเร็จ!', 'success');
-                });
-            }
-        }
-        function toggleLocationFields() {
-            const type = document.querySelector('input[name="locType"]:checked')?.value;
-            const input = document.getElementById('input-location-detail');
-            input.placeholder = (type === 'อื่นๆ') ? "ระบุชื่อสถานที่ และรายละเอียด..." : "บ้านเลขที่, หมู่บ้าน, ซอย...";
-        }
+        function getLocationGPS() { if(navigator.geolocation) { showToast('กำลังดึงตำแหน่ง...','info'); navigator.geolocation.getCurrentPosition(p=>{document.getElementById('input-gps').value=`https://maps.google.com/?q=${p.coords.latitude},${p.coords.longitude}`; showToast('ปักหมุดสำเร็จ!','success');}); } }
+        function toggleLocationFields() { document.getElementById('input-location-detail').placeholder = (document.querySelector('input[name="locType"]:checked')?.value === 'อื่นๆ') ? "ระบุชื่อสถานที่ และรายละเอียด..." : "บ้านเลขที่, หมู่บ้าน, ซอย..."; }
 
         function initDynamicForm() {
-            const sSelect = document.getElementById('select-service'); 
-            if(!sSelect) return;
             document.getElementById('select-item').innerHTML = '<option value="">-- เลือกรายการ --</option>';
-            document.getElementById('select-os').innerHTML = '<option value="">-- เลือกระบบปฏิบัติการ --</option><option value="Iphone">Iphone</option><option value="Android">Android</option>';
             document.getElementById('select-model').innerHTML = '<option value="">-- เลือกรุ่น --</option>';
             document.getElementById('select-grade').innerHTML = '<option value="">-- เลือกเกรดอะไหล่ --</option>';
         }
-
         function updateDynamicForm() {
-            const s = document.getElementById('select-service').value;
-            const itemSel = document.getElementById('select-item');
-            const modelSel = document.getElementById('select-model');
-            const gradeSel = document.getElementById('select-grade');
+            const s = document.getElementById('select-service').value; const os = document.getElementById('select-os').value;
+            const itemSel = document.getElementById('select-item'); const modelSel = document.getElementById('select-model'); const gradeSel = document.getElementById('select-grade');
             
-            const matched = appState.products.pricing.filter(p => p.service === s);
-            
-            const uniqueItems = [...new Set(matched.map(p => p.item))];
-            itemSel.innerHTML = '<option value="">-- เลือกรายการ --</option>';
-            uniqueItems.forEach(i => itemSel.innerHTML += `<option value="${i}">${i}</option>`);
+            let matched = appState.products.pricing.filter(p => p.service === s);
+            if(os) matched = matched.filter(p => p.os === os);
 
-            const uniqueModels = [...new Set(matched.map(p => p.deviceModel))];
-            if(uniqueModels.length > 0 && uniqueModels[0]) {
+            const uItems = [...new Set(matched.map(p => p.item))];
+            itemSel.innerHTML = '<option value="">-- เลือกรายการ --</option>'; uItems.forEach(i => itemSel.innerHTML += `<option value="${i}">${i}</option>`);
+
+            const item = itemSel.value;
+            if(item) matched = matched.filter(p => p.item === item);
+            
+            const uModels = [...new Set(matched.map(p => p.deviceModel))];
+            if(uModels.length > 0 && uModels[0]) {
                 document.getElementById('container-model').classList.remove('hidden');
-                modelSel.innerHTML = '<option value="">-- เลือกรุ่น --</option>';
-                uniqueModels.forEach(m => modelSel.innerHTML += `<option value="${m}">${m}</option>`);
-            } else {
-                document.getElementById('container-model').classList.add('hidden');
-            }
+                modelSel.innerHTML = '<option value="">-- เลือกรุ่น --</option>'; uModels.forEach(m => modelSel.innerHTML += `<option value="${m}">${m}</option>`);
+            } else { document.getElementById('container-model').classList.add('hidden'); }
 
-            const uniqueGrades = [...new Set(matched.map(p => `${p.grade}|${p.price}`))];
+            const uGrades = [...new Set(matched.map(p => `${p.grade}|${p.price}`))];
             gradeSel.innerHTML = '<option value="">-- เลือกเกรด / ราคา --</option>';
-            uniqueGrades.forEach(g => {
-                const parts = g.split('|');
-                gradeSel.innerHTML += `<option value="${parts[0]}|${parts[1]}">${parts[0]} - ${Number(parts[1]).toLocaleString()} บ.</option>`;
-            });
-
+            uGrades.forEach(g => { const p = g.split('|'); gradeSel.innerHTML += `<option value="${p[0]}|${p[1]}">${p[0]} - ${Number(p[1]).toLocaleString()} บ.</option>`; });
             calculatePrice();
         }
-
         function calculatePrice() {
-            const v = document.getElementById('select-grade').value;
-            const pBox = document.getElementById('price-display-container');
-            if(v) {
-                const parts = v.split('|');
-                document.getElementById('display-total-price').textContent = Number(parts[1]).toLocaleString();
-                document.getElementById('input-total-price').value = parts[1];
-                document.getElementById('display-travel-fee-note').innerHTML = '<span class="text-green-600">รวมค่าเดินทางแล้ว</span>';
-                pBox.classList.remove('hidden');
-            } else { pBox.classList.add('hidden'); }
+            const v = document.getElementById('select-grade').value; const pBox = document.getElementById('price-display-container');
+            if(v) { const p = v.split('|'); document.getElementById('display-total-price').textContent = Number(p[1]).toLocaleString(); document.getElementById('input-total-price').value = p[1]; document.getElementById('display-travel-fee-note').innerHTML = '<span class="text-green-600">รวมค่าเดินทางแล้ว</span>'; pBox.classList.remove('hidden'); } else pBox.classList.add('hidden');
         }
 
         let currentCalendarDate = new Date(); let selectedDateObj = null;
         function renderCalendar() {
-            const year = currentCalendarDate.getFullYear(); const month = currentCalendarDate.getMonth();
-            const grid = document.getElementById('calendarGrid'); if(!grid) return;
-            document.getElementById('calendarMonthYear').textContent = `${["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."][month]} ${year + 543}`;
-            grid.innerHTML = '';
-            for (let i = 0; i < new Date(year, month, 1).getDay(); i++) grid.innerHTML += `<div></div>`;
-            
-            const minDate = new Date(); minDate.setHours(0,0,0,0); minDate.setDate(minDate.getDate() + 3);
-            for (let day = 1; day <= new Date(year, month + 1, 0).getDate(); day++) {
-                const d = new Date(year, month, day); d.setHours(0,0,0,0);
-                const isSel = selectedDateObj && d.getTime() === selectedDateObj.getTime();
-                const isOk = d >= minDate;
-                let c = "h-9 w-9 rounded-full mx-auto font-medium transition " + (isSel ? "date-selected" : isOk ? "date-selectable cursor-pointer" : "bg-gray-100 text-gray-300 cursor-not-allowed");
-                grid.innerHTML += `<button type="button" ${isOk?'':'disabled'} onclick="selectCalendarDate(${year},${month},${day})" class="${c}">${day}</button>`;
+            const y = currentCalendarDate.getFullYear(); const m = currentCalendarDate.getMonth(); const grid = document.getElementById('calendarGrid'); if(!grid) return;
+            document.getElementById('calendarMonthYear').textContent = `${["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."][m]} ${y + 543}`;
+            grid.innerHTML = ''; for(let i=0; i<new Date(y,m,1).getDay(); i++) grid.innerHTML += `<div></div>`;
+            const min = new Date(); min.setHours(0,0,0,0); min.setDate(min.getDate() + 3);
+            for(let d=1; d<=new Date(y,m+1,0).getDate(); d++) {
+                const dt = new Date(y,m,d); dt.setHours(0,0,0,0);
+                const isSel = selectedDateObj && dt.getTime() === selectedDateObj.getTime(); const isOk = dt >= min;
+                grid.innerHTML += `<button type="button" ${isOk?'':'disabled'} onclick="selectCalendarDate(${y},${m},${d})" class="h-9 w-9 rounded-full mx-auto font-medium transition ${isSel?'date-selected':isOk?'date-selectable cursor-pointer':'bg-gray-100 text-gray-300 cursor-not-allowed'}">${d}</button>`;
             }
         }
         function changeMonth(d) { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + d); renderCalendar(); }
-        function selectCalendarDate(y, m, d) { selectedDateObj = new Date(y, m, d); document.getElementById('displaySelectedDate').value = `${d}/${m+1}/${y+543}`; renderCalendar(); }
+        function selectCalendarDate(y, m, d) { selectedDateObj = new Date(y,m,d); document.getElementById('displaySelectedDate').value = `${d}/${m+1}/${y+543}`; renderCalendar(); }
 
         function handleDirectSubmit(e) {
             e.preventDefault();
-            const dateInput = document.getElementById('displaySelectedDate').value;
-            if(!dateInput) return showToast('กรุณาเลือกวันที่ (สีเขียว)', 'error');
+            if(!document.getElementById('displaySelectedDate').value) return showToast('กรุณาเลือกวันที่', 'error');
 
             const fd = new FormData(e.target); const data = Object.fromEntries(fd.entries());
+            // NEW: Get symptoms
+            const sym = fd.getAll('symptoms');
+            const symptomsStr = sym.length > 0 ? sym.join(', ') : '-';
+
             const bId = `BK-${String(Date.now()).slice(-4)}${Math.floor(Math.random()*10)}`;
-            
-            const newBooking = {
+            const nb = {
                 id: bId, bookingDate: data.bookingDate, bookingTime: data.bookingTime,
                 firstName: data.firstName, lastName: data.lastName, phone: data.phone, email: data.email||'-', lineId: data.lineId,
                 service: `${data.service} (${data.item || ''})`, os: data.os, deviceModel: data.deviceModel || '-', partGrade: data.partGrade.split('|')[0], totalPrice: data.totalPrice,
+                symptoms: symptomsStr, // Add symptoms to object
                 locType: document.querySelector('input[name="locType"]:checked').value, location: data.location, gps: data.gps||'-', additionalInfo: data.additionalInfo||'-',
-                status: 'รอยืนยัน', warrantyUntil: '-', 
-                repairEstimateTime: '-', // For repair status
-                createdAt: new Date().toISOString()
+                status: 'รอยืนยัน', warrantyUntil: '-', repairEstimateTime: '-', createdAt: new Date().toISOString()
             };
 
             if (window.isFirebaseReady && window.db) {
                 import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, setDoc }) => {
-                    const docRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'bookings', bId);
-                    setDoc(docRef, newBooking).catch(err => console.error("Cloud Booking Save Error:", err));
+                    const docRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'bookings', bId); setDoc(docRef, nb).catch(e => console.error(e));
                 });
-            } else {
-                appState.bookings.unshift(newBooking);
-                saveToLocalStorage();
-            }
+            } else { appState.bookings.unshift(nb); saveToLocalStorage(); }
             
-            if(appState.sheetConfig.webAppUrl) {
-                fetch(appState.sheetConfig.webAppUrl, { method:'POST', mode:'no-cors', body:JSON.stringify({...newBooking, action: 'booking'}) }).catch(e=>{});
-            }
+            if(appState.sheetConfig.webAppUrl) fetch(appState.sheetConfig.webAppUrl, { method:'POST', mode:'no-cors', body:JSON.stringify({...nb, action: 'booking'}) }).catch(e=>{});
             
-            // Auto Send Booking Email if config exists
+            // Auto Email
             const t = appState.emailConfig.templates.booking;
-            if(appState.emailConfig.publicKey && appState.emailConfig.serviceId && t.id && newBooking.email && newBooking.email !== '-') {
+            if(appState.emailConfig.publicKey && appState.emailConfig.serviceId && t.id && nb.email !== '-') {
                 emailjs.send(appState.emailConfig.serviceId, t.id, {
-                    to_name: `${newBooking.firstName} ${newBooking.lastName}`,
-                    to_email: newBooking.email,
-                    booking_id: newBooking.id,
-                    subject: t.subject.replace(/{name}/g, newBooking.firstName).replace(/{id}/g, newBooking.id),
-                    message: t.body.replace(/{name}/g, newBooking.firstName).replace(/{id}/g, newBooking.id).replace(/{date}/g, newBooking.bookingDate).replace(/{service}/g, newBooking.service).replace(/{price}/g, newBooking.totalPrice),
+                    to_name: `${nb.firstName} ${nb.lastName}`, to_email: nb.email, booking_id: nb.id,
+                    subject: t.subject.replace(/{name}/g, nb.firstName).replace(/{id}/g, nb.id),
+                    message: t.body.replace(/{name}/g, nb.firstName).replace(/{id}/g, nb.id).replace(/{date}/g, nb.bookingDate).replace(/{service}/g, nb.service).replace(/{price}/g, nb.totalPrice),
                     admin_email: appState.emailConfig.adminEmail
                 }).catch(e=>{});
             }
@@ -1084,54 +947,32 @@
             document.getElementById('success-modal-booking-id').textContent = `รหัสอ้างอิง: ${bId}`;
             document.getElementById('bookingSuccessModal').classList.remove('hidden');
         }
-
         function closeSuccessModal() { document.getElementById('bookingSuccessModal').classList.add('hidden'); navCustomer('home'); }
 
         function trackStatus() {
-            const phone = document.getElementById('track-phone').value.trim();
-            const res = document.getElementById('track-result');
+            const phone = document.getElementById('track-phone').value.trim(); const res = document.getElementById('track-result');
             if(!phone) return showToast('กรุณากรอกเบอร์โทรศัพท์', 'error');
-            const found = appState.bookings.filter(b => b.phone === phone);
-            res.classList.remove('hidden');
+            const found = appState.bookings.filter(b => b.phone === phone); res.classList.remove('hidden');
             if(found.length === 0) return res.innerHTML = `<div class="p-4 bg-red-50 text-red-600 text-center font-bold rounded-lg">ไม่พบข้อมูล</div>`;
             
             let h = `<div class="space-y-3">`;
             found.forEach(b => {
-                const wBadge = b.warrantyUntil !== '-' ? `<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs ml-2">ประกันถึง: ${b.warrantyUntil}</span>` : '';
-                const rTime = (b.status === 'กำลังซ่อม' && b.repairEstimateTime !== '-') ? `<div class="text-xs text-amber-600 mt-1"><i class="fas fa-clock"></i> คาดว่าจะเสร็จ: ${b.repairEstimateTime}</div>` : '';
-                
-                h += `<div class="bg-gray-50 border rounded-lg p-4 shadow-sm text-sm">
-                        <div class="flex justify-between font-bold mb-2"><span class="text-blue-700">${b.id}</span><span class="text-gray-600">${b.status}</span></div>
-                        <div>${b.service} (${b.deviceModel||'-'})</div>
-                        <div class="mt-2 text-xs text-gray-500">${b.bookingDate} | ${b.bookingTime} ${wBadge}</div>
-                        ${rTime}
-                      </div>`;
+                const wb = b.warrantyUntil !== '-' ? `<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs ml-2">ประกันถึง: ${b.warrantyUntil}</span>` : '';
+                const rt = (['กำลังซ่อม', 'รออะไหล่'].includes(b.status) && b.repairEstimateTime !== '-') ? `<div class="text-xs text-amber-600 mt-1"><i class="fas fa-clock"></i> คาดว่าจะเสร็จ: ${b.repairEstimateTime}</div>` : '';
+                h += `<div class="bg-gray-50 border rounded-lg p-4 shadow-sm text-sm"><div class="flex justify-between font-bold mb-2"><span class="text-blue-700">${b.id}</span><span class="text-gray-600">${b.status}</span></div><div>${b.service} (${b.deviceModel||'-'})</div><div class="mt-2 text-xs text-gray-500">${b.bookingDate} | ${b.bookingTime} ${wb}</div>${rt}</div>`;
             });
             res.innerHTML = h + `</div>`;
         }
 
         // --- Admin Functions ---
-
-        function toggleAdminSidebar() {
-            const sb = document.getElementById('admin-sidebar'); const ov = document.getElementById('admin-sidebar-overlay');
-            sb.classList.toggle('-translate-x-full'); ov.classList.toggle('hidden');
-        }
-
+        function toggleAdminSidebar() { document.getElementById('admin-sidebar').classList.toggle('-translate-x-full'); document.getElementById('admin-sidebar-overlay').classList.toggle('hidden'); }
         function updateNotiBadge() {
             const p = appState.bookings.filter(b => b.status === 'รอยืนยัน').length;
-            ['top-noti-badge', 'side-noti-badge'].forEach(id => {
-                const el = document.getElementById(id); if(el) { el.textContent = p; el.classList.toggle('hidden', p===0); }
-            });
+            ['top-noti-badge', 'side-noti-badge'].forEach(id => { const el = document.getElementById(id); if(el) { el.textContent = p; el.classList.toggle('hidden', p===0); } });
         }
-
         function showAdminLogin() { document.getElementById('admin-login-screen').classList.remove('hidden'); }
         function closeAdminLogin() { document.getElementById('admin-login-screen').classList.add('hidden'); }
-        function handleAdminLogin(e) {
-            e.preventDefault();
-            if(document.getElementById('adminUser').value === appState.auth.username && document.getElementById('adminPass').value === appState.auth.password) {
-                appState.auth.isLoggedIn = true; saveToLocalStorage(); closeAdminLogin(); switchAppMode('admin');
-            } else { showToast('Username/Password ผิด', 'error'); }
-        }
+        function handleAdminLogin(e) { e.preventDefault(); if(document.getElementById('adminUser').value === appState.auth.username && document.getElementById('adminPass').value === appState.auth.password) { appState.auth.isLoggedIn = true; saveToLocalStorage(); closeAdminLogin(); switchAppMode('admin'); } else { showToast('Username/Password ผิด', 'error'); } }
         function adminLogout() { appState.auth.isLoggedIn = false; saveToLocalStorage(); switchAppMode('customer'); }
         function adminBackToCustomer() { switchAppMode('customer'); }
 
@@ -1145,198 +986,132 @@
             document.querySelectorAll('.admin-menu').forEach(m => { m.classList.remove('bg-slate-800','text-white'); m.classList.add('text-slate-300'); });
             document.getElementById(`view-${view}`).classList.remove('hidden');
             const btn = document.getElementById(`menu-${view}`); if(btn) { btn.classList.add('bg-slate-800','text-white'); btn.classList.remove('text-slate-300'); }
-            
             if(window.innerWidth < 768) toggleAdminSidebar();
-
             if(view === 'dashboard') initAdminDashboard();
             if(view === 'bookings') renderAllBookings();
             if(view === 'repair_status') renderRepairStatus();
             if(view === 'warranty') renderWarranty();
-            // other renders omitted for brevity, logic remains same
+            if(view === 'products') renderProductsTable();
         }
 
         function initAdminDashboard() {
             document.getElementById('txt-today-date').textContent = new Date().toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
             document.getElementById('stat-total').textContent = appState.bookings.length;
-            document.getElementById('stat-pending').textContent = appState.bookings.filter(b => b.status === 'รอยืนยัน' || b.status === 'กำลังเดินทาง' || b.status === 'กำลังซ่อม').length;
-            
-            const thisMonth = new Date().toISOString().slice(0, 7);
-            let inc = 0; let exp = 0;
-            appState.finances.forEach(f => {
-                if(f.date.startsWith(thisMonth)) { if(f.type==='income') inc+=Number(f.amount); else exp+=Number(f.amount); }
-            });
-            document.getElementById('stat-income').textContent = inc.toLocaleString();
-            document.getElementById('stat-expense').textContent = exp.toLocaleString();
+            document.getElementById('stat-pending').textContent = appState.bookings.filter(b => ['รอยืนยัน','กำลังเดินทาง','กำลังซ่อม','รออะไหล่'].includes(b.status)).length;
+            const thisMonth = new Date().toISOString().slice(0, 7); let inc=0; let exp=0;
+            appState.finances.forEach(f => { if(f.date.startsWith(thisMonth)) { if(f.type==='income') inc+=Number(f.amount); else exp+=Number(f.amount); } });
+            document.getElementById('stat-income').textContent = inc.toLocaleString(); document.getElementById('stat-expense').textContent = exp.toLocaleString();
         }
 
         function renderAllBookings() {
-            const tbody = document.getElementById('all-bookings-body'); if(!tbody) return;
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('all-bookings-body'); if(!tbody) return; tbody.innerHTML = '';
             appState.bookings.forEach(b => {
                 let opts = ''; appState.statusOptions.forEach(o => opts += `<option value="${o}" ${b.status===o?'selected':''}>${o}</option>`);
+                // Add Symptoms to display
+                const symDisp = b.symptoms && b.symptoms !== '-' ? `<br><span class="text-red-500 text-[10px]"><i class="fas fa-stethoscope"></i> ${b.symptoms}</span>` : '';
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 border-b">
                         <td class="px-3 py-2 font-bold text-blue-700">${b.id}</td>
                         <td class="px-3 py-2 text-xs">${b.bookingDate}<br>${b.bookingTime}</td>
                         <td class="px-3 py-2 text-xs"><b>${b.firstName}</b><br>${b.phone}</td>
-                        <td class="px-3 py-2 text-xs">${b.service}<br>${b.totalPrice} บ.</td>
+                        <td class="px-3 py-2 text-xs">${b.service}<br>${b.totalPrice} บ.${symDisp}</td>
                         <td class="px-3 py-2">
-                            <select onchange="handleStatusChange('${b.docId || b.id}', '${b.id}', this.value)" class="border rounded p-1 text-xs font-bold bg-white outline-none w-full">${opts}</select>
-                            ${b.warrantyUntil !== '-' ? `<div class="text-[10px] text-green-600 mt-1">ประกัน: ${b.warrantyUntil}</div>` : ''}
+                            <select onchange="handleStatusChange('${b.docId||b.id}', '${b.id}', this.value)" class="border rounded p-1 text-xs font-bold bg-white outline-none w-full">${opts}</select>
                         </td>
                         <td class="px-3 py-2 text-center whitespace-nowrap">
                             <button onclick="viewBooking('${b.id}')" class="bg-blue-100 text-blue-600 p-1.5 rounded hover:bg-blue-200" title="ดูรายละเอียด"><i class="fas fa-eye"></i></button>
                             <button onclick="generateBookingPDF('${b.id}')" class="bg-emerald-100 text-emerald-600 p-1.5 rounded hover:bg-emerald-200 ml-1" title="ออกใบ PDF คิวซ่อม"><i class="fas fa-file-pdf"></i></button>
                             <button onclick="openEmailModalForBooking('${b.id}', 'booking')" class="bg-amber-100 text-amber-700 p-1.5 rounded hover:bg-amber-200 ml-1" title="ส่งอีเมลนัดหมาย"><i class="fas fa-envelope"></i></button>
-                            <button onclick="deleteBooking('${b.docId || b.id}')" class="bg-red-100 text-red-600 p-1.5 rounded hover:bg-red-200 ml-1" title="ลบ"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>`;
             });
         }
 
-        // --- New Feature: Repair Status ---
         function renderRepairStatus() {
-            const tbody = document.getElementById('repair-status-body'); if(!tbody) return;
-            tbody.innerHTML = '';
-            // Show active repairs
-            const activeBookings = appState.bookings.filter(b => b.status !== 'ซ่อมเสร็จสิ้น' && b.status !== 'ยกเลิก' && b.status !== 'รอยืนยัน');
-            
-            if(activeBookings.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">ไม่มีคิวงานที่กำลังดำเนินการ</td></tr>';
-                return;
-            }
-
-            activeBookings.forEach(b => {
+            const tbody = document.getElementById('repair-status-body'); if(!tbody) return; tbody.innerHTML = '';
+            const active = appState.bookings.filter(b => !['ซ่อมเสร็จสิ้น', 'ยกเลิก', 'รอยืนยัน'].includes(b.status));
+            if(active.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">ไม่มีคิวงานที่กำลังดำเนินการ</td></tr>';
+            active.forEach(b => {
                 let opts = ''; ['ยืนยันคิว', 'กำลังเดินทาง', 'กำลังซ่อม', 'รออะไหล่', 'ซ่อมเสร็จสิ้น'].forEach(o => opts += `<option value="${o}" ${b.status===o?'selected':''}>${o}</option>`);
-                
+                const symDisp = b.symptoms && b.symptoms !== '-' ? `<br><span class="text-red-500 font-bold"><i class="fas fa-stethoscope"></i> ${b.symptoms}</span>` : '';
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 border-b">
                         <td class="px-3 py-3 font-bold text-blue-700">${b.id}</td>
                         <td class="px-3 py-3 text-xs"><b>${b.firstName}</b><br>${b.phone}</td>
-                        <td class="px-3 py-3 text-xs">${b.service}<br><span class="text-gray-500">${b.deviceModel||'-'}</span></td>
-                        <td class="px-3 py-3">
-                            <select onchange="handleStatusChange('${b.docId || b.id}', '${b.id}', this.value)" class="border rounded p-1 text-xs font-bold bg-white outline-none w-full">${opts}</select>
-                        </td>
-                        <td class="px-3 py-3">
-                            <div class="flex items-center gap-1">
-                                <input type="text" id="time-${b.id}" value="${b.repairEstimateTime !== '-' ? b.repairEstimateTime : ''}" placeholder="เช่น 30 นาที, พรุ่งนี้" class="border rounded px-2 py-1 text-xs w-full outline-none">
-                            </div>
-                        </td>
-                        <td class="px-3 py-3 text-center">
-                            <button onclick="updateRepairTime('${b.docId || b.id}', '${b.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-bold transition">บันทึกเวลา</button>
-                        </td>
+                        <td class="px-3 py-3 text-xs">${b.service}<br><span class="text-gray-500">${b.deviceModel||'-'}</span>${symDisp}</td>
+                        <td class="px-3 py-3"><select onchange="handleStatusChange('${b.docId||b.id}', '${b.id}', this.value)" class="border rounded p-1 text-xs font-bold bg-white outline-none w-full">${opts}</select></td>
+                        <td class="px-3 py-3"><input type="text" id="time-${b.id}" value="${b.repairEstimateTime !== '-' ? b.repairEstimateTime : ''}" placeholder="เช่น 30 นาที, พรุ่งนี้" class="border rounded px-2 py-1 text-xs w-full outline-none"></td>
+                        <td class="px-3 py-3 text-center"><button onclick="updateRepairTime('${b.docId||b.id}', '${b.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-bold">บันทึกเวลา</button></td>
                     </tr>`;
             });
         }
 
-        function updateRepairTime(docId, id) {
-            const b = appState.bookings.find(x => x.id === id || x.docId === docId); if(!b) return;
-            const timeVal = document.getElementById(`time-${id}`).value || '-';
-            b.repairEstimateTime = timeVal;
-            
-            if (window.isFirebaseReady && window.db) {
-                import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, updateDoc }) => {
-                    const bRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'bookings', docId);
-                    updateDoc(bRef, { repairEstimateTime: timeVal }).catch(e=>console.error(e));
-                });
-            } else {
-                saveToLocalStorage();
-            }
-            showToast('อัปเดตระยะเวลาคาดว่าจะเสร็จเรียบร้อย', 'success');
-        }
-
-        // --- New Feature: Warranty Management ---
         function renderWarranty() {
-            const tbody = document.getElementById('warranty-table-body'); if(!tbody) return;
-            tbody.innerHTML = '';
-            const completedBookings = appState.bookings.filter(b => b.status === 'ซ่อมเสร็จสิ้น');
-            
-            if(completedBookings.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">ไม่มีข้อมูลการรับประกัน (เฉพาะงานซ่อมเสร็จสิ้น)</td></tr>';
-                return;
-            }
-
-            completedBookings.forEach(b => {
-                const isWarrantyActive = b.warrantyUntil !== '-' && new Date(b.warrantyUntil) >= new Date();
-                const wBadge = b.warrantyUntil === '-' ? '<span class="text-gray-400">ไม่มีประกัน</span>' : 
-                               isWarrantyActive ? `<span class="text-green-600 font-bold"><i class="fas fa-check-circle"></i> ถึง ${b.warrantyUntil}</span>` :
-                               `<span class="text-red-500 font-bold"><i class="fas fa-times-circle"></i> หมดประกัน (${b.warrantyUntil})</span>`;
-
+            const tbody = document.getElementById('warranty-table-body'); if(!tbody) return; tbody.innerHTML = '';
+            const completed = appState.bookings.filter(b => b.status === 'ซ่อมเสร็จสิ้น');
+            if(completed.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">ไม่มีข้อมูลการรับประกัน (เฉพาะงานซ่อมเสร็จสิ้น)</td></tr>';
+            completed.forEach(b => {
+                const isAct = b.warrantyUntil !== '-' && new Date(b.warrantyUntil) >= new Date();
+                const wb = b.warrantyUntil === '-' ? '<span class="text-gray-400">ไม่มีประกัน</span>' : isAct ? `<span class="text-green-600 font-bold"><i class="fas fa-check-circle"></i> ถึง ${b.warrantyUntil}</span>` : `<span class="text-red-500 font-bold"><i class="fas fa-times-circle"></i> หมดประกัน (${b.warrantyUntil})</span>`;
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 border-b">
                         <td class="px-3 py-3 font-bold text-blue-700">${b.id}</td>
                         <td class="px-3 py-3 text-xs"><b>${b.firstName}</b><br>${b.phone}</td>
-                        <td class="px-3 py-3 text-xs">${b.service}<br><span class="text-gray-500">วันที่ซ่อม: ${b.bookingDate}</span></td>
-                        <td class="px-3 py-3 text-xs">${wBadge}</td>
+                        <td class="px-3 py-3 text-xs">${b.service}<br><span class="text-gray-500">ซ่อมเมื่อ: ${b.bookingDate}</span></td>
+                        <td class="px-3 py-3 text-xs">${wb}</td>
                         <td class="px-3 py-3 text-center whitespace-nowrap">
-                            <button onclick="updateWarrantyDate('${b.docId || b.id}', '${b.id}')" class="bg-gray-100 text-gray-700 p-1.5 rounded hover:bg-gray-200" title="แก้ไขวันหมดประกัน"><i class="fas fa-calendar-alt"></i></button>
-                            <button onclick="generateReceipt('${b.id}')" class="bg-purple-100 text-purple-600 p-1.5 rounded hover:bg-purple-200 ml-1" title="ดู/โหลด ใบเสร็จและใบรับประกัน"><i class="fas fa-file-pdf"></i></button>
-                            <button onclick="openEmailModalForBooking('${b.id}', 'warranty')" class="bg-indigo-100 text-indigo-700 p-1.5 rounded hover:bg-indigo-200 ml-1" title="ส่งอีเมลใบรับประกันพร้อมไฟล์แนบ"><i class="fas fa-envelope-open-text"></i></button>
+                            <button onclick="updateWarrantyDate('${b.docId||b.id}', '${b.id}')" class="bg-gray-100 text-gray-700 p-1.5 rounded hover:bg-gray-200" title="แก้ไขวันหมดประกัน"><i class="fas fa-calendar-alt"></i></button>
+                            <button onclick="generateReceipt('${b.id}')" class="bg-purple-100 text-purple-600 p-1.5 rounded hover:bg-purple-200 ml-1" title="ออกใบเสร็จ/รับประกัน"><i class="fas fa-file-pdf"></i></button>
+                            <button onclick="openEmailModalForBooking('${b.id}', 'warranty')" class="bg-indigo-100 text-indigo-700 p-1.5 rounded hover:bg-indigo-200 ml-1" title="ส่งอีเมล"><i class="fas fa-envelope-open-text"></i></button>
                         </td>
                     </tr>`;
             });
         }
-
-        function updateWarrantyDate(docId, id) {
-            const b = appState.bookings.find(x => x.id === id || x.docId === docId); if(!b) return;
-            const currentDate = b.warrantyUntil !== '-' ? b.warrantyUntil : new Date().toISOString().split('T')[0];
-            const newDate = prompt(`กำหนดวันหมดประกันใหม่ (YYYY-MM-DD)\nหรือเว้นว่างเพื่อยกเลิกประกัน`, currentDate);
-            
-            if(newDate !== null) {
-                b.warrantyUntil = newDate.trim() === '' ? '-' : newDate;
-                if (window.isFirebaseReady && window.db) {
-                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, updateDoc }) => {
-                        const bRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'bookings', docId);
-                        updateDoc(bRef, { warrantyUntil: b.warrantyUntil }).catch(e=>console.error(e));
-                    });
-                } else {
-                    saveToLocalStorage();
-                }
-                renderWarranty();
-                showToast('อัปเดตวันรับประกันเรียบร้อย', 'success');
-            }
-        }
-
 
         function handleStatusChange(docId, id, status) {
             const b = appState.bookings.find(x => x.id === id || x.docId === docId); if(!b) return;
             b.status = status;
             
             if(status === 'ซ่อมเสร็จสิ้น') {
-                const w = prompt('เพิ่มวันที่รับประกันให้ลูกค้า (YYYY-MM-DD)\nตัวอย่าง: 2024-12-31\nหากไม่มีให้กดยกเลิก');
-                if(w) b.warrantyUntil = w;
-                
-                if(confirm(`ต้องการบันทึกยอด ${b.totalPrice} บาท เป็นรายรับเข้าบัญชีทันทีหรือไม่?`)) {
-                    const finRecordId = Date.now().toString();
-                    const finRecord = { id: finRecordId, date: new Date().toISOString().split('T')[0], type: 'income', category: 'รายได้ค่าซ่อม', desc: `ค่าบริการ ${b.id}`, amount: Number(b.totalPrice) };
-                    
-                    if (window.isFirebaseReady && window.db) {
-                        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, setDoc }) => {
-                            const fRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'finances', finRecordId);
-                            setDoc(fRef, finRecord).catch(e=>console.error(e));
-                        });
-                    } else {
-                        appState.finances.push(finRecord);
-                        saveToLocalStorage();
-                    }
-                    showToast('บันทึกรายรับอัตโนมัติสำเร็จ', 'success');
-                }
+                const w = prompt('กำหนดวันที่สิ้นสุดการรับประกันให้ลูกค้า (YYYY-MM-DD)\nตัวอย่าง: 2024-12-31\n*หากไม่มีให้เว้นว่างแล้วกดยืนยัน');
+                if(w !== null) b.warrantyUntil = w.trim() === '' ? '-' : w.trim();
             }
 
             if (window.isFirebaseReady && window.db) {
                 import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, updateDoc }) => {
-                    const bRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'bookings', b.docId || b.id);
-                    updateDoc(bRef, { status: b.status, warrantyUntil: b.warrantyUntil }).catch(e=>console.error(e));
+                    const bRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'bookings', docId); updateDoc(bRef, { status: b.status, warrantyUntil: b.warrantyUntil }).catch(e=>console.error(e));
                 });
-            } else {
-                saveToLocalStorage();
-            }
+            } else { saveToLocalStorage(); }
             
-            // Re-render current view
             if(!document.getElementById('view-bookings').classList.contains('hidden')) renderAllBookings();
             if(!document.getElementById('view-repair_status').classList.contains('hidden')) renderRepairStatus();
-            
+            if(!document.getElementById('view-warranty').classList.contains('hidden')) renderWarranty();
             showToast(`อัปเดตสถานะเป็น ${status}`, 'success');
+        }
+
+        function updateRepairTime(docId, id) {
+            const b = appState.bookings.find(x => x.id === id || x.docId === docId); if(!b) return;
+            b.repairEstimateTime = document.getElementById(`time-${id}`).value || '-';
+            if (window.isFirebaseReady && window.db) {
+                import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, updateDoc }) => {
+                    const bRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'bookings', docId); updateDoc(bRef, { repairEstimateTime: b.repairEstimateTime }).catch(e=>console.error(e));
+                });
+            } else { saveToLocalStorage(); }
+            showToast('อัปเดตระยะเวลาเสร็จเรียบร้อย', 'success');
+        }
+
+        function updateWarrantyDate(docId, id) {
+            const b = appState.bookings.find(x => x.id === id || x.docId === docId); if(!b) return;
+            const newDate = prompt(`กำหนดวันหมดประกันใหม่ (YYYY-MM-DD)\nหรือเว้นว่างเพื่อยกเลิกประกัน`, b.warrantyUntil !== '-' ? b.warrantyUntil : '');
+            if(newDate !== null) {
+                b.warrantyUntil = newDate.trim() === '' ? '-' : newDate;
+                if (window.isFirebaseReady && window.db) {
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, updateDoc }) => {
+                        const bRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'bookings', docId); updateDoc(bRef, { warrantyUntil: b.warrantyUntil }).catch(e=>console.error(e));
+                    });
+                } else { saveToLocalStorage(); }
+                renderWarranty(); showToast('อัปเดตวันรับประกันเรียบร้อย', 'success');
+            }
         }
 
         function viewBooking(id) {
@@ -1344,264 +1119,255 @@
             const h = `<div class="grid grid-cols-2 gap-2 text-sm">
                 <div><b>รหัส:</b> ${b.id}</div><div><b>สถานะ:</b> ${b.status}</div>
                 <div><b>ชื่อ:</b> ${b.firstName} ${b.lastName}</div><div><b>โทร:</b> ${b.phone}</div>
-                <div><b>Line ID:</b> ${b.lineId}</div><div><b>อีเมล:</b> ${b.email}</div>
+                <div><b>อีเมล:</b> ${b.email}</div><div><b>Line ID:</b> ${b.lineId}</div>
                 <div class="col-span-2"><b>บริการ:</b> ${b.service} (${b.os} ${b.deviceModel||''}) - ${b.partGrade}</div>
+                <div class="col-span-2 text-red-600"><b>อาการเสีย:</b> ${b.symptoms || '-'}</div>
                 <div class="col-span-2"><b>สถานที่:</b> ${b.locType} - ${b.location}</div>
                 <div class="col-span-2"><b>พิกัด GPS:</b> <a href="${b.gps}" target="_blank" class="text-blue-500 underline">${b.gps}</a></div>
+                <div class="col-span-2 text-gray-500 text-xs"><b>เพิ่มเติม:</b> ${b.additionalInfo || '-'}</div>
             </div>`;
             document.getElementById('panel-title').innerHTML = `ข้อมูลการจอง ${b.id}`;
-            document.getElementById('panel-content-body').innerHTML = h;
-            document.getElementById('inline-management-panel').classList.remove('hidden');
+            document.getElementById('panel-content-body').innerHTML = h; document.getElementById('inline-management-panel').classList.remove('hidden');
         }
         function closeInlinePanel() { document.getElementById('inline-management-panel').classList.add('hidden'); }
-        
-        // ... (deleteBooking, exportToCSV remains the same)
 
-        // --- PDF Generation helpers ---
-        function prepareReceiptTemplate(b, isBookingCard = false) {
-            document.getElementById('r-id').textContent = b.id;
-            document.getElementById('r-date').textContent = new Date().toLocaleDateString('th-TH');
-            document.getElementById('r-name').textContent = `${b.firstName} ${b.lastName}`;
-            document.getElementById('r-phone').textContent = b.phone;
-            document.getElementById('r-price').textContent = Number(b.totalPrice).toLocaleString();
-            document.getElementById('r-total').textContent = Number(b.totalPrice).toLocaleString();
+        // --- NEW: Dynamic Products CMS (Inline Edit) ---
+        function toggleProductFormType() {
+            const t = document.getElementById('add-prod-type').value;
+            document.getElementById('sp-prices-screen').classList.add('hidden');
+            document.getElementById('sp-prices-battery').classList.add('hidden');
+            document.getElementById('sp-prices-other').classList.add('hidden');
             
+            if(t === 'screen') { document.getElementById('sp-prices-screen').classList.remove('hidden'); document.getElementById('sp-item').value = 'จอชุด'; }
+            if(t === 'battery') { document.getElementById('sp-prices-battery').classList.remove('hidden'); document.getElementById('sp-item').value = 'แบตเตอรี่'; }
+            if(t === 'other') { document.getElementById('sp-prices-other').classList.remove('hidden'); document.getElementById('sp-item').value = ''; }
+        }
+
+        function addSmartProduct(e) {
+            e.preventDefault();
+            const t = document.getElementById('add-prod-type').value;
+            const os = document.getElementById('sp-os').value;
+            const model = document.getElementById('sp-model').value;
+            const item = document.getElementById('sp-item').value;
+            
+            let newItems = [];
+            const baseObj = { os, deviceModel: model, item };
+
+            if(t === 'screen') {
+                const tft = document.getElementById('sp-price-tft').value;
+                const incell = document.getElementById('sp-price-incell').value;
+                const oled = document.getElementById('sp-price-oled').value;
+                if(tft) newItems.push({ id: Date.now()+1, service: 'เปลี่ยนหน้าจอ', ...baseObj, grade: 'จอ TFT (เทียบ)', price: Number(tft) });
+                if(incell) newItems.push({ id: Date.now()+2, service: 'เปลี่ยนหน้าจอ', ...baseObj, grade: 'Incell (เทียบแท้)', price: Number(incell) });
+                if(oled) newItems.push({ id: Date.now()+3, service: 'เปลี่ยนหน้าจอ', ...baseObj, grade: 'OLED (แท้)', price: Number(oled) });
+            } else if(t === 'battery') {
+                const std = document.getElementById('sp-price-batt-std').value;
+                const high = document.getElementById('sp-price-batt-high').value;
+                if(std) newItems.push({ id: Date.now()+1, service: 'เปลี่ยนแบตเตอร์รี่', ...baseObj, grade: 'แบต เทียบ มาตรฐาน', price: Number(std) });
+                if(high) newItems.push({ id: Date.now()+2, service: 'เปลี่ยนแบตเตอร์รี่', ...baseObj, grade: 'เพิ่มความจุ (แบต)', price: Number(high) });
+            } else {
+                const grade = document.getElementById('sp-grade-other').value;
+                const price = document.getElementById('sp-price-other').value;
+                newItems.push({ id: Date.now()+1, service: 'อาการเสียอื่น', ...baseObj, grade: grade||'ทั่วไป', price: Number(price) });
+            }
+
+            if(newItems.length === 0) return showToast('กรุณาระบุราคาอย่างน้อย 1 รายการ', 'error');
+
+            appState.products.pricing.unshift(...newItems);
+            saveToLocalStorage(); renderProductsTable(); forceSyncProducts();
+            e.target.reset(); toggleProductFormType(); showToast(`เพิ่มข้อมูล ${newItems.length} รายการสำเร็จ`, 'success');
+        }
+
+        function renderProductsTable() {
+            const tbody = document.getElementById('products-table-body'); if(!tbody) return; tbody.innerHTML = '';
+            appState.products.pricing.forEach(p => {
+                if(!p.id) p.id = Date.now() + Math.random();
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b">
+                        <td class="p-3 editable-cell" contenteditable="true" onblur="updateProductInline(${p.id}, 'service', this.innerText)">${p.service}</td>
+                        <td class="p-3 editable-cell" contenteditable="true" onblur="updateProductInline(${p.id}, 'item', this.innerText)">${p.item}</td>
+                        <td class="p-3 editable-cell" contenteditable="true" onblur="updateProductInline(${p.id}, 'os', this.innerText)">${p.os}</td>
+                        <td class="p-3 editable-cell" contenteditable="true" onblur="updateProductInline(${p.id}, 'deviceModel', this.innerText)">${p.deviceModel}</td>
+                        <td class="p-3 editable-cell" contenteditable="true" onblur="updateProductInline(${p.id}, 'grade', this.innerText)">${p.grade}</td>
+                        <td class="p-3 text-right text-blue-600 font-bold editable-cell" contenteditable="true" onblur="updateProductInline(${p.id}, 'price', this.innerText)">${p.price}</td>
+                        <td class="p-3 text-center"><button onclick="deleteProduct(${p.id})" class="text-red-500 hover:text-red-700 p-1 bg-red-50 rounded"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
+            });
+        }
+
+        function updateProductInline(id, field, value) {
+            const p = appState.products.pricing.find(x => x.id === id); if(!p) return;
+            const cleanVal = value.trim();
+            if(field === 'price') {
+                const n = Number(cleanVal); if(isNaN(n)) return renderProductsTable(); // revert
+                p.price = n;
+            } else { p[field] = cleanVal; }
+            saveToLocalStorage();
+        }
+
+        function deleteProduct(id) {
+            if(confirm('ยืนยันการลบรายการนี้?')) {
+                appState.products.pricing = appState.products.pricing.filter(p => p.id !== id);
+                saveToLocalStorage(); renderProductsTable(); forceSyncProducts();
+            }
+        }
+
+        function forceSyncProducts() {
+            if(appState.sheetConfig.webAppUrl) {
+                fetch(appState.sheetConfig.webAppUrl, { method:'POST', mode:'no-cors', body:JSON.stringify({action: 'sync_products', data: appState.products.pricing}) }).catch(e=>{});
+                showToast('ส่งคำสั่ง Sync ข้อมูลไปยัง Sheet แล้ว', 'success');
+            }
+        }
+
+        function downloadSampleData(type) {
+            let content = ''; let mime = ''; let ext = '';
+            if(type === 'csv') {
+                content = "service,item,os,deviceModel,grade,price\nเปลี่ยนหน้าจอ,จอชุด,Iphone,iPhone 13,OLED (แท้),4500\nเปลี่ยนแบตเตอร์รี่,แบตเตอรี่,Android,S22,เพิ่มความจุ (แบต),1200";
+                mime = 'text/csv;charset=utf-8;'; ext = 'csv';
+            } else {
+                content = JSON.stringify([{service:"เปลี่ยนหน้าจอ",item:"จอชุด",os:"Iphone",deviceModel:"iPhone 13",grade:"OLED (แท้)",price:4500}], null, 2);
+                mime = 'application/json;charset=utf-8;'; ext = 'json';
+            }
+            const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), content], { type: mime }); // UTF-8 BOM
+            const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `sample_products.${ext}`; a.click();
+        }
+
+        function importPricingData(e) {
+            const file = e.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    let newProds = [];
+                    if(file.name.endsWith('.json')) {
+                        const parsed = JSON.parse(evt.target.result);
+                        if(Array.isArray(parsed)) newProds = parsed.map((p,i) => ({id: Date.now()+i, service:p.service, item:p.item, os:p.os, deviceModel:p.deviceModel, grade:p.grade, price:Number(p.price)}));
+                    } else if(file.name.endsWith('.csv')) {
+                        const lines = evt.target.result.split('\n');
+                        for(let i=1; i<lines.length; i++) {
+                            const [s, it, o, m, g, pr] = lines[i].split(',');
+                            if(s && pr) newProds.push({id: Date.now()+i, service:s.trim(), item:it?.trim(), os:o?.trim(), deviceModel:m?.trim(), grade:g?.trim(), price:Number(pr.trim())});
+                        }
+                    }
+                    
+                    if(newProds.length > 0) {
+                        if(confirm(`พบข้อมูล ${newProds.length} รายการ\n- กด OK เพื่อเอาไปรวมกับของเดิม (Append)\n- กด Cancel เพื่อแทนที่ข้อมูลทั้งหมด (Replace)`)) {
+                            appState.products.pricing = [...appState.products.pricing, ...newProds];
+                        } else {
+                            appState.products.pricing = newProds;
+                        }
+                        saveToLocalStorage(); renderProductsTable(); forceSyncProducts();
+                        showToast('นำเข้าข้อมูลสำเร็จ!', 'success');
+                    } else { showToast('ไม่พบข้อมูลที่ถูกต้องในไฟล์', 'error'); }
+                } catch(err) { showToast('รูปแบบไฟล์ไม่ถูกต้อง', 'error'); console.error(err); }
+                e.target.value = ''; // reset
+            };
+            reader.readAsText(file);
+        }
+
+        // --- Document & PDF Helpers ---
+        function prepareReceiptTemplate(b, isBookingCard = false) {
+            document.getElementById('r-id').textContent = b.id; document.getElementById('r-date').textContent = new Date().toLocaleDateString('th-TH');
+            document.getElementById('r-name').textContent = `${b.firstName} ${b.lastName}`; document.getElementById('r-phone').textContent = b.phone;
+            document.getElementById('r-price').textContent = Number(b.totalPrice).toLocaleString(); document.getElementById('r-total').textContent = Number(b.totalPrice).toLocaleString();
             if(isBookingCard) {
-                document.getElementById('r-doc-title').textContent = 'ใบนัดหมายคิวซ่อม (Booking)';
-                document.getElementById('r-loc').textContent = `${b.locType} - ${b.location}`;
-                document.getElementById('r-service').textContent = `[นัดหมาย] ${b.service}`;
-                document.getElementById('r-detail').textContent = `${b.os} ${b.deviceModel||''} | วันนัด: ${b.bookingDate} (${b.bookingTime})`;
+                document.getElementById('r-doc-title').textContent = 'ใบนัดหมายคิวซ่อม (Booking)'; document.getElementById('r-loc').textContent = `${b.locType} - ${b.location}`;
+                document.getElementById('r-service').textContent = `[นัดหมาย] ${b.service}`; document.getElementById('r-detail').textContent = `${b.os} ${b.deviceModel||''} | วันนัด: ${b.bookingDate} (${b.bookingTime})`;
                 document.getElementById('r-warranty-box').style.visibility = 'hidden';
             } else {
-                document.getElementById('r-doc-title').textContent = 'ใบเสร็จรับเงิน / ใบรับประกัน';
-                document.getElementById('r-loc').textContent = b.location;
-                document.getElementById('r-service').textContent = b.service;
-                document.getElementById('r-detail').textContent = `${b.os} ${b.deviceModel||''} (${b.partGrade})`;
-                document.getElementById('r-warranty').textContent = b.warrantyUntil !== '-' ? `ถึง ${b.warrantyUntil}` : 'ไม่มี';
-                document.getElementById('r-warranty-box').style.visibility = 'visible';
+                document.getElementById('r-doc-title').textContent = 'ใบเสร็จรับเงิน / ใบรับประกัน'; document.getElementById('r-loc').textContent = b.location;
+                document.getElementById('r-service').textContent = b.service; document.getElementById('r-detail').textContent = `${b.os} ${b.deviceModel||''} (${b.partGrade})`;
+                document.getElementById('r-warranty').textContent = b.warrantyUntil !== '-' ? `ถึง ${b.warrantyUntil}` : 'ไม่มี'; document.getElementById('r-warranty-box').style.visibility = 'visible';
             }
         }
 
         function generateReceipt(id) {
-            const b = appState.bookings.find(x=>x.id===id); if(!b) return;
-            prepareReceiptTemplate(b, false);
-            const opt = { margin: 10, filename: `Receipt_Warranty_${b.id}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-            const el = document.getElementById('receipt-template');
-            el.parentElement.classList.remove('hidden');
-            html2pdf().from(el).set(opt).save().then(() => el.parentElement.classList.add('hidden'));
-            showToast('กำลังสร้างใบเสร็จและใบรับประกัน PDF...', 'info');
+            const b = appState.bookings.find(x=>x.id===id); if(!b) return; prepareReceiptTemplate(b, false);
+            const el = document.getElementById('receipt-template'); el.parentElement.classList.remove('hidden');
+            html2pdf().from(el).set({ margin: 10, filename: `Warranty_${b.id}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).save().then(() => el.parentElement.classList.add('hidden')); showToast('กำลังสร้างใบรับประกัน PDF...', 'info');
         }
-
         function generateBookingPDF(id) {
-            const b = appState.bookings.find(x=>x.id===id); if(!b) return;
-            prepareReceiptTemplate(b, true);
-            const opt = { margin: 10, filename: `BookingCard_${b.id}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-            const el = document.getElementById('receipt-template');
-            el.parentElement.classList.remove('hidden');
-            html2pdf().from(el).set(opt).save().then(() => el.parentElement.classList.add('hidden'));
-            showToast('กำลังสร้างใบนัดหมายคิวซ่อม PDF...', 'info');
+            const b = appState.bookings.find(x=>x.id===id); if(!b) return; prepareReceiptTemplate(b, true);
+            const el = document.getElementById('receipt-template'); el.parentElement.classList.remove('hidden');
+            html2pdf().from(el).set({ margin: 10, filename: `Booking_${b.id}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).save().then(() => el.parentElement.classList.add('hidden')); showToast('กำลังสร้างใบนัดหมาย PDF...', 'info');
         }
 
-        // --- Email Template Management ---
+        // --- Email Template Config ---
         function loadSelectedTemplate() {
-            const type = document.getElementById('email-template-selector').value;
-            const t = appState.emailConfig.templates[type];
-            document.getElementById('cfg-template-type').value = type;
-            document.getElementById('cfg-template-id').value = t.id || '';
-            document.getElementById('cfg-template-subject').value = t.subject;
-            document.getElementById('cfg-template-body').value = t.body;
+            const type = document.getElementById('email-template-selector').value; const t = appState.emailConfig.templates[type];
+            document.getElementById('cfg-template-type').value = type; document.getElementById('cfg-template-id').value = t.id || '';
+            document.getElementById('cfg-template-subject').value = t.subject; document.getElementById('cfg-template-body').value = t.body;
         }
 
         function saveCurrentTemplate() {
             const type = document.getElementById('cfg-template-type').value;
-            appState.emailConfig.templates[type] = {
-                id: document.getElementById('cfg-template-id').value.trim(),
-                subject: document.getElementById('cfg-template-subject').value,
-                body: document.getElementById('cfg-template-body').value
-            };
-            saveToLocalStorage();
-            showToast(`บันทึก Template (${type}) สำเร็จ`, 'success');
+            appState.emailConfig.templates[type] = { id: document.getElementById('cfg-template-id').value.trim(), subject: document.getElementById('cfg-template-subject').value, body: document.getElementById('cfg-template-body').value };
+            saveToLocalStorage(); showToast(`บันทึก Template (${type}) สำเร็จ`, 'success');
         }
 
         function saveEmailConfig() {
-            appState.emailConfig.publicKey = document.getElementById('cfg-email-public').value.trim();
-            appState.emailConfig.serviceId = document.getElementById('cfg-email-service').value.trim();
-            appState.emailConfig.adminEmail = document.getElementById('cfg-email-admin').value.trim();
-            if(appState.emailConfig.publicKey) emailjs.init(appState.emailConfig.publicKey);
-            saveToLocalStorage();
-            showToast('บันทึกการตั้งค่า Email สำเร็จ', 'success');
+            appState.emailConfig.publicKey = document.getElementById('cfg-email-public').value.trim(); appState.emailConfig.serviceId = document.getElementById('cfg-email-service').value.trim(); appState.emailConfig.adminEmail = document.getElementById('cfg-email-admin').value.trim();
+            if(appState.emailConfig.publicKey) emailjs.init(appState.emailConfig.publicKey); saveToLocalStorage(); showToast('บันทึกการตั้งค่า Email หลักสำเร็จ', 'success');
         }
 
-        // --- Open Modal & Send Email with Attachment ---
+        // --- Test Email & Send Email ---
         function openEmailModalForBooking(id, type = 'booking') {
             const b = appState.bookings.find(x=>x.id===id); if(!b) return;
-            if(!b.email || b.email === '-') {
-                const manualEmail = prompt('ลูกค้ารายนี้ยังไม่ได้ใส่อีเมล กรุณากรอกอีเมลผู้รับ:', '');
-                if(!manualEmail) return;
-                b.email = manualEmail;
-            }
+            if(!b.email || b.email === '-') { const em = prompt('ลูกค้ารายนี้ไม่ได้ใส่อีเมล กรุณาระบุอีเมลผู้รับ:', ''); if(!em) return; b.email = em; }
             
             const t = appState.emailConfig.templates[type];
-            if(!t || !t.id) {
-                return showToast(`กรุณาตั้งค่า Template ID สำหรับ ${type} ก่อนในหน้าตั้งค่า`, 'error');
-            }
+            if(!t || !t.id) return showToast(`กรุณาใส่ Template ID สำหรับ ${type} ก่อนใช้งาน`, 'error');
 
-            document.getElementById('modal-email-booking-id').value = b.id;
-            document.getElementById('modal-email-type').value = type;
-            document.getElementById('modal-email-to').value = b.email;
+            document.getElementById('modal-email-booking-id').value = b.id; document.getElementById('modal-email-type').value = type; document.getElementById('modal-email-to').value = b.email;
             
-            const subj = t.subject.replace(/{name}/g, `${b.firstName} ${b.lastName}`).replace(/{id}/g, b.id).replace(/{date}/g, `${b.bookingDate} ${b.bookingTime}`).replace(/{service}/g, `${b.service} (${b.deviceModel || b.os})`).replace(/{price}/g, b.totalPrice);
-            const body = t.body.replace(/{name}/g, `${b.firstName} ${b.lastName}`).replace(/{id}/g, b.id).replace(/{date}/g, `${b.bookingDate} ${b.bookingTime}`).replace(/{service}/g, `${b.service} (${b.deviceModel || b.os})`).replace(/{price}/g, b.totalPrice);
-
-            document.getElementById('modal-email-subject').value = subj;
-            document.getElementById('modal-email-body').value = body;
+            document.getElementById('modal-email-subject').value = t.subject.replace(/{name}/g, `${b.firstName} ${b.lastName}`).replace(/{id}/g, b.id).replace(/{date}/g, `${b.bookingDate}`).replace(/{service}/g, b.service).replace(/{price}/g, b.totalPrice);
+            document.getElementById('modal-email-body').value = t.body.replace(/{name}/g, `${b.firstName} ${b.lastName}`).replace(/{id}/g, b.id).replace(/{date}/g, `${b.bookingDate}`).replace(/{service}/g, b.service).replace(/{price}/g, b.totalPrice);
             
-            const attInfo = document.getElementById('modal-email-attachment-info');
-            if(type === 'warranty' || type === 'booking') {
-                attInfo.classList.remove('hidden');
-                document.getElementById('modal-email-attachment-name').textContent = type === 'warranty' ? `Receipt_Warranty_${b.id}.pdf` : `BookingCard_${b.id}.pdf`;
-            } else {
-                attInfo.classList.add('hidden');
-            }
-
+            document.getElementById('modal-email-attachment-info').classList.remove('hidden'); document.getElementById('modal-email-attachment-name').textContent = type === 'warranty' ? `Warranty_${b.id}.pdf` : `Booking_${b.id}.pdf`;
             document.getElementById('emailPreviewModal').classList.remove('hidden');
         }
 
-        function closeEmailModal() { 
-            document.getElementById('emailPreviewModal').classList.add('hidden'); 
-            document.getElementById('btn-confirm-send-email').disabled = false;
-            document.getElementById('btn-confirm-send-email').innerHTML = '<i class="fas fa-paper-plane mr-2"></i> ยืนยันส่งอีเมล';
-        }
+        function closeEmailModal() { document.getElementById('emailPreviewModal').classList.add('hidden'); document.getElementById('btn-confirm-send-email').disabled = false; document.getElementById('btn-confirm-send-email').innerHTML = '<i class="fas fa-paper-plane mr-2"></i> ยืนยันส่งอีเมล'; }
 
         function confirmSendEmail() {
-            const bId = document.getElementById('modal-email-booking-id').value;
-            const type = document.getElementById('modal-email-type').value;
-            const to = document.getElementById('modal-email-to').value;
-            const subject = document.getElementById('modal-email-subject').value;
-            const body = document.getElementById('modal-email-body').value;
+            const bId = document.getElementById('modal-email-booking-id').value; const type = document.getElementById('modal-email-type').value; const to = document.getElementById('modal-email-to').value;
+            const subject = document.getElementById('modal-email-subject').value; const body = document.getElementById('modal-email-body').value;
+            if(!appState.emailConfig.publicKey || !appState.emailConfig.serviceId) return showToast('กรุณาตั้งค่า EmailJS ในหน้าตั้งค่าก่อน', 'error');
 
-            if(!appState.emailConfig.publicKey || !appState.emailConfig.serviceId) {
-                return showToast('กรุณาตั้งค่า EmailJS Public Key และ Service ID ก่อน', 'error');
-            }
-
-            const t = appState.emailConfig.templates[type];
-            const b = appState.bookings.find(x=>x.id===bId);
-
-            const btn = document.getElementById('btn-confirm-send-email');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังเตรียมไฟล์ PDF...';
-
-            // 1. Prepare PDF silently
-            prepareReceiptTemplate(b, type === 'booking');
-            const el = document.getElementById('receipt-template');
-            el.parentElement.classList.remove('hidden');
+            const btn = document.getElementById('btn-confirm-send-email'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังเตรียมไฟล์...';
             
-            const opt = { margin: 10, filename: 'doc.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            const b = appState.bookings.find(x=>x.id===bId); prepareReceiptTemplate(b, type === 'booking');
+            const el = document.getElementById('receipt-template'); el.parentElement.classList.remove('hidden');
             
-            // Get base64 string of PDF
-            html2pdf().from(el).set(opt).outputPdf('datauristring').then(function (pdfBase64) {
-                el.parentElement.classList.add('hidden');
+            html2pdf().from(el).set({ margin:10, html2canvas:{scale:2}, jsPDF:{unit:'mm',format:'a4'} }).outputPdf('datauristring').then(pdfBase64 => {
+                el.parentElement.classList.add('hidden'); btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> กำลังส่งอีเมล...';
                 
-                // Extract just the base64 part, remove "data:application/pdf;filename=generated.pdf;base64," prefix
-                const base64Data = pdfBase64.split('base64,')[1];
-                const fileName = type === 'warranty' ? `Receipt_Warranty_${b.id}.pdf` : `BookingCard_${b.id}.pdf`;
-
-                btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> กำลังส่งอีเมล...';
-
-                // EmailJS Template params
-                const templateParams = {
-                    to_name: `${b.firstName} ${b.lastName}`,
-                    to_email: to,
-                    booking_id: bId,
-                    subject: subject,
-                    message: body,
-                    admin_email: appState.emailConfig.adminEmail,
-                    // Pass Base64 for EmailJS Attachment (requires Variable Attachment setup in EmailJS Dashboard)
-                    content: base64Data, 
-                    filename: fileName
-                };
-
-                emailjs.send(appState.emailConfig.serviceId, t.id, templateParams)
-                .then(() => {
-                    showToast('ส่งอีเมลพร้อมเอกสารแนบสำเร็จ', 'success');
-                    closeEmailModal();
-                }).catch(err => {
-                    console.error("Email send error:", err);
-                    showToast('ส่งอีเมลไม่สำเร็จ (ตรวจสอบ Template ID และขนาดไฟล์)', 'error');
-                    closeEmailModal();
-                });
+                emailjs.send(appState.emailConfig.serviceId, appState.emailConfig.templates[type].id, {
+                    to_name: `${b.firstName} ${b.lastName}`, to_email: to, subject: subject, message: body, admin_email: appState.emailConfig.adminEmail,
+                    content: pdfBase64.split('base64,')[1], filename: type === 'warranty' ? `Warranty_${b.id}.pdf` : `Booking_${b.id}.pdf`
+                }).then(() => { showToast('ส่งอีเมลพร้อมเอกสารแนบสำเร็จ', 'success'); closeEmailModal(); }).catch(e => { console.error(e); showToast('ส่งอีเมลไม่สำเร็จ (เช็ค Template/ขนาดไฟล์)', 'error'); closeEmailModal(); });
             });
         }
 
-        // --- Test Email Modals ---
         function openTestEmailModal() { 
-            const type = document.getElementById('cfg-template-type').value;
-            const t = appState.emailConfig.templates[type];
+            const type = document.getElementById('cfg-template-type').value; const t = appState.emailConfig.templates[type];
             if(!t.id) return showToast('กรุณาระบุ Template ID ก่อนทดสอบ', 'error');
-            
-            // Use admin email as default for testing
-            const testEmail = appState.emailConfig.adminEmail;
-            if(!testEmail) return showToast('กรุณาระบุ Admin Email ในหน้าตั้งค่าก่อนทดสอบ', 'error');
+            if(!appState.emailConfig.adminEmail) return showToast('กรุณาระบุ Admin Email ก่อนทดสอบ', 'error');
 
-            if(confirm(`ระบบจะส่งอีเมลทดสอบ (${type}) ไปที่: ${testEmail}\n\nต้องการดำเนินการต่อหรือไม่?`)) {
-                executeTestEmail(testEmail, type, t);
+            if(confirm(`ส่งอีเมลทดสอบ (${type}) ไปที่: ${appState.emailConfig.adminEmail}\nต้องการดำเนินการต่อหรือไม่?`)) {
+                if(!appState.emailConfig.publicKey || !appState.emailConfig.serviceId) return showToast('กรุณาตั้งค่า EmailJS ก่อน', 'error');
+                showToast('กำลังเตรียมการและส่งอีเมลทดสอบ...', 'info');
+                
+                const db = { id:'TEST-000', firstName:'Admin', lastName:'Test', phone:'080', service:'Test Service', totalPrice:999, locType:'Test', location:'Loc', os:'iOS', partGrade:'Test', warrantyUntil:'2025-01-01', bookingDate:'2024-12-01', bookingTime:'10:00' };
+                prepareReceiptTemplate(db, type === 'booking'); const el = document.getElementById('receipt-template'); el.parentElement.classList.remove('hidden');
+                
+                html2pdf().from(el).set({ margin:10, html2canvas:{scale:2}, jsPDF:{unit:'mm',format:'a4'} }).outputPdf('datauristring').then(pdfBase64 => {
+                    el.parentElement.classList.add('hidden');
+                    const subj = t.subject.replace(/{name}/g,'Admin').replace(/{id}/g,'TEST-000'); const body = t.body.replace(/{name}/g,'Admin').replace(/{id}/g,'TEST-000').replace(/{date}/g,'2024-12-01 10:00').replace(/{service}/g,'Test Service').replace(/{price}/g,'999');
+                    emailjs.send(appState.emailConfig.serviceId, t.id, { to_name:'Admin Tester', to_email:appState.emailConfig.adminEmail, subject:'[TEST] '+subj, message:body, admin_email:appState.emailConfig.adminEmail, content:pdfBase64.split('base64,')[1], filename:`TEST_Doc.pdf` })
+                    .then(() => showToast('ส่งอีเมลทดสอบสำเร็จ!', 'success')).catch(e => { console.error(e); showToast('ส่งอีเมลไม่สำเร็จ', 'error'); });
+                });
             }
         }
-
-        function executeTestEmail(email, type, t) {
-            if(!appState.emailConfig.publicKey || !appState.emailConfig.serviceId) return showToast('กรุณาตั้งค่า EmailJS ก่อน', 'error');
-
-            showToast('กำลังเตรียมการและส่งอีเมลทดสอบ...', 'info');
-            
-            // Dummy booking for test
-            const dummyBooking = { id: 'TEST-000', firstName: 'Admin', lastName: 'Test', phone: '0800000000', service: 'Test Service', totalPrice: 999, locType: 'Test', location: 'Test Location', os: 'iOS', partGrade: 'Test', warrantyUntil: '2025-01-01', bookingDate: '2024-12-01', bookingTime: '10:00' };
-            
-            prepareReceiptTemplate(dummyBooking, type === 'booking');
-            const el = document.getElementById('receipt-template');
-            el.parentElement.classList.remove('hidden');
-            const opt = { margin: 10, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-
-            html2pdf().from(el).set(opt).outputPdf('datauristring').then(function (pdfBase64) {
-                el.parentElement.classList.add('hidden');
-                const base64Data = pdfBase64.split('base64,')[1];
-
-                const subj = t.subject.replace(/{name}/g, 'Admin Test').replace(/{id}/g, 'TEST-000');
-                const body = t.body.replace(/{name}/g, 'Admin Test').replace(/{id}/g, 'TEST-000').replace(/{date}/g, '2024-12-01 10:00').replace(/{service}/g, 'Test Service').replace(/{price}/g, '999');
-
-                emailjs.send(appState.emailConfig.serviceId, t.id, {
-                    to_name: 'Admin Tester',
-                    to_email: email,
-                    booking_id: 'TEST-000',
-                    subject: '[TEST] ' + subj,
-                    message: body,
-                    admin_email: email,
-                    content: base64Data,
-                    filename: `TEST_Document.pdf`
-                }).then(() => {
-                    showToast('ส่งอีเมลทดสอบสำเร็จ!', 'success');
-                }).catch(e => {
-                    console.error(e);
-                    showToast('ส่งอีเมลไม่สำเร็จ เช็ค Console', 'error');
-                });
-            });
-        }
-
-        // ... (Keep existing form config, product sync, inventory, etc.)
-        function saveSheetConfig() { 
-            appState.sheetConfig.webAppUrl = document.getElementById('cfg-sheet-url').value; 
-            saveToLocalStorage(); 
-            showToast('บันทึก Google Sheets URL สำเร็จ','success'); 
-        }
-
-        function saveFormConfig() {
-            appState.formConfig.email = document.getElementById('form-field-email').checked;
-            appState.formConfig.gps = document.getElementById('form-field-gps').checked;
-            appState.formConfig.note = document.getElementById('form-field-note').checked;
-            saveToLocalStorage();
-            applyFormConfig();
-            showToast('บันทึกการตั้งค่าฟอร์มสำเร็จ', 'success');
-        }
-
     </script>
 </body>
 </html>
