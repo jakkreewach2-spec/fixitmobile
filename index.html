@@ -808,6 +808,50 @@
             if(!f.length) return r.innerHTML = '<div class="text-rose-600 font-bold bg-rose-50 border border-rose-100 p-4 rounded-2xl text-center shadow-sm"><i class="fas fa-exclamation-circle text-xl block mb-2"></i>ไม่พบข้อมูลการจองด้วยเบอร์โทรนี้</div>';
             r.innerHTML = f.map(x=>`<div class="border border-slate-200 p-5 rounded-2xl bg-white shadow-sm text-xs space-y-2 relative overflow-hidden"><div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-500"></div><div class="flex justify-between items-center font-black"><span class="text-sm text-slate-800">${x.id}</span><span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-lg">${x.st}</span></div><div class="text-slate-600"><b class="text-slate-800">รุ่น:</b> ${x.mod} <span class="bg-slate-100 px-1 rounded ml-1">${x.grd}</span></div><div class="text-slate-600"><b class="text-slate-800">วัน/เวลาซ่อม:</b> ${x.d} (${x.t})</div></div>`).join('');
         }
+function populateCategoryDropdown() {
+const sel = document.getElementById('add-prod-cat-select'); if(!sel) return;
+const cats = [...new Set(st.products.map(p => p.srv))];
+sel.innerHTML = '<option value="">-- เลือกหมวดหมู่เดิมที่มีอยู่ --</option>' + cats.map(c => <option value="${c}">${c}&lt;/option>).join('') + '<option value="new" class="font-bold text-purple-700">+ [ เพิ่มหมวดหมู่ใหม่ ]</option>';
+document.getElementById('add-prod-cat-new').classList.add('hidden');
+}
+
+function checkNewCategory(el) {
+const inputNew = document.getElementById('add-prod-cat-new');
+if(el.value === 'new') { inputNew.classList.remove('hidden'); inputNew.required = true; inputNew.focus(); }
+else { inputNew.classList.add('hidden'); inputNew.required = false; }
+}
+
+function addNewProductForm(e) {
+e.preventDefault();
+const type = document.getElementById('add-prod-type').value;
+let catSelect = document.getElementById('add-prod-cat-select').value;
+const catNew = document.getElementById('add-prod-cat-new').value.trim();
+const category = (catSelect === 'new') ? catNew : catSelect;
+if(!category) return alert('กรุณาเลือกหรือระบุหมวดหมู่');
+const model = document.getElementById('add-prod-model').value.trim();
+const grade = document.getElementById('add-prod-grade').value;
+const price = document.getElementById('add-prod-price').value;
+const os = model.toLowerCase().includes('iphone') ? 'iPhone' : (model.toLowerCase().includes('samsung') ? 'Android' : 'ทั่วไป');
+
+st.products.push({
+id: Date.now(),
+srv: category,
+itm: type === 'สินค้า' ? 'อุปกรณ์' : 'อะไหล่',
+os: os,
+mod: model,
+tft: grade === 'TFT' ? price : '-',
+inc: grade === 'Incell' ? price : '-',
+ol: (grade === 'OLED' || grade === 'Standard') ? price : '-'
+});
+
+save();
+renderProductsInlineTable();
+updateSrvOpts();
+populateCategoryDropdown();
+e.target.reset();
+document.getElementById('add-prod-cat-new').classList.add('hidden');
+showSuccess('เพิ่มรายการสำเร็จ!', บันทึก [${category}] รุ่น ${model} ลงในฐานข้อมูลแล้ว);
+}
         function renderRatesTable() {
             const tb = document.getElementById('ui-rates-body'); if (!tb) return;
             const k = document.getElementById('rate-search')?.value || '';
