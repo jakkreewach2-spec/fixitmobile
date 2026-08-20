@@ -441,44 +441,6 @@
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <button onclick="downloadSampleCSV()" class="bg-white border border-slate-300 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold hover:bg-slate-50 transition"><i class="fas fa-download mr-1"></i> โหลดไฟล์ตัวอย่าง</button>
-<!-- ฟอร์มเพิ่มสินค้าและบริการใหม่ -->
-<div class="bg-gradient-to-br from-purple-50/70 to-indigo-50/70 p-6 rounded-3xl border border-purple-200 shadow-sm space-y-4">
-<h3 class="font-black text-sm text-purple-950 flex items-center"><i class="fas fa-plus-circle text-purple-600 mr-2 text-base"></i> ฟอร์มเพิ่มสินค้าและบริการใหม่</h3>
-<form onsubmit="addNewProductForm(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
-<div>
-<label class="block text-[11px] font-bold text-slate-700 mb-1">เลือกประเภท</label>
-<select id="add-prod-type" class="w-full border-2 p-2.5 rounded-xl text-xs font-bold bg-white focus:border-purple-500 outline-none">
-<option value="บริการ">บริการ (ซ่อม/เปลี่ยน)</option>
-<option value="สินค้า">สินค้า (อุปกรณ์/อะไหล่)</option>
-</select>
-</div>
-<div>
-<label class="block text-[11px] font-bold text-slate-700 mb-1">เลือกหมวดหมู่ / เพิ่มใหม่</label>
-<select id="add-prod-cat-select" onchange="checkNewCategory(this)" class="w-full border-2 p-2.5 rounded-xl text-xs font-bold bg-white focus:border-purple-500 outline-none mb-1"></select>
-<input type="text" id="add-prod-cat-new" placeholder="พิมพ์ชื่อหมวดหมู่ใหม่..." class="hidden w-full border-2 p-2 rounded-xl text-xs font-bold bg-white focus:border-purple-500 outline-none">
-</div>
-<div>
-<label class="block text-[11px] font-bold text-slate-700 mb-1">รุ่น / ชื่อสินค้า</label>
-<input type="text" id="add-prod-model" placeholder="เช่น iPhone 14..." required class="w-full border-2 p-2.5 rounded-xl text-xs font-bold bg-white focus:border-purple-500 outline-none">
-</div>
-<div>
-<label class="block text-[11px] font-bold text-slate-700 mb-1">เลือกเกรดอะไหล่</label>
-<select id="add-prod-grade" class="w-full border-2 p-2.5 rounded-xl text-xs font-bold bg-white focus:border-purple-500 outline-none">
-<option value="TFT">TFT</option>
-<option value="Incell">Incell</option>
-<option value="OLED">OLED</option>
-<option value="Standard">Standard / ทั่วไป</option>
-</select>
-</div>
-<div>
-<label class="block text-[11px] font-bold text-slate-700 mb-1">ใส่ราคา (บาท)</label>
-<input type="number" id="add-prod-price" placeholder="0" min="0" required class="w-full border-2 p-2.5 rounded-xl text-xs font-black text-purple-700 bg-white focus:border-purple-500 outline-none">
-</div>
-<div class="md:col-span-5 text-right pt-2">
-<button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-2xl text-xs font-black shadow-md transition"><i class="fas fa-save mr-2"></i> บันทึกเพิ่มรายการเข้าฐานข้อมูล</button>
-</div>
-</form>
-</div>
                         <label class="bg-purple-600 text-white px-3 py-2 rounded-xl text-xs font-bold cursor-pointer shadow hover:bg-purple-700 transition">
                             <i class="fas fa-file-csv mr-1"></i> Import CSV
                             <input type="file" accept=".csv" onchange="importAndVerifyCSV(event)" class="hidden">
@@ -808,50 +770,6 @@
             if(!f.length) return r.innerHTML = '<div class="text-rose-600 font-bold bg-rose-50 border border-rose-100 p-4 rounded-2xl text-center shadow-sm"><i class="fas fa-exclamation-circle text-xl block mb-2"></i>ไม่พบข้อมูลการจองด้วยเบอร์โทรนี้</div>';
             r.innerHTML = f.map(x=>`<div class="border border-slate-200 p-5 rounded-2xl bg-white shadow-sm text-xs space-y-2 relative overflow-hidden"><div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-500"></div><div class="flex justify-between items-center font-black"><span class="text-sm text-slate-800">${x.id}</span><span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-lg">${x.st}</span></div><div class="text-slate-600"><b class="text-slate-800">รุ่น:</b> ${x.mod} <span class="bg-slate-100 px-1 rounded ml-1">${x.grd}</span></div><div class="text-slate-600"><b class="text-slate-800">วัน/เวลาซ่อม:</b> ${x.d} (${x.t})</div></div>`).join('');
         }
-function populateCategoryDropdown() {
-const sel = document.getElementById('add-prod-cat-select'); if(!sel) return;
-const cats = [...new Set(st.products.map(p => p.srv))];
-sel.innerHTML = '<option value="">-- เลือกหมวดหมู่เดิมที่มีอยู่ --</option>' + cats.map(c => <option value="${c}">${c}&lt;/option>).join('') + '<option value="new" class="font-bold text-purple-700">+ [ เพิ่มหมวดหมู่ใหม่ ]</option>';
-document.getElementById('add-prod-cat-new').classList.add('hidden');
-}
-
-function checkNewCategory(el) {
-const inputNew = document.getElementById('add-prod-cat-new');
-if(el.value === 'new') { inputNew.classList.remove('hidden'); inputNew.required = true; inputNew.focus(); }
-else { inputNew.classList.add('hidden'); inputNew.required = false; }
-}
-
-function addNewProductForm(e) {
-e.preventDefault();
-const type = document.getElementById('add-prod-type').value;
-let catSelect = document.getElementById('add-prod-cat-select').value;
-const catNew = document.getElementById('add-prod-cat-new').value.trim();
-const category = (catSelect === 'new') ? catNew : catSelect;
-if(!category) return alert('กรุณาเลือกหรือระบุหมวดหมู่');
-const model = document.getElementById('add-prod-model').value.trim();
-const grade = document.getElementById('add-prod-grade').value;
-const price = document.getElementById('add-prod-price').value;
-const os = model.toLowerCase().includes('iphone') ? 'iPhone' : (model.toLowerCase().includes('samsung') ? 'Android' : 'ทั่วไป');
-
-st.products.push({
-id: Date.now(),
-srv: category,
-itm: type === 'สินค้า' ? 'อุปกรณ์' : 'อะไหล่',
-os: os,
-mod: model,
-tft: grade === 'TFT' ? price : '-',
-inc: grade === 'Incell' ? price : '-',
-ol: (grade === 'OLED' || grade === 'Standard') ? price : '-'
-});
-
-save();
-renderProductsInlineTable();
-updateSrvOpts();
-populateCategoryDropdown();
-e.target.reset();
-document.getElementById('add-prod-cat-new').classList.add('hidden');
-showSuccess('เพิ่มรายการสำเร็จ!', บันทึก [${category}] รุ่น ${model} ลงในฐานข้อมูลแล้ว);
-}
         function renderRatesTable() {
             const tb = document.getElementById('ui-rates-body'); if (!tb) return;
             const k = document.getElementById('rate-search')?.value || '';
