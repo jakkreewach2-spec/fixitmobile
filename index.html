@@ -441,6 +441,44 @@
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <button onclick="downloadSampleCSV()" class="bg-white border border-slate-300 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold hover:bg-slate-50 transition"><i class="fas fa-download mr-1"></i> โหลดไฟล์ตัวอย่าง</button>
+<!-- ฟอร์มเพิ่มสินค้าและบริการใหม่ -->
+<div class="bg-gradient-to-br from-purple-50/70 to-indigo-50/70 p-6 rounded-3xl border border-purple-200 shadow-sm space-y-4">
+<h3 class="font-black text-sm text-purple-950 flex items-center"><i class="fas fa-plus-circle text-purple-600 mr-2 text-base"></i> ฟอร์มเพิ่มสินค้าและบริการใหม่</h3>
+<form onsubmit="addNewProductForm(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+<div>
+<label class="block text-[11px] font-bold text-slate-700 mb-1">เลือกประเภท</label>
+<select id="add-prod-type" class="w-full border-2 p-2.5 rounded-xl text-xs font-bold bg-white focus:border-purple-500 outline-none">
+<option value="บริการ">บริการ (ซ่อม/เปลี่ยน)</option>
+<option value="สินค้า">สินค้า (อุปกรณ์/อะไหล่)</option>
+</select>
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-700 mb-1">เลือกหมวดหมู่ / เพิ่มใหม่</label>
+<select id="add-prod-cat-select" onchange="checkNewCategory(this)" class="w-full border-2 p-2.5 rounded-xl text-xs font-bold bg-white focus:border-purple-500 outline-none mb-1"></select>
+<input type="text" id="add-prod-cat-new" placeholder="พิมพ์ชื่อหมวดหมู่ใหม่..." class="hidden w-full border-2 p-2 rounded-xl text-xs font-bold bg-white focus:border-purple-500 outline-none">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-700 mb-1">รุ่น / ชื่อสินค้า</label>
+<input type="text" id="add-prod-model" placeholder="เช่น iPhone 14..." required class="w-full border-2 p-2.5 rounded-xl text-xs font-bold bg-white focus:border-purple-500 outline-none">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-700 mb-1">เลือกเกรดอะไหล่</label>
+<select id="add-prod-grade" class="w-full border-2 p-2.5 rounded-xl text-xs font-bold bg-white focus:border-purple-500 outline-none">
+<option value="TFT">TFT</option>
+<option value="Incell">Incell</option>
+<option value="OLED">OLED</option>
+<option value="Standard">Standard / ทั่วไป</option>
+</select>
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-700 mb-1">ใส่ราคา (บาท)</label>
+<input type="number" id="add-prod-price" placeholder="0" min="0" required class="w-full border-2 p-2.5 rounded-xl text-xs font-black text-purple-700 bg-white focus:border-purple-500 outline-none">
+</div>
+<div class="md:col-span-5 text-right pt-2">
+<button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-2xl text-xs font-black shadow-md transition"><i class="fas fa-save mr-2"></i> บันทึกเพิ่มรายการเข้าฐานข้อมูล</button>
+</div>
+</form>
+</div>
                         <label class="bg-purple-600 text-white px-3 py-2 rounded-xl text-xs font-bold cursor-pointer shadow hover:bg-purple-700 transition">
                             <i class="fas fa-file-csv mr-1"></i> Import CSV
                             <input type="file" accept=".csv" onchange="importAndVerifyCSV(event)" class="hidden">
