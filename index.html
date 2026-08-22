@@ -105,18 +105,11 @@
                 <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 md:p-8 text-center text-white relative overflow-hidden">
                     <i class="fas fa-calendar-alt absolute -right-4 -top-4 text-7xl opacity-20"></i>
                     <h2 class="text-2xl font-black mb-1 relative z-10">ฟอร์มจองคิวซ่อมมือถือ</h2>
-                    <p class="text-blue-100 text-xs md:text-sm relative z-10">จองล่วงหน้าอย่างน้อย 3 วัน ระบบจะสร้างใบจองคิว PDF และส่งเข้าอีเมลอัตโนมัติ</p>
+                    <p class="text-blue-100 text-xs md:text-sm relative z-10">สามารถจองคิวภายในวันปัจจุบันได้ ระบบจะสร้างใบจองคิว PDF และส่งเข้าอีเมลอัตโนมัติ</p>
                 </div>
                 <form id="form-booking" class="p-6 md:p-8 space-y-6" onsubmit="submitBooking(event)">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-    <label class="block text-xs font-bold mb-1.5 text-slate-700">ประเภทการเข้ารับบริการ</label>
-    <select name="repairType" required class="w-full p-3 border-2 border-slate-200 rounded-2xl font-bold text-sm bg-slate-50 focus:border-blue-500 outline-none transition">
-        <option value="ซ่อมหน้าร้าน">รับซ่อมหน้าร้าน</option>
-        <option value="ซ่อมนอกสถานที่">ซ่อมนอกสถานที่</option>
-        <option value="ซ่อมด่วน">⚡ ซ่อมด่วนพิเศษ</option>
-    </select>
-</div>
+                        <div><label class="block text-xs font-bold mb-1.5 text-slate-700">วันที่ต้องการซ่อม</label><input type="date" id="book-date-input" name="bookDate" required class="w-full p-3 border-2 border-slate-200 rounded-2xl font-bold text-sm bg-slate-50 focus:border-blue-500 outline-none transition"></div>
                         <div><label class="block text-xs font-bold mb-1.5 text-slate-700">ช่วงเวลา</label><select name="bookTime" required class="w-full p-3 border-2 border-slate-200 rounded-2xl font-bold text-sm bg-slate-50 focus:border-blue-500 outline-none transition"><option value="">-- เลือกช่วงเวลา --</option><option>09:00 - 12:00 น.</option><option>13:00 - 17:00 น.</option></select></div>
                     </div>
 
@@ -147,6 +140,13 @@
                     </div>
 
                     <div id="dynamic-form-fields" class="space-y-4"></div>
+                    
+                    <div class="bg-rose-50 border border-rose-200 p-4 rounded-2xl mt-4">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="isExpress" value="ต้องการซ่อมด่วน" class="w-5 h-5 mr-3 text-rose-600 rounded focus:ring-rose-500">
+                            <span class="text-sm font-black text-rose-700">🔥 ต้องการบริการซ่อมด่วนพิเศษ (อาจมีค่าบริการเพิ่มเติม)</span>
+                        </label>
+                    </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <input type="text" name="cusName" placeholder="ชื่อ - นามสกุล" required class="w-full p-3 border-2 border-slate-200 rounded-2xl font-bold text-sm focus:border-blue-500 outline-none transition">
@@ -610,7 +610,7 @@
                     <button onclick="navAdmin('dashboard')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition"><i class="fas fa-arrow-left"></i> กลับแผงควบคุม</button>
                 </div>
                 <div class="bg-blue-50 border border-blue-100 p-4 rounded-2xl text-xs font-bold text-blue-800 mb-2">
-                    <i class="fas fa-info-circle mr-1"></i> ระบบจะบันทึกใบจองคิว PDF และประวัติใบเสร็จรับเงินในเมนูนี้
+                    <i class="fas fa-info-circle mr-1"></i> ระบบจะบันทึกใบแจ้งซ่อม ใบจองคิว PDF และประวัติใบเสร็จรับเงินในเมนูนี้
                 </div>
                 <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                     <table class="w-full text-xs text-left"><thead class="bg-slate-100 text-slate-700"><tr><th class="p-4">วันที่เพิ่ม</th><th class="p-4">ชื่อเอกสาร</th><th class="p-4">การเข้าถึงไฟล์</th><th class="p-4 text-center">จัดการ</th></tr></thead><tbody id="ad-tb-doc" class="divide-y divide-slate-100"></tbody></table>
@@ -741,31 +741,39 @@
         <div class="bg-white p-6 md:p-8 rounded-[2rem] w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
             <h3 class="font-black text-xl mb-5 text-slate-800 flex items-center"><i class="fas fa-tools text-emerald-500 mr-2"></i> <span id="rep-m-title">เพิ่ม/แก้ไข งานซ่อม</span></h3>
             <form id="frm-repair" onsubmit="saveRepair(event)" class="space-y-4">
-    <input type="hidden" id="rep-id">
-    <div class="grid grid-cols-2 gap-3">
-        <div><label class="block text-[10px] font-bold text-slate-500 mb-1">เบอร์โทร (จำเป็น)</label><input type="text" id="rep-tel" required class="w-full border-2 p-3 rounded-xl text-sm font-bold"></div>
-        <div><label class="block text-[10px] font-bold text-slate-500 mb-1">ชื่อลูกค้า (ไม่บังคับ)</label><input type="text" id="rep-cus" class="w-full border-2 p-3 rounded-xl text-sm font-bold"></div>
-    </div>
-    <div class="grid grid-cols-2 gap-3">
-        <div><label class="block text-[10px] font-bold text-slate-500 mb-1">รุ่นมือถือ</label><input type="text" id="rep-model" required class="w-full border-2 p-3 rounded-xl text-sm font-bold"></div>
-        <div><label class="block text-[10px] font-bold text-slate-500 mb-1">อาการเสีย</label><input type="text" id="rep-detail" required class="w-full border-2 p-3 rounded-xl text-sm font-bold"></div>
-    </div>
-    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">รายการอะไหล่</label><input type="text" id="rep-parts" class="w-full border-2 p-3 rounded-xl text-sm font-bold"></div>
-    <div class="grid grid-cols-2 gap-3">
-        <div><label class="block text-[10px] font-bold text-slate-500 mb-1">ค่าบริการ (เริ่มต้น 300)</label><input type="number" id="rep-service-fee" value="300" min="0" class="w-full border-2 p-2.5 rounded-xl text-sm font-black text-emerald-600 outline-none"></div>
-        <div><label class="block text-[10px] font-bold text-slate-500 mb-1">ค่าอะไหล่</label><input type="number" id="rep-price" value="0" min="0" class="w-full border-2 p-2.5 rounded-xl text-sm font-black text-emerald-600 outline-none"></div>
-    </div>
-    <div>
-        <label class="block text-[10px] font-bold text-slate-500 mb-1">สถานะงานซ่อม</label>
-        <select id="rep-status" class="w-full border-2 p-3 rounded-xl text-sm font-black text-blue-600 bg-blue-50">
-            <option value="รับเครื่องแล้ว">รับเครื่องแล้ว</option>
-            <option value="กำลังดำเนินการซ่อม">กำลังดำเนินการซ่อม</option>
-            <option value="ซ่อมเสร็จสิ้น">ซ่อมเสร็จสิ้น</option>
-            <option value="ชำระเงินแล้ว">ชำระเงินแล้ว (ออกใบเสร็จ)</option>
-        </select>
-    </div>
-    <!-- ... ปุ่มบันทึกข้อมูล ... -->
-</form>
+                <input type="hidden" id="rep-id">
+                
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">ชื่อลูกค้า (ไม่บังคับ)</label><input type="text" id="rep-cus" placeholder="ถ้าเว้นว่างจะบันทึกเป็น 'ลูกค้าทั่วไป'" class="w-full border-2 p-3 rounded-xl text-sm font-bold focus:border-emerald-500 outline-none"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">ระบบ OS</label><select id="rep-os" class="w-full border-2 p-3 rounded-xl text-sm font-bold focus:border-emerald-500 outline-none"><option value="iPhone">iPhone</option><option value="Android">Android</option></select></div>
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">รุ่นมือถือ</label><input type="text" id="rep-model" required class="w-full border-2 p-3 rounded-xl text-sm font-bold focus:border-emerald-500 outline-none"></div>
+                </div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">รายละเอียด/อาการ</label><textarea id="rep-detail" required class="w-full border-2 p-3 rounded-xl text-sm focus:border-emerald-500 outline-none" rows="2"></textarea></div>
+                
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">รายการอะไหล่ (ถ้ามี)</label><input type="text" id="rep-parts" placeholder="เช่น จอ Incell iPhone 13" class="w-full border-2 p-2.5 rounded-xl text-sm focus:border-emerald-500 outline-none"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">ค่าอะไหล่ (บาท)</label><input type="number" id="rep-parts-price" value="0" min="0" oninput="calcTotalRepairPrice()" class="w-full border-2 p-2.5 rounded-xl text-sm font-bold focus:border-emerald-500 outline-none"></div>
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">ค่าบริการ (เริ่มต้น 300)</label><input type="number" id="rep-service-fee" value="300" min="0" oninput="calcTotalRepairPrice()" class="w-full border-2 p-2.5 rounded-xl text-sm font-bold focus:border-emerald-500 outline-none"></div>
+                </div>
+                <div>
+                    <label class="flex items-center text-[11px] font-bold text-slate-700 cursor-pointer">
+                        <input type="checkbox" id="rep-inc-service" checked onchange="calcTotalRepairPrice()" class="mr-2 rounded text-emerald-600"> รวมค่าบริการในยอดสุทธิ
+                    </label>
+                </div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">ยอดชำระสุทธิ (บาท)</label><input type="number" id="rep-price" value="300" readonly class="w-full border-2 p-2.5 rounded-xl text-sm font-black bg-slate-100 text-emerald-700 outline-none"></div>
+                
+                <div class="grid grid-cols-2 gap-3 mt-2">
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">ระยะประกัน (เดือน)</label><input type="number" id="rep-w-m" value="0" min="0" onchange="calcWarranty()" class="w-full border-2 p-2.5 rounded-xl text-sm font-bold focus:border-emerald-500 outline-none"></div>
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">วันที่เริ่มซ่อม</label><input type="date" id="rep-start" required class="w-full border-2 p-2.5 rounded-xl text-sm font-bold focus:border-emerald-500 outline-none"></div>
+                </div>
+                <div class="text-xs bg-emerald-50 p-2.5 rounded-xl border border-emerald-100 flex flex-col justify-center"><span class="font-bold text-slate-600">วันหมดประกัน:</span><span id="rep-end-txt" class="font-black text-emerald-600 text-xs">-</span><input type="hidden" id="rep-end"></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">สถานะงานซ่อม</label><select id="rep-status" class="w-full border-2 p-3 rounded-xl text-sm font-black text-blue-600 focus:border-emerald-500 outline-none bg-blue-50"><option value="รับเครื่องแล้ว">รับเครื่องแล้ว</option><option value="กำลังดำเนินการซ่อม">กำลังดำเนินการซ่อม</option><option value="รออะไหล่">รออะไหล่</option><option value="ซ่อมเสร็จสิ้น">ซ่อมเสร็จสิ้น (ออกใบเสร็จ)</option></select></div>
+                
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="document.getElementById('modal-repair').classList.add('hidden')" class="flex-grow bg-slate-100 text-slate-600 py-3 rounded-xl font-bold text-sm hover:bg-slate-200 transition">ยกเลิก</button>
+                    <button type="submit" class="flex-grow bg-emerald-600 text-white py-3 rounded-xl font-bold text-sm shadow-md hover:bg-emerald-700 transition">บันทึกข้อมูล</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1137,6 +1145,44 @@
             html2pdf().from(el).set({ margin: [10, 10], filename: `Receipt_${r.id}.pdf`, jsPDF: { format: 'a5', orientation: 'landscape' } }).save();
         }
 
+        function generateRepairOrderPDF(repairId, autoSave = true) {
+            if (typeof html2pdf === 'undefined') return;
+            const r = st.repairs.find(x => x.id === repairId); 
+            if (!r) return;
+            
+            const el = document.createElement('div');
+            el.innerHTML = `
+                <div style="padding: 40px; font-family: 'Prompt', sans-serif; background: #fff; color:#1e293b; border: 1px solid #e2e8f0; border-radius: 12px; box-sizing: border-box;">
+                    <div style="text-align:center; margin-bottom:20px;">
+                        <h1 style="color:#2563eb; margin:0; font-size:28px; font-weight:900;">ใบแจ้งซ่อม / Repair Order</h1>
+                        <p style="font-size:12px; color:#64748b; margin:0;">FixItMobile - ศูนย์บริการซ่อมมือถือ</p>
+                    </div>
+                    <hr style="border:0; border-top:2px dashed #cbd5e1; margin:20px 0;">
+                    <table style="width:100%; font-size:13px; margin-bottom: 20px;">
+                        <tr><td width="20%"><b>เลขที่แจ้งซ่อม:</b></td><td width="30%">${r.id}</td><td width="20%" style="text-align:right;"><b>วันที่รับเครื่อง:</b></td><td width="30%" style="text-align:right;">${r.ws}</td></tr>
+                        <tr><td><b>ชื่อลูกค้า:</b></td><td>${r.cus}</td><td style="text-align:right;"><b>รุ่นมือถือ:</b></td><td style="text-align:right;">${r.mod} (${r.os})</td></tr>
+                    </table>
+                    <div style="background:#f1f5f9; padding:15px; border-radius:8px; margin-bottom:20px;">
+                        <b>อาการเสียที่แจ้ง:</b> ${r.det}
+                    </div>
+                    <table style="width:100%; border-collapse:collapse; font-size:14px; border: 1px solid #e2e8f0;">
+                        <tr style="background:#eff6ff; color:#1e3a8a;"><th style="padding:12px; text-align:left; border-bottom:2px solid #bfdbfe;">รายการประเมินเบื้องต้น</th><th style="padding:12px; text-align:right; border-bottom:2px solid #bfdbfe;">จำนวนเงิน (บาท)</th></tr>
+                        <tr><td style="padding:12px; border-bottom:1px solid #f1f5f9;">ค่าอะไหล่: ${r.parts || 'ไม่ได้ระบุ'}</td><td style="padding:12px; border-bottom:1px solid #f1f5f9; text-align:right;">${Number(r.partsPrice||0).toLocaleString()}</td></tr>
+                        <tr><td style="padding:12px; border-bottom:1px solid #f1f5f9;">ค่าบริการ ${r.incSvc ? '(รวมค่าบริการแล้ว)' : '(ยังไม่รวม)'}</td><td style="padding:12px; border-bottom:1px solid #f1f5f9; text-align:right;">${Number(r.svcPrice||0).toLocaleString()}</td></tr>
+                    </table>
+                    <div style="text-align:right; margin-top:20px;">
+                        <p style="font-size:20px; font-weight:900; color:#2563eb;">ยอดประเมินรวม: ${Number(r.price||0).toLocaleString()} บาท</p>
+                    </div>
+                </div>
+            `;
+            
+            if (autoSave) {
+                st.docs.unshift({ id: Date.now(), dt: new Date().toISOString().split('T')[0], name: 'ใบแจ้งซ่อม_' + r.id, url: 'RepairOrder_' + r.id + '.pdf' }); 
+                save();
+            }
+            html2pdf().from(el).set({ margin: [10, 10], filename: `RepairOrder_${r.id}.pdf`, jsPDF: { format: 'a5', orientation: 'landscape' } }).save();
+        }
+
         function openDoc(url) { 
             if (url.startsWith('#')) {
                 const id = url.substring(1);
@@ -1145,13 +1191,20 @@
             } else if (url.startsWith('Receipt_')) {
                 const id = url.replace('Receipt_', '').replace('.pdf', '');
                 generateReceiptPDF(id, false);
+            } else if (url.startsWith('RepairOrder_')) {
+                const id = url.replace('RepairOrder_', '').replace('.pdf', '');
+                generateRepairOrderPDF(id, false);
             } else {
                 window.open(url, '_blank'); 
             }
         }
 
         // --- Form Handling ---
-        function setMinDate() { const d = new Date(); document.getElementById('book-date-input').min = d.toISOString().split('T')[0]; }
+        function setMinDate() { 
+            const d = new Date(); 
+            document.getElementById('book-date-input').min = d.toISOString().split('T')[0]; 
+        }
+
         function getLocationPin() { if(!navigator.geolocation) return alert('GPS ไม่รองรับ'); navigator.geolocation.getCurrentPosition(p => { document.getElementById('f-address').value = `📍 https://maps.google.com/?q=${p.coords.latitude},${p.coords.longitude}`; }); }
         function updateSrvOpts() {
             const srvSet = [...new Set(st.products.map(p => p.srv))];
@@ -1192,9 +1245,10 @@
             const fd = new FormData(e.target);
             const id = 'BK' + Date.now().toString().slice(-6);
             
+            const isExpress = fd.get('isExpress') ? ' [🔥 ซ่อมด่วน]' : '';
             const b = { 
                 id, d: fd.get('bookDate'), t: fd.get('bookTime'), 
-                sym: fd.getAll('symptoms').join(', ') || 'ไม่ได้ระบุ', 
+                sym: (fd.getAll('symptoms').join(', ') || 'ไม่ได้ระบุ') + isExpress, 
                 srv: fd.get('f-type'), mod: document.getElementById('f-model').value, 
                 pr: fd.get('totalPrice'), n: fd.get('cusName'), tel: fd.get('cusPhone'), 
                 em: fd.get('cusEmail'), addr: fd.get('cusAddress'), st: 'รอยืนยัน' 
@@ -1280,49 +1334,97 @@
             emailjs.send(st.settings.srv, t.tid, { to_email: b.em, subject: t.sub.replace('{{id}}', b.id), message: t.body.replace('{{name}}', b.n).replace('{{details}}', b.srv + ' ' + b.mod), name: b.n }, st.settings.pub).then(() => { btn.innerHTML = '<i class="fas fa-check mr-1"></i> ส่งแล้ว'; setTimeout(() => { btn.innerHTML = '<i class="fas fa-paper-plane mr-1"></i> ส่งอีเมล'; btn.disabled = false; }, 2000); }).catch(e => { alert('ส่งล้มเหลว: ' + JSON.stringify(e)); btn.innerHTML = '<i class="fas fa-paper-plane mr-1"></i> ส่งอีเมล'; btn.disabled = false; });
         }
         function delBook(id) { if(confirm('ลบคิวนี้?')) { st.bookings = st.bookings.filter(b=>b.id!==id); save(); } }
-        function saveRepair(e) {
-    e.preventDefault(); 
-    const id = document.getElementById('rep-id').value || 'RP'+Date.now().toString().slice(-6);
-    const status = document.getElementById('rep-status').value;
-    
-    // คำนวณราคารวม
-    const total = parseInt(document.getElementById('rep-service-fee').value || 0) + parseInt(document.getElementById('rep-price').value || 0);
-    
-    const obj = { 
-        id, 
-        tel: document.getElementById('rep-tel').value,
-        cus: document.getElementById('rep-cus').value || 'ลูกค้าทั่วไป', 
-        mod: document.getElementById('rep-model').value, 
-        det: document.getElementById('rep-detail').value, 
-        parts: document.getElementById('rep-parts').value,
-        price: total, 
-        status: status 
-    };
-    
-    const idx = st.repairs.findIndex(x=>x.id===id); 
-    if(idx>-1) st.repairs[idx]=obj; else st.repairs.unshift(obj);
-    
-    document.getElementById('modal-repair').classList.add('hidden'); 
-    save();
-
-    // ระบบออกเอกสารอัตโนมัติ
-    if (status === 'ซ่อมเสร็จสิ้น' || status === 'ชำระเงินแล้ว') {
-        generateReceiptPDF(id, true);
-        showSuccess('บันทึกสำเร็จ!', 'ระบบได้สร้างเอกสาร PDF ให้เรียบร้อยแล้ว');
-    }
-}
-        function editRepair(id) {
-            const r = st.repairs.find(x=>x.id===id); if(!r) return;
-            document.getElementById('rep-id').value=r.id; document.getElementById('rep-cus').value=r.cus; document.getElementById('rep-os').value=r.os; document.getElementById('rep-model').value=r.mod; document.getElementById('rep-detail').value=r.det; document.getElementById('rep-price').value=r.price||0; document.getElementById('rep-start').value=r.ws; document.getElementById('rep-w-m').value=r.wm; document.getElementById('rep-status').value=r.status;
-            calcWarranty(); document.getElementById('modal-repair').classList.remove('hidden');
+        
+        function calcTotalRepairPrice() {
+            const partsPrice = parseFloat(document.getElementById('rep-parts-price').value) || 0;
+            const serviceFee = parseFloat(document.getElementById('rep-service-fee').value) || 0;
+            const incService = document.getElementById('rep-inc-service').checked;
+            const total = partsPrice + (incService ? serviceFee : 0);
+            document.getElementById('rep-price').value = total;
         }
+
+        function openRepairModal() { 
+            document.getElementById('frm-repair').reset(); 
+            document.getElementById('rep-id').value = ''; 
+            document.getElementById('rep-service-fee').value = '300';
+            document.getElementById('rep-inc-service').checked = true;
+            calcTotalRepairPrice();
+            document.getElementById('modal-repair').classList.remove('hidden'); 
+            calcWarranty(); 
+        }
+
+        function saveRepair(e) {
+            e.preventDefault(); 
+            const isNew = !document.getElementById('rep-id').value;
+            const id = document.getElementById('rep-id').value || 'RP' + Date.now().toString().slice(-6);
+            
+            let cusName = document.getElementById('rep-cus').value.trim();
+            if (!cusName) cusName = 'ลูกค้าทั่วไป';
+            
+            const status = document.getElementById('rep-status').value.replace(' (ออกใบเสร็จ)', '');
+            
+            const obj = { 
+                id, cus: cusName, os: document.getElementById('rep-os').value, 
+                mod: document.getElementById('rep-model').value, 
+                det: document.getElementById('rep-detail').value, 
+                parts: document.getElementById('rep-parts').value,
+                partsPrice: document.getElementById('rep-parts-price').value,
+                svcPrice: document.getElementById('rep-service-fee').value,
+                incSvc: document.getElementById('rep-inc-service').checked,
+                price: document.getElementById('rep-price').value, 
+                ws: document.getElementById('rep-start').value, 
+                wm: document.getElementById('rep-w-m').value, 
+                we: document.getElementById('rep-end').value, 
+                status: status 
+            };
+            
+            const idx = st.repairs.findIndex(x => x.id === id); 
+            const oldStatus = idx > -1 ? st.repairs[idx].status : '';
+            
+            if (idx > -1) st.repairs[idx] = obj; else st.repairs.unshift(obj);
+            
+            document.getElementById('modal-repair').classList.add('hidden'); 
+            save();
+
+            if (isNew) {
+                generateRepairOrderPDF(obj.id, true);
+                showSuccess('สำเร็จ!', `บันทึกงานซ่อมและออกเอกสารใบแจ้งซ่อมรหัส ${obj.id} เรียบร้อยแล้ว`);
+            } 
+            else if (status === 'ซ่อมเสร็จสิ้น' && oldStatus !== 'ซ่อมเสร็จสิ้น') {
+                generateReceiptPDF(obj.id, true);
+                showSuccess('สำเร็จ!', `งานซ่อมสำเร็จ! ระบบได้ออกใบเสร็จรับเงิน/ใบรับประกันเรียบร้อยแล้ว`);
+            } else {
+                showSuccess('สำเร็จ', 'อัปเดตข้อมูลงานซ่อมเรียบร้อย');
+            }
+        }
+
+        function editRepair(id) {
+            const r = st.repairs.find(x => x.id === id); if(!r) return;
+            document.getElementById('rep-id').value = r.id; 
+            document.getElementById('rep-cus').value = r.cus; 
+            document.getElementById('rep-os').value = r.os; 
+            document.getElementById('rep-model').value = r.mod; 
+            document.getElementById('rep-detail').value = r.det; 
+            document.getElementById('rep-parts').value = r.parts || '';
+            document.getElementById('rep-parts-price').value = r.partsPrice || 0;
+            document.getElementById('rep-service-fee').value = r.svcPrice || 300;
+            document.getElementById('rep-inc-service').checked = r.incSvc !== false;
+            document.getElementById('rep-price').value = r.price || 0; 
+            document.getElementById('rep-start').value = r.ws; 
+            document.getElementById('rep-w-m').value = r.wm; 
+            document.getElementById('rep-status').value = r.status.replace(' (ออกใบเสร็จ)', '');
+            calcTotalRepairPrice();
+            calcWarranty(); 
+            document.getElementById('modal-repair').classList.remove('hidden');
+        }
+
         function delRepair(id) { if(confirm('ลบรายการนี้?')) { st.repairs = st.repairs.filter(r=>r.id!==id); save(); } }
         function calcWarranty() {
             const s = document.getElementById('rep-start').value; const m = parseInt(document.getElementById('rep-w-m').value)||0;
             if(!s || m===0) { document.getElementById('rep-end-txt').textContent='ไม่มีประกัน'; document.getElementById('rep-end').value='-'; return; }
             const d = new Date(s); d.setMonth(d.getMonth()+m); const r = d.toISOString().split('T')[0]; document.getElementById('rep-end-txt').textContent = r; document.getElementById('rep-end').value = r;
         }
-        function openRepairModal() { document.getElementById('frm-repair').reset(); document.getElementById('rep-id').value=''; document.getElementById('modal-repair').classList.remove('hidden'); calcWarranty(); }
+        
         function delDoc(id) { if(confirm('ลบเอกสารนี้?')) { st.docs = st.docs.filter(d=>d.id!==id); save(); } }
         function saveCMS() { st.cmsText.heroTitle = document.getElementById('cms-hero-title').value; st.cmsText.heroSub = document.getElementById('cms-hero-sub').value; st.menus.forEach(m=>{ m.title=document.getElementById(`cm-t-${m.id}`).value; m.desc=document.getElementById(`cm-d-${m.id}`).value; m.act=document.getElementById(`cm-a-${m.id}`).checked; }); save(); showSuccess('สำเร็จ', 'อัปเดต CMS เรียบร้อย'); }
         function saveSettings() { st.settings.sheetUrl = document.getElementById('cfg-sheet-url').value; save(); showSuccess('สำเร็จ', 'บันทึกตั้งค่าแล้ว'); }
