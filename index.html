@@ -110,6 +110,14 @@
                 <form id="form-booking" class="p-6 md:p-8 space-y-6" onsubmit="submitBooking(event)">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div><label class="block text-xs font-bold mb-1.5 text-slate-700">วันที่ต้องการซ่อม</label><input type="date" id="book-date-input" name="bookDate" required class="w-full p-3 border-2 border-slate-200 rounded-2xl font-bold text-sm bg-slate-50 focus:border-blue-500 outline-none transition"></div>
+<div>
+    <label class="block text-xs font-bold mb-1.5 text-slate-700">ประเภทการเข้ารับบริการ</label>
+    <select name="repairType" required class="w-full p-3 border-2 border-slate-200 rounded-2xl font-bold text-sm bg-slate-50 focus:border-blue-500 outline-none transition">
+        <option value="ซ่อมหน้าร้าน">รับซ่อมหน้าร้าน</option>
+        <option value="ซ่อมนอกสถานที่">ซ่อมนอกสถานที่</option>
+        <option value="ซ่อมด่วน">⚡ ซ่อมด่วนพิเศษ</option>
+    </select>
+</div>
                         <div><label class="block text-xs font-bold mb-1.5 text-slate-700">ช่วงเวลา</label><select name="bookTime" required class="w-full p-3 border-2 border-slate-200 rounded-2xl font-bold text-sm bg-slate-50 focus:border-blue-500 outline-none transition"><option value="">-- เลือกช่วงเวลา --</option><option>09:00 - 12:00 น.</option><option>13:00 - 17:00 น.</option></select></div>
                     </div>
 
